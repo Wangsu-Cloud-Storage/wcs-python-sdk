@@ -14,14 +14,9 @@ from requests.adapters import HTTPAdapter
 _session = None
 
 def __return_wrapper(resp):
-    if resp.text != '':
-        try:
-            return resp.status_code, eval(str(resp.text))
-        except Exception as e:
-            return resp.status_code, {'message':resp.text}
-    else:
-        return -1, {'message':'Message Body is None. Please check your URL.'}
-        
+    if resp.status_code != 200 or resp.headers.get('X-Reqid') is None:
+        return None, ResponseInfo(resp)
+
 
 def _init():
     session = requests.Session()
@@ -40,7 +35,14 @@ def _post(url, headers, data=None, files=None):
         r = requests.post(url=url, data=data, files=files, headers=headers, timeout=connection_timeout, verify=True)
     except Exception as e:
         return -1,e
-    return __return_wrapper(r)
+    if r.text != '':
+        try:
+            return r.status_code, eval(str(r.text))
+        except Exception as e:
+            return r.status_code, {'message':r.text}
+    else:
+        return -1, {'message':'Message Body is None. Please check your URL.'}
+
 
 def _get(url, headers=None,data=None):
     null =''
@@ -50,5 +52,12 @@ def _get(url, headers=None,data=None):
         r = requests.get(url, data=data,timeout=connection_timeout, headers=headers, verify=True)
     except Exception as e:
         return -1,e
-    return __return_wrapper(r)
+    if r.text != '':
+        try:
+            return r.status_code, eval(str(r.text))
+        except Exception as e:
+            return r.status_code, {'message':r.text}
+    else:
+        return -1, {'message':'Message Body is None. Please check your URL.'}
+
 

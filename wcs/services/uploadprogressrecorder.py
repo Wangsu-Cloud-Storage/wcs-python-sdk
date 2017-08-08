@@ -5,7 +5,7 @@ import json
 import os
 import tempfile
 from lockfile import LockFile
-from wcs.commons.config import tmp_record_folder,_BLOCK_SIZE,_BPUT_SIZE
+from wcs.commons.config import tmp_record_folder
 
 
 class UploadProgressRecorder(object):
@@ -34,16 +34,18 @@ class UploadProgressRecorder(object):
         upload_record_file_path = os.path.join(self.record_folder, record_file_name)
         if not os.path.isfile(upload_record_file_path):
             return None
+        results = []
         with open(upload_record_file_path, 'r') as f:
-            results = f.read()
-        return eval(results)
+            for line in f:
+                results.append(eval(line))
+        return results
 
     def set_upload_record(self, key, data):
         record_file_name = base64.b64encode(key.encode('utf-8')).decode('utf-8')
         upload_record_file_path = os.path.join(self.record_folder, record_file_name)
         lock = LockFile(upload_record_file_path)
         lock.acquire()
-        with open(upload_record_file_path, 'w') as f:
+        with open(upload_record_file_path, 'a') as f:
             json.dump(data, f)
             f.write("\n")
         lock.release()

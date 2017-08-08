@@ -2,22 +2,34 @@ import requests
 from io import BytesIO
 from requests_toolbelt import MultipartEncoder
 
-from wcs.services.simpleupload import SimpleUpload
+from wcs.commons.config import PUT_URL
 from wcs.commons.config import logging_folder
 from wcs.commons.logme import debug, warning, error
 
-class StreamUpload(SimpleUpload):
+class StreamUpload(object):
     
-    def __init__(self, url):
-        super(StreamUpload, self).__init__(url)
+    def __init__(self, uploadtoken):
+        self.fileds = {"token":uploadtoken}
 
-    def _gernerate_content(self, stream):
+    def upload(self, stream):
         memory = BytesIO()
         file = requests.get(stream)
         memory.write(file.content)
-        return memory
-
-    def upload(self, stream,token):
-        memory = self._gernerate_content(stream)
-        url,encoder,headers = super(StreamUpload, self)._gernerate_tool(memory,token)
-        return super(StreamUpload,self)._upload(url,encoder,headers,memory)
+        debug('Stream file size is %d' % len(file.content))
+        puturl = "{0}/{1}/{2}".format(PUT_URL,"file","upload")
+        self.fileds["file"] = ('filename', memory,'text/plain')
+        
+        encoder = MultipartEncoder(self.fileds)
+        headers = {"Content-Type":encoder.content_type}
+        
+        try:
+            debug("Stream file %s upload start !" % stream)
+            r = requests.post(url=puturl, headers=headers, data=encoder, verify=True)
+        except Exception as e:
+            debug("Exception: %s" % e)
+            memory.close()
+            return -1, e
+        memory.close()
+        debug("The result of upload is: %d %s" % (r.status_code, r.text))
+        return r.status_code, r.text
+        

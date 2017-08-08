@@ -9,7 +9,7 @@ import tempfile
 import random
 import string
 from .config import _BLOCK_SIZE
-from lockfile import LockFile
+
 
 try:
     import zlib
@@ -146,7 +146,33 @@ def entry(bucket, key):
     else:
         return urlsafe_base64_encode('{0}:{1}'.format(bucket, key))
 
+def create_tmp_file(size):
+    #t = tempfile.NamedTemporaryFile(suffix='_suffix', prefix='prefix_', dir='/tmp',)
+    t = tempfile.mktemp()
+    f = open(t, 'wb')
+    #f = open(t.name, 'wb')
+    f.seek(size-1)
+    f.write(b('0'))
+    f.close()
+    return t
+    #return t.name
+
 def GetUuid():
     chars = string.ascii_letters+string.digits
     return ''.join([random.choice(chars) for i in range(32)])
+    
+def get_logger(path, logname):
+    logger = logging.getLogger(logname)
+    logger.setLevel(logging.DEBUG)
+    
+    if os.path.exists(path) is False:
+        os.mkdir(path)
+    filename = logname + '_' + 'process.log'
+    logfile = os.path.join(path, filename)
+    fh = logging.FileHandler(logfile)
+    fmt = '%(asctime)s - %(threadName)s - %(levelname)s - %(message)s'
+    formatter = logging.Formatter(fmt)
+    fh.setFormatter(formatter)
 
+    logger.addHandler(fh)
+    return logger
