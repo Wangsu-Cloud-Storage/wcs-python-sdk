@@ -4,9 +4,13 @@ wcs-python-sdk从v1.0.0版本开始，SDK的功能包括：文件上传、资源
 此Python SDK适用于python 2.X和3.X环境，但是如果需要支持https，请将环境升级到2.7.9+再使用本SDK。
 
 ## 安装
+推荐使用pip安装
+
 * 直接安装
 
-    > pip install wcs-python-sdk  
+    > Python2: pip install wcs-python-sdk
+    
+    > Python3: pip3 install wcs-python-sdk-3
  
 
 * 源码安装
