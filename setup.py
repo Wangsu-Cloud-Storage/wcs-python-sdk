@@ -50,7 +50,7 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    install_requires=['requests>=2.11.1', 'poster', 'logging', 'argparse', 'lockfile', 'requests_toolbelt'],
+    install_requires=['requests>=2.11.1','poster','logging','argparse', 'lockfile', 'requests_toolbelt'],
     
     entry_points={
         'console_scripts':[

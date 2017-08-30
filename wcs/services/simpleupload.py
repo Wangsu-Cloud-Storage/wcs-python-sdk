@@ -4,7 +4,6 @@ from requests_toolbelt import MultipartEncoder
 from wcs.commons.http import _post
 from wcs.commons.logme import debug, warning, error
 
-
 class SimpleUpload(object):
 
     def __init__(self,url):
@@ -16,6 +15,7 @@ class SimpleUpload(object):
         fileds['file'] = ('filename', f, 'text/plain')
         encoder = MultipartEncoder(fileds)
         headers = {"Content-Type":encoder.content_type}
+        headers['user-agent'] = "WCS-Python-SDK-3.0.2(http://wcs.chinanetcenter.com)"
         return url, encoder, headers  
     
     def _gernerate_content(self,path):

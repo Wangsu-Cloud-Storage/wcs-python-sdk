@@ -161,8 +161,10 @@ class MultipartUpload(object):
         
     def _get_blkstatus(self):
         blkstatus = []
-        for result in self.results['upload_record']:
-            blkstatus.append(result['ctx'])
+        for offset in [i * (_BLOCK_SIZE) for i in range(0,self.blocknum)]:
+            for result in self.results['upload_record']:
+                if offset == result['offset']:
+                    blkstatus.append(result['ctx'])
         return blkstatus
 
     def _make_file(self):

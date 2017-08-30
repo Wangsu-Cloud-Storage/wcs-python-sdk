@@ -37,6 +37,7 @@ def _post(url, headers, data=None, files=None):
     if _session is None:
         _init()
     try:
+        headers['user-agent'] = 'WCS-Python-SDK-3.0.2(http://wcs.chinanetcenter.com)'
         r = requests.post(url=url, data=data, files=files, headers=headers, timeout=connection_timeout, verify=True)
     except Exception as e:
         return -1,e
@@ -47,6 +48,7 @@ def _get(url, headers=None,data=None):
     true= 'true'
     false='false'
     try:
+        headers['user-agent'] = 'WCS-Python-SDK-3.0.2(http://wcs.chinanetcenter.com)'
         r = requests.get(url, data=data,timeout=connection_timeout, headers=headers, verify=True)
     except Exception as e:
         return -1,e
