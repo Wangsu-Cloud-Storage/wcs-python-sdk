@@ -35,8 +35,8 @@ class BucketManager(MgrBase):
         debug('The return code : %d and text : %s' % (code, text))
         return code, text
  
-    def _make_list_url(self, param):
-        url = ['{0}/list'.format(self.mgr_host)]
+    def _make_url(self, operation, param):
+        url = ['{0}/{1}'.format(self.mgr_host,operation)]
         if param:
             url.append(super(BucketManager, self)._params_parse(param))
         url = '?'.join(url)
@@ -58,7 +58,7 @@ class BucketManager(MgrBase):
             options['prefix'] = prefix
         if mode:
             options['mode'] = mode
-        url = self._make_list_url(options)
+        url = self._make_url('list', options)
         if options:
             debug('List options is %s' % options)
         debug('List bucket %s' % bucket)
@@ -121,3 +121,19 @@ class BucketManager(MgrBase):
         return code,text
         
 
+    def bucket_list(self):
+        url = '{0}/bucket/list'.format(self.mgr_host)
+        debug('Now start to list buckets')
+        code,text = _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
+        debug('The return code: %d and text: %s' % (code, text))
+        return code, text
+
+    def bucket_stat(self, name, startdate, enddate):
+        encode_name = urlsafe_base64_encode(name)
+        options = {'name':encode_name, 'startdate':startdate, 'enddate':enddate}
+        url = self._make_url('bucket/stat', options)
+        debug('Now check storage of %s from %s to %s' % (name, startdate, enddate))
+        code,text = _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
+        debug('The return code: %d and text: %s' % (code, text))
+
+        
