@@ -1,16 +1,89 @@
 import os
 import sys
 from optparse import OptionParse, Option
-from logging import debug, info, warning, error
+#from logging import debug, info, warning, error
 
 def output(message):
     sys.stdout.write(message + '\n')
     sys.stdout.flush()
 
+def format_commands(progname, commands_list):
+    help = "Commands:\n"
+    for cmd in commands_list:
+        help += "   %s\n    %s %s %s \n" % (cmd["label"], progname, cmd["cmd"], cmd["param"])
+    return help
+
+
+def get_commands_list():
+    return [
+        {"cmd":"list", "label":"List objects","param":"wcs://BUCKET RESFILE","func":"cmd_list","argc":2},
+        {"cmd":"listbucket", "label":"List buckets","func":"cmd_listbucket","argc":0},
+        {"cmd":"get","label":"Download file","param":"URL", "func":"cmd_get","argc":1},
+        {"cmd":"del","label":"Delete a file", "param":"wcs://BUCKET/OBJECT","func":"cmd_del", "argc":1},
+        {"cmd":"mv","label":"Move a file from src bucket to des bucket", "param":"wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT","func":"cmd_mv","argc":2},
+        {"cmd": "cp", "label": "Copy a file from src bucket to des bucket","param": "wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT", "func":"cmd_cp","argc": 2},
+        {"cmd":"setdeadline", "label":"Set deadline of file","param":"wcs://BUCKET/OBJECT deadline","func":"cmd_setdeadline","argc":2},
+        {"cmd":"stat","label":"Get file info","param":"wcs://BUCKET/OBJECT","func":"cmd_stat", "argc":2},
+        {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE", "func":"cmd_put","argc":2}
+    ]
+
+
 def main():
+    global cfg
+    cfg = Config()
+    commands_list = get_commands_list()
+    usage = 'Usage: s3cmd [options] COMMAND [parameters]'
+    optparser = OptionParse(usage=usage)
+
+    config_file = None
+    from os.path import expanduser
+    config_file = os.path.join(expanduser("~"), ".wcscfg")
+    optparser.set_defaults(config = config_file)
+
+    optparser.add_option(   "--configure", dest="run_configure", action="store_true", help="Invoke interactive (re)configuration tool.")
+    optparser.add_option("-c", "--config", dest="config", metavar="FILE", help="Config file name. Defaults to $HOME/.wcscfg")
+    optparser.add_option("-p","--putpolicy", dest="putpolicy", metavar="FILE", help="Putpolicy file name, Defaults to current path")
+    optparser.add_option(   "--dump-config",dest="dump_config", action="store_true", help="Dump current configuration after parsing config file and command line options and exit.")
+    #optparser.add_option(   "--access_key", dest="access_key", help="WCS Access Key")
+    #optparser.add_option(   "--secret_key", dest="secret_key", help="WCS Secret Key")
+    optparser.add_option("-s", "--ssl", dest="use_https", action="store_true", help="Use https connection when communicating with WCS")
+    optparser.add_option(   "--upload-id", dest="upload_id", help="UploadId for Multipart Upload, in case you want continue an existing upload")
+    optparser.add_option(   "--limit", dest="limit", help="Limit for list objects of bucket")
+    optparser.add_option(   "--prefix", dest="prefix", help="Prefix for list objects of bucket")
+    optparser.add_option(   "--mode", dest="mode", help="Mode for list objects of bucket")
+    optparser.add_option(   "--relevance", dest="relevance", action="store_true", help="Whether modify deadline relevant .ts when modify deadline of m3u8 file" )
+    optparser.add_option("-d", "--debug", dest="verbosity", action="store_const", const=logging.DEBUG, help="Enable debug output.")
+
+
+    optparser.set_description("Wcscmd is a tool for managing objects in WCS Object Storage."
+                              + " It allows for uploading, downloading and removing objects form buckets")
+
+    optparser.epilog = format_commands(optparser.get_grog_name(), commands_list)
+    optparser.epilog += ("\nFor more information, visit WCS website: https://wcs.chinanetcenter.com/index")
+
+    (options, args) = optparser.parse_args()
+
+    if options.verbosity:
+        logging.basicConfig(level=options.verbosity, format='%(levelname)s: %(message)s', stream=sys.stdderr)
+
+    if not options.config:
+       error(u"Can't find a config file. Please use --config option.")
+       sys.exit()
+    try:
+        cfg = Config(options.config)
+    except IOError, e:
+        error(u"%s: %s" % (options.config, e.strerror))
+        error(u"Configuration file not available.")
+        error(u"Consider using --configure parameter to create one.")
+        sys.exit()
+
+
+
 
 
 if __name__ == '__main__':
-    from wcs.commons import config
+    from wcs.commons.config import Config
+    from wcs.commons.logme import debug, error, warning
+    from wcs.services.client import Client
     main()
 
