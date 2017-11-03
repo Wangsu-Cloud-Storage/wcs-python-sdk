@@ -24,8 +24,33 @@ def get_commands_list():
         {"cmd": "cp", "label": "Copy a file from src bucket to des bucket","param": "wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT", "func":"cmd_cp","argc": 2},
         {"cmd":"setdeadline", "label":"Set deadline of file","param":"wcs://BUCKET/OBJECT deadline","func":"cmd_setdeadline","argc":2},
         {"cmd":"stat","label":"Get file info","param":"wcs://BUCKET/OBJECT","func":"cmd_stat", "argc":2},
-        {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE", "func":"cmd_put","argc":2}
+        {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE PUTPOLICY", "func":"cmd_put","argc":3},
+        {"cmd":"deletePrefix","label":"Delete multiple files according to prefix","param":"wcs://BUCKET PREFIX","fun":"cmd_delprefix","argc":2}
     ]
+
+def run_configure(config_file):
+    cfg = Config()
+    options = [
+        ("access_key","Access Key", "Access key and Secret key are your identifiers for WCS"),
+        ("secret_key","Secret Key"),
+        ("put_url","PUT_URL","Upload domain for WCS"),
+        ("mgr_url","MGR_URL","Manager domain for WCS"),
+        ("block_size","Block_Size","Mulpart Upload Block Size"),
+        ("bput_size","Bput_Size","Mulpart Upload Bput Size"),
+        ("connection_retries","Connection_Retires","Request Connection Retires"),
+        ("connection_timeout","Connection_Timeout","Request Connection Timeout"),
+        ("mkblk_retries","Mkblk_Retries","Multipart Upload Mkblk retries"),
+        ("bput_retries", "Bput_Retries", "Multipart Upload Bput retries"),
+        ("mkfile_retries","Mkfile_Retries","Multipart Upload Mkfile retries"),
+        ("tmp_record_folder","Tmp_Record_Folder","Multipart Upload record folder"),
+        ("concurrency","Concurrency","Multipart Upload Concurrency"),
+        ("ishttps","Ishttps","Use https or not")
+    ]
+    try:
+        while True:
+            output(u"Enter new values or accept defaults in brackets with Enter")
+            output(u"Refer to user manual for detailed description of all options")
+            for
 
 
 def main():
@@ -53,6 +78,7 @@ def main():
     optparser.add_option(   "--mode", dest="mode", help="Mode for list objects of bucket")
     optparser.add_option(   "--relevance", dest="relevance", action="store_true", help="Whether modify deadline relevant .ts when modify deadline of m3u8 file" )
     optparser.add_option("-d", "--debug", dest="verbosity", action="store_const", const=logging.DEBUG, help="Enable debug output.")
+    optparser.add_option(   "--output", dest="outfile", )
 
 
     optparser.set_description("Wcscmd is a tool for managing objects in WCS Object Storage."
@@ -63,22 +89,29 @@ def main():
 
     (options, args) = optparser.parse_args()
 
-    if options.verbosity:
-        logging.basicConfig(level=options.verbosity, format='%(levelname)s: %(message)s', stream=sys.stdderr)
+    #if options.verbosity:
+    #    logging.basicConfig(level=options.verbosity, format='%(levelname)s: %(message)s', stream=sys.stdderr)
 
-    if not options.config:
-       error(u"Can't find a config file. Please use --config option.")
+   if options.config:
+   try:
+       cfg = Config(options.config)
+   except IOError:
+       error(u"%s: %s" % (options.config, e.strerror))
+       error(u"Configuration file not available.")
+       error(u"Please check you config file.")
        sys.exit()
-    try:
-        cfg = Config(options.config)
-    except IOError, e:
-        error(u"%s: %s" % (options.config, e.strerror))
-        error(u"Configuration file not available.")
-        error(u"Consider using --configure parameter to create one.")
-        sys.exit()
 
-
-
+    elif os.path.exists(config_file):
+        try:
+            cfg = Config(config_file)
+        except IOError:
+            error(u"%s: %s" % (options.config, e.strerror))
+            error(u"Default configuration file not available.")
+            error(u"Consider using --configure parameter to create one.")
+            sys.exit()
+    else:
+       error(u"Can't find a config file. Please use --configuration option.")
+       sys.exit()
 
 
 if __name__ == '__main__':
