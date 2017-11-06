@@ -44,14 +44,63 @@ def run_configure(config_file):
         ("mkfile_retries","Mkfile_Retries","Multipart Upload Mkfile retries"),
         ("tmp_record_folder","Tmp_Record_Folder","Multipart Upload record folder"),
         ("concurrency","Concurrency","Multipart Upload Concurrency"),
-        ("ishttps","Ishttps","Use https or not")
+        ("ishttps","IsHttps","Use https or not")
     ]
     try:
         while True:
             output(u"Enter new values or accept defaults in brackets with Enter")
             output(u"Refer to user manual for detailed description of all options")
-            for
+            for option in options:
+                prompt = option[1]
+                try:
+                    val = getattr(cfg, option[0])
+                    if type(val) is bool:
+                        val = val and "Yes" or "No"
+                    if val not in (None, ""):
+                        prompt += " [%s]" % val
+                except AttributeError:
+                    pass
 
+                if len(option) >= 3:
+                    output(u"\n%s" % option[2])
+                val = raw_input(prompt + ": ")
+                if val != "":
+                    if type(getattr(cfg, option[0])) is bool:
+                        val = val.lower().startswith('y')
+                    setattr(cfg, option[0], val)
+            output(u"\nNew settings:")
+            for option in options:
+                output(u"  %s: %s" % (option[1], getattr(cfg, option[0])))
+            #val = raw_input("\nTest access with supplied credentials? [Y/n] ")
+            #if val.lower().startswith("y") or val == "":
+            #    try:
+            #        cli = Client(cfg).list_buckets()
+            #        output(u"Success. Your access key and secret key worked fine :-)")
+            #    except WCSError, e:
+            #        error(u"Test failed: %s" % (e))
+            #        if e.code == "AccessDenied":
+            #            error(u"Are you sure your keys have s3:ListAllMyBuckets permissions?")
+            #        val = raw_input("\nRetry configuration? [Y/n] ")
+            #        if val.lower().startswith("y") or val == "":
+            #            continue
+            val = raw_input("\nSave settings? [y/N] ")
+            if val.lower().startswith("y"):
+                break
+            val = raw_input("Retry configuration? [Y/n] ")
+            if val.lower().startswith("n"):
+                raise EOFError()
+
+        f = open(config_file, "w")
+        cfg.dump_config(f)
+        f.close()
+        output(u"Configuration saved to '%s'" % config_file)        
+
+    except (EOFError, KeyboardInterrupt):
+        output(u"\nConfiguration aborted. Changes were NOT saved.")
+        return
+    except IOError, e:
+        error(u"Writing config file failed: %s: %s" % (config_file, e.strerror))
+        sys.exit(EX_IOERR)
 
 def main():
     global cfg
@@ -67,7 +116,6 @@ def main():
 
     optparser.add_option(   "--configure", dest="run_configure", action="store_true", help="Invoke interactive (re)configuration tool.")
     optparser.add_option("-c", "--config", dest="config", metavar="FILE", help="Config file name. Defaults to $HOME/.wcscfg")
-    optparser.add_option("-p","--putpolicy", dest="putpolicy", metavar="FILE", help="Putpolicy file name, Defaults to current path")
     optparser.add_option(   "--dump-config",dest="dump_config", action="store_true", help="Dump current configuration after parsing config file and command line options and exit.")
     #optparser.add_option(   "--access_key", dest="access_key", help="WCS Access Key")
     #optparser.add_option(   "--secret_key", dest="secret_key", help="WCS Secret Key")
