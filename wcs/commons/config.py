@@ -4,9 +4,13 @@ import os
 class Config(object):
 
     _instance = None
+    access_key = ''
+    secret_key = ''
+    put_url = ''
+    mgr_url = ''
     # 设置分片上传的块大小和片大小，单位均为字节
-    _BLOCK_SIZE = 1024 * 1024 * 4
-    _BPUT_SIZE = 512 * 1024
+    block_size = 1024 * 1024 * 4
+    bput_size = 512 * 1024
 
     # 设置请求连接超时重传次数
     connection_retries = 3
@@ -16,9 +20,6 @@ class Config(object):
     mkblk_retries = 3
     bput_retries = 3
     mkfile_retries = 3
-
-    # 设置日志存储路径
-    logging_folder = '/tmp/logger/'
 
     # 记录分片上传进度
     tmp_record_folder = '/tmp/multipart/'
@@ -35,20 +36,15 @@ class Config(object):
             self._instance = object.__new__(self)
         return self._instance
 
-    def __init__(self, configfile=None, ak=None, sk=None, put_url=None, mgr_url=None):
+    def __init__(self, configfile=None):
         if configfile:
             try:
                 self.read_config_file(configfile)
             except IOError as e:  # 这里尚未确定读取配置文件异常如何处理
                 raise("Can't read config file %s for reason" % (configfile, e) )
 
-            if ak and sk:
-                self.access_key = ak
-                self.secret_key = sk
+    def read_config_file(self, configfile):
+        pass
 
-            if len(self.access_key) == 0:
-                env_access_key = os.environ.get("WCS_ACCESS_KEY", None)
-                env_secret_key  = os.environ.get("WCS_SECRET_KEY", None)
-                if env_access_key:
-                    self.access_key = env_access_key
-                    self.secret_key = env_secret_key
+    def dump_config(self, stream):
+        pass

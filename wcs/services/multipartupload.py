@@ -17,8 +17,6 @@ from wcs.commons.util import urlsafe_base64_encode
 
 from wcs.services.uploadprogressrecorder import UploadProgressRecorder
 
-record_lock = threading.Lock()
-
 class MultipartUpload(object):
     
     def __init__(self,url):
@@ -54,12 +52,12 @@ class MultipartUpload(object):
     def _record_upload_progress(self, result, size):
         result_dict = dict(zip(['offset', 'code', 'ctx'], result))
         result_dict['size'] = size
+        record_data = self.recorder.get_upload_record(self.key)
+        record_data['upload_record'].append(result_dict)
         if result_dict['code'] == 200:
-            record_data = self.recorder.get_upload_record(self.key)
-            record_data['upload_record'].append(result_dict)
             self.progress += size
             debug('Current block size: %d, total upload size: %d' % (int(size), self.progress))
-            self.recorder.set_upload_record(self.key, record_data)
+        self.recorder.set_upload_record(self.key, record_data)
 
     def _records_parse(self):
         records = self.recorder.get_upload_record(self.key)
@@ -69,12 +67,13 @@ class MultipartUpload(object):
             self.uploadBatch = records['uploadBatch']
             self.results = records['upload_record']
             for record in self.results:
-                offsetlist.remove(record['offset'])
-                blockid = record['offset']/_BLOCK_SIZE
-                if blockid < self.blocknum - 1:
-                    self.progress += _BLOCK_SIZE
-                else:              
-                    self.progress += self.size - (blockid * _BLOCK_SIZE)       
+                if record['code'] == 200:
+                    offsetlist.remove(record['offset'])
+                    blockid = record['offset']/_BLOCK_SIZE
+                    if blockid < self.blocknum - 1:
+                        self.progress += _BLOCK_SIZE
+                    else:              
+                        self.progress += self.size - (blockid * _BLOCK_SIZE)       
         return offsetlist
     
     def _make_bput_post(self, ctx, bputnum, bput_next):
@@ -149,6 +148,9 @@ class MultipartUpload(object):
         debug(self.results)
         if len(self.results['upload_record']) < self.blocknum:
             return 0
+        for result in self.results['upload_record']:
+            if result['code'] != 200:
+                return 0
         return 1
 
     def _get_failoffsets(self):

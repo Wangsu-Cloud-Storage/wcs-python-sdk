@@ -9,15 +9,15 @@ from wcs.services.wslive import WsLive
 
 class Client(object):
     
-    def __init__(self, ak, sk, put_url, mgr_url):
-        self.auth = Auth(ak, sk)
-        self.simpleupload = SimpleUpload(put_url)
-        self.streamupload = StreamUpload(put_url)
-        self.multiupload = MultipartUpload(put_url)
-        self.bmgr = BucketManager(self.auth,mgr_url)
-        self.fmgr = Fmgr(self.auth,mgr_url)
-        self.pfops = PersistentFop(self.auth,mgr_url)
-        self.wsl = WsLive(self.auth,mgr_url)
+    def __init__(self, config):
+        self.auth = Auth(config.access_key, config.secret_key)
+        self.simpleupload = SimpleUpload(config.put_url)
+        self.streamupload = StreamUpload(config.put_url)
+        self.multiupload = MultipartUpload(config.put_url)
+        self.bmgr = BucketManager(self.auth,config.mgr_url)
+        self.fmgr = Fmgr(self.auth,config.mgr_url)
+        self.pfops = PersistentFop(self.auth,config.mgr_url)
+        self.wsl = WsLive(self.auth,config.mgr_url)
 
     def simple_upload(self, path, policy):
 
