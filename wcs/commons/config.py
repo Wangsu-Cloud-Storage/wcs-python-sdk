@@ -54,7 +54,7 @@ class Config(object):
         retval = []
         for option in dir(self):
             option_type = type(getattr(Config, option))
-            if option.startwith("_") or \
+            if option.startswith("_") or \
                not (option_type in (
                     type(u"string"),
                         type(42),
@@ -97,9 +97,10 @@ class ConfigParser(object):
         if type(sections) != type([]):
             sections = [sections]
         in_our_section = True
+        r_section = re.compile("^\[([^\]]+)\]")
         r_comment = re.compile("^\s*#.*")
         r_empty = re.compile("\s*$")
-        r_section = re.compile("^\s*(?P<key>\w+)\s*=\s*(?P<value>.*)")
+        r_data = re.compile("^\s*(?P<key>\w+)\s*=\s*(?P<value>.*)")
         r_quotes = re.compile("^\"(.*)\"\s*$")
         with io.open(file, "r", encoding=self.get('encoding', 'UTF-8')) as fp:
             for line in fp:

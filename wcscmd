@@ -123,7 +123,7 @@ def main():
     config_file = os.path.join(expanduser("~"), ".wcscfg")
     optparser.set_defaults(config = config_file)
 
-    optparser.add_option(   "--configure", dest="run_configure", action="store_true", help="Invoke interactive (re)configuration tool.")
+    optparser.add_option(   "--configure", dest="run_config", action="store_true", help="Invoke interactive (re)configuration tool.")
     optparser.add_option("-c", "--config", dest="config", metavar="FILE", help="Config file name. Defaults to $HOME/.wcscfg")
     optparser.add_option(   "--dump-config",dest="dump_config", action="store_true", help="Dump current configuration after parsing config file and command line options and exit.")
     #optparser.add_option(   "--access_key", dest="access_key", help="WCS Access Key")
@@ -148,7 +148,9 @@ def main():
 
     #if options.verbosity:
     #    logging.basicConfig(level=options.verbosity, format='%(levelname)s: %(message)s', stream=sys.stdderr)
-
+    #if run_config:
+    debug("Start to configure")
+    run_configure(config_file)
     if options.config:
        try:
            cfg = Config(options.config)
