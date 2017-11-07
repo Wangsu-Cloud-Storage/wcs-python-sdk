@@ -1,6 +1,8 @@
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
 import os
 import sys
-from optparse import OptionParser, Option
+from optparse import OptionParser, Option, IndentedHelpFormatter
 #from logging import debug, info, warning, error
 
 def output(message):
@@ -8,9 +10,9 @@ def output(message):
     sys.stdout.flush()
 
 def format_commands(progname, commands_list):
-    help = "Commands:\n"
+    help = "Commands:" + "\n"
     for cmd in commands_list:
-        help += "   %s\n    %s %s %s \n" % (cmd["label"], progname, cmd["cmd"], cmd["param"])
+        help += "   %s\n    	%s %s %s \n" % (cmd["label"], progname, cmd["cmd"], cmd["param"])
     return help
 
 
@@ -102,12 +104,19 @@ def run_configure(config_file):
         error(u"Writing config file failed: %s: %s" % (config_file, e.strerror))
         sys.exit(EX_IOERR)
 
+class MyHelpFormatter(IndentedHelpFormatter):
+    def format_epilog(self, epilog):
+        if epilog:
+            return "\n" + epilog + "\n"
+        else:
+            return ""
+
 def main():
     global cfg
     cfg = Config()
     commands_list = get_commands_list()
-    usage = 'Usage: s3cmd [options] COMMAND [parameters]'
-    optparser = OptionParser(usage=usage)
+    usage = 'Usage: wcscmd [options] COMMAND [parameters]'
+    optparser = OptionParser(usage=usage, formatter=MyHelpFormatter())
 
     config_file = None
     from os.path import expanduser
@@ -133,7 +142,7 @@ def main():
                               + " It allows for uploading, downloading and removing objects form buckets")
 
     optparser.epilog = format_commands(optparser.get_prog_name(), commands_list)
-    optparser.epilog += ("\nFor more information, visit WCS website: https://wcs.chinanetcenter.com/index")
+    optparser.epilog += "\n\nFor more information, visit WCS website: https://wcs.chinanetcenter.com/index\n"
 
     (options, args) = optparser.parse_args()
 
