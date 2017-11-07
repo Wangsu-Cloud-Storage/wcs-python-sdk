@@ -5,8 +5,9 @@ import json
 import os
 import tempfile
 from lockfile import LockFile
-from wcs.commons.config import tmp_record_folder,_BLOCK_SIZE,_BPUT_SIZE
+from wcs.commons.config import Config
 
+tmp_record_folder = Config.tmp_record_folder
 
 class UploadProgressRecorder(object):
     """持久化上传记录类

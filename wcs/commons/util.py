@@ -8,8 +8,7 @@ from .compat import b, s
 import tempfile
 import random
 import string
-from .config import _BLOCK_SIZE
-from lockfile import LockFile
+from .config import Config
 
 try:
     import zlib
@@ -52,7 +51,7 @@ def file_crc32(filePath):
     """
     crc = 0
     with open(filePath, 'rb') as f:
-        for block in _file_iter(f, _BLOCK_SIZE):
+        for block in _file_iter(f,Config.block_size):
             crc = binascii.crc32(block, crc) & 0xFFFFFFFF
     return crc
 
@@ -109,7 +108,7 @@ def etag_stream(input_stream):
     Returns:
         输入流的etag值
     """
-    array = [_sha1(block) for block in _file_iter(input_stream, 0, _BLOCK_SIZE)]
+    array = [_sha1(block) for block in _file_iter(input_stream, 0, Config.block_size)]
     if len(array) == 0:
         array = [_sha1(b'')]
     if len(array) == 1:

@@ -1,9 +1,12 @@
 from wcs.services.mgrbase import MgrBase
-from wcs.commons.config import MGR_URL
+from wcs.commons.config import Config
 from wcs.commons.http import _post
 from wcs.commons.http import _get
 from wcs.commons.util import urlsafe_base64_encode
-from wcs.commons.logme import debug, warning, error
+
+from logging import debug, warning, error
+
+MGR_URL = Config.mgr_url
 
 class PersistentFop(MgrBase):
 

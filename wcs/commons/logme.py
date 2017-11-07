@@ -2,14 +2,13 @@ import os
 import logging
 import errno
 import time
-from wcs.commons.config import logging_folder as path
 
 
-if os.path.exists(path) is False:
-    try:
-        os.mkdir(path)
-    except OSError as exc:
-        raise exc
+#if os.path.exists(path) is False:
+#    try:
+#        os.mkdir(path)
+#    except OSError as exc:
+#        raise exc
 
 logger = logging.getLogger("wcs_python_sdk")
 time_obj = time.gmtime()
@@ -26,29 +25,29 @@ def debug(msg):
     logger.debug(msg)
     logger.removeHandler(debughandler)
 
-def warning(msg):
-    logger.setLevel(logging.WARNING)
-    logfile = os.path.join(path, "warnging_%s.log" % log_time)
-    warnhandler = logging.FileHandler(logfile)
-    warnhandler.setLevel(logging.WARNING)
-    fmt = '%(asctime)s - %(levelname)s - %(message)s' 
-    formatter = logging.Formatter(fmt)
-    warnhandler.setFormatter(formatter)
-    logger.addHandler(warnhandler)
-    logger.warning(msg)
-    logger.removeHandler(warnhandler)
+#def warning(msg):
+#    logger.setLevel(logging.WARNING)
+#    logfile = os.path.join(path, "warnging_%s.log" % log_time)
+#    warnhandler = logging.FileHandler(logfile)
+#    warnhandler.setLevel(logging.WARNING)
+#    fmt = '%(asctime)s - %(levelname)s - %(message)s' 
+#    formatter = logging.Formatter(fmt)
+#    warnhandler.setFormatter(formatter)
+#    logger.addHandler(warnhandler)
+#    logger.warning(msg)
+#    logger.removeHandler(warnhandler)
 
-def error(msg):
-    logger.setLevel(logging.ERROR)
-    logfile = os.path.join(path, "error_%s.log" % log_time)
-    errorhandler = logging.FileHandler(logfile)
-    errorhandler.setLevel(logging.ERROR)
-    fmt = '%(asctime)s - %(levelname)s - %(message)s' 
-    formatter = logging.Formatter(fmt)
-    errorhandler.setFormatter(formatter)
-    logger.addHandler(errorhandler)
-    logger.error(msg)
-    logger.removeHandler(errorhandler)
+#def error(msg):
+#    logger.setLevel(logging.ERROR)
+#    logfile = os.path.join(path, "error_%s.log" % log_time)
+#    errorhandler = logging.FileHandler(logfile)
+#    errorhandler.setLevel(logging.ERROR)
+#    fmt = '%(asctime)s - %(levelname)s - %(message)s' 
+#    formatter = logging.Formatter(fmt)
+#    errorhandler.setFormatter(formatter)
+#    logger.addHandler(errorhandler)
+#    logger.error(msg)
+#    logger.removeHandler(errorhandler)
 
         
 

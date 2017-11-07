@@ -2,7 +2,8 @@ from wcs.services.mgrbase import MgrBase
 from wcs.commons.http import _post
 from wcs.commons.http import _get
 from wcs.commons.util import urlsafe_base64_encode
-from wcs.commons.logme import debug, warning, error
+
+from logging import debug, warning, error
 
 class Fmgr(MgrBase):
 

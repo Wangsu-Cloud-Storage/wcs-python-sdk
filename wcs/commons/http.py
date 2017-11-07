@@ -7,8 +7,8 @@ except (ImportError, SyntaxError):
     import json  # noqa
 import platform
 import requests
-from .config import connection_retries
-from .config import connection_timeout
+from .config import Config
+from .config import Config
 from requests.adapters import HTTPAdapter
 
 _session = None
@@ -25,7 +25,7 @@ def __return_wrapper(resp):
 
 def _init():
     session = requests.Session()
-    session.mount('http://', HTTPAdapter(max_retries=connection_retries))
+    session.mount('http://', HTTPAdapter(max_retries=Config.connection_retries))
     global _session
     _session = session
 
@@ -38,7 +38,7 @@ def _post(url, headers, data=None, files=None):
         _init()
     try:
         headers['user-agent'] = 'WCS-Python-SDK-3.0.2(http://wcs.chinanetcenter.com)'
-        r = requests.post(url=url, data=data, files=files, headers=headers, timeout=connection_timeout, verify=True)
+        r = requests.post(url=url, data=data, files=files, headers=headers, timeout=Config.connection_timeout, verify=True)
     except Exception as e:
         return -1,e
     return __return_wrapper(r)
@@ -49,7 +49,7 @@ def _get(url, headers=None,data=None):
     false='false'
     try:
         headers['user-agent'] = 'WCS-Python-SDK-3.0.2(http://wcs.chinanetcenter.com)'
-        r = requests.get(url, data=data,timeout=connection_timeout, headers=headers, verify=True)
+        r = requests.get(url, data=data,timeout=Config.connection_timeout, headers=headers, verify=True)
     except Exception as e:
         return -1,e
     return __return_wrapper(r)
