@@ -1,8 +1,9 @@
 #!/usr/bin/python
 ## -*- coding: utf-8 -*-
+import io
 import os
 import sys
-from optparse import OptionParser, Option, , IndentedHelpFormatter
+from optparse import OptionParser, Option, IndentedHelpFormatter
 
 def output(message):
     sys.stdout.write(message + '\n')
@@ -71,7 +72,7 @@ def run_configure(config_file):
                     setattr(cfg, option[0], val)
             output(u"\nNew settings:")
             for option in options:
-                output(u"  %s: %s" % (option[1], getattr(cfg, option[0])))
+                output(u"  %s: %s" % (option[0], getattr(cfg, option[0])))
             #val = raw_input("\nTest access with supplied credentials? [Y/n] ")
             #if val.lower().startswith("y") or val == "":
             #    try:
@@ -90,10 +91,11 @@ def run_configure(config_file):
             val = raw_input("Retry configuration? [Y/n] ")
             if val.lower().startswith("n"):
                 raise EOFError()
-
-        f = open(config_file, "w")
-        cfg.dump_config(f)
-        f.close()
+        try:
+            with io.open(config_file, 'w') as fp:
+                cfg.dump_config(fp)
+        except IOError as e:
+            raise e
         output(u"Configuration saved to '%s'" % config_file)        
 
     except (EOFError, KeyboardInterrupt):
@@ -156,8 +158,9 @@ def main():
     #if run_config:
 
     debug(u"wcscmd version 1.0.0")
-    debug("Start to configure")
-    run_configure(config_file)
+    if options.run_config:
+        run_configure(options.config)
+        sys.exit()
     try:
         cfg = Config(options.config)
     except ValueError as exc:
@@ -169,12 +172,15 @@ def main():
            error(u"%s: %s" % (options.config, e.strerror))
            error(u"Configuration file not available.")
            error(u"Consider using --configure parameter to create one.")
-           sys.exit():
+           sys.exit()
+    if options.dump_config:
+        cfg.dump_config(sys.stdout)
+        sys.exit()
     for option in cfg.option_list():
         try:
             value = getattr(options, option)
             if value != None:
-                if type(value) == type(b'')
+                type(value) == type(b'')
             debug(u"Updating Config.Config %s->%s" % (option, value))
             cfg.update_option(option, value)
         except AttributeError:
@@ -184,14 +190,6 @@ def main():
         raise ParameterError("Block size %d B is not available" % (cfg.block_size))
     if cfg.bput_size <= 0 or cfg.bput_size % 2 != 0:
         raise ParameterError("Bput size %d B is not available" % (cfg.bput_size))
-
-    if options.dump_config:
-        cfg.dump_config(sys.stdout)
-        sys.exit()
-
-    if options.run_config:
-        run_configure(options.config, args)
-        sys.exit()
 
     if len(args) < 1:
         optparser.print_help()
@@ -209,10 +207,10 @@ def main():
         error(u"Not enough parameters for command '%s'" % command)
         sys.exit()
 
-   rc = cmd_func(args)
-   if rc is None:
-       rc = "Nothing"
-   return rc
+    rc = cmd_func(args)
+    if rc is None:
+        rc = "Nothing"
+    return rc
  
 if __name__ == '__main__':
     from wcs.commons.config import Config

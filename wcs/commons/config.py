@@ -55,13 +55,9 @@ class Config(object):
 
     def option_list(self):
         retval = []
+        funclist = ['option_list', 'read_config_file','dump_config','update_option']
         for option in dir(self):
-            option_type = type(getattr(Config, option))
-            if option.startswith("_") or \
-               not (option_type in (
-                    type(u"string"),
-                        type(42),
-                    type(True))):
+            if option.startswith("_") or option in funclist:
                 continue
             retval.append(option)
         return retval
