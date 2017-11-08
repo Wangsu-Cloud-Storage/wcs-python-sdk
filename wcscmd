@@ -2,8 +2,7 @@
 ## -*- coding: utf-8 -*-
 import os
 import sys
-from optparse import OptionParser, Option, IndentedHelpFormatter
-#from logging import debug, info, warning, error
+from optparse import OptionParser, Option, , IndentedHelpFormatter
 
 def output(message):
     sys.stdout.write(message + '\n')
@@ -115,6 +114,12 @@ def main():
     global cfg
     cfg = Config()
     commands_list = get_commands_list()
+    commands = {}
+    
+    for cmd in commands_list:
+        if 'cmd' in cmd:
+            commands[cmd['cmd']] = cmd
+
     usage = 'Usage: wcscmd [options] COMMAND [parameters]'
     optparser = OptionParser(usage=usage, formatter=MyHelpFormatter())
 
@@ -128,7 +133,7 @@ def main():
     optparser.add_option(   "--dump-config",dest="dump_config", action="store_true", help="Dump current configuration after parsing config file and command line options and exit.")
     #optparser.add_option(   "--access_key", dest="access_key", help="WCS Access Key")
     #optparser.add_option(   "--secret_key", dest="secret_key", help="WCS Secret Key")
-    optparser.add_option("-s", "--ssl", dest="use_https", action="store_true", help="Use https connection when communicating with WCS")
+    optparser.add_option("-s", "--ssl", dest="ishttps", action="store_true", help="Use https connection when communicating with WCS")
     optparser.add_option(   "--upload-id", dest="upload_id", help="UploadId for Multipart Upload, in case you want continue an existing upload")
     optparser.add_option(   "--limit", dest="limit", help="Limit for list objects of bucket")
     optparser.add_option(   "--prefix", dest="prefix", help="Prefix for list objects of bucket")
@@ -149,30 +154,66 @@ def main():
     #if options.verbosity:
     #    logging.basicConfig(level=options.verbosity, format='%(levelname)s: %(message)s', stream=sys.stdderr)
     #if run_config:
+
+    debug(u"wcscmd version 1.0.0")
     debug("Start to configure")
     run_configure(config_file)
-    if options.config:
-       try:
-           cfg = Config(options.config)
-       except IOError:
+    try:
+        cfg = Config(options.config)
+    except ValueError as exc:
+        raise ParameterError(unicode(exc))
+    except IOError as e:
+        if options.run_configure:
+            cfg = Config()
+        else:
            error(u"%s: %s" % (options.config, e.strerror))
            error(u"Configuration file not available.")
-           error(u"Please check you config file.")
-           sys.exit()
-
-    elif os.path.exists(config_file):
+           error(u"Consider using --configure parameter to create one.")
+           sys.exit():
+    for option in cfg.option_list():
         try:
-            cfg = Config(config_file)
-        except IOError:
-            error(u"%s: %s" % (options.config, e.strerror))
-            error(u"Default configuration file not available.")
-            error(u"Consider using --configure parameter to create one.")
-            sys.exit()
-    else:
-       error(u"Can't find a config file. Please use --configuration option.")
-       sys.exit()
+            value = getattr(options, option)
+            if value != None:
+                if type(value) == type(b'')
+            debug(u"Updating Config.Config %s->%s" % (option, value))
+            cfg.update_option(option, value)
+        except AttributeError:
+            pass
 
+    if cfg.block_size <= 0 or cfg.block_size % 4194304 != 0:
+        raise ParameterError("Block size %d B is not available" % (cfg.block_size))
+    if cfg.bput_size <= 0 or cfg.bput_size % 2 != 0:
+        raise ParameterError("Bput size %d B is not available" % (cfg.bput_size))
 
+    if options.dump_config:
+        cfg.dump_config(sys.stdout)
+        sys.exit()
+
+    if options.run_config:
+        run_configure(options.config, args)
+        sys.exit()
+
+    if len(args) < 1:
+        optparser.print_help()
+        sys.exit()
+
+    command = args.pop(0)
+    try:
+        debug(u"Command: %s" % commands[command]["cmd"])
+        cmd_func = commands[command]["func"]
+    except KeyError as e:
+        error(u"Invalid command: %s" % command)
+        sys.exit()
+
+    if len(args) < commands[command]["argc"]:
+        error(u"Not enough parameters for command '%s'" % command)
+        sys.exit()
+
+   rc = cmd_func(args)
+   if rc is None:
+       rc = "Nothing"
+   return rc
+ 
 if __name__ == '__main__':
     from wcs.commons.config import Config
     import logging

@@ -35,6 +35,9 @@ class Config(object):
     concurrency = 4
     # 是否支持https
     ishttps = False
+    # 是否断点续传
+    upload_id = ''
+ 
 
     ## Creating a singleton
     def __new__(self, configfile=None, ak=None, sk=None, put_url=None, mgr_url=None ):
