@@ -4,6 +4,7 @@ import io
 import os
 import sys
 from optparse import OptionParser, Option, IndentedHelpFormatter
+from wcs.commons.util import urlsafe_base64_encode
 
 def output(message):
     sys.stdout.write(message + '\n')
@@ -19,7 +20,7 @@ def format_commands(progname, commands_list):
 def get_commands_list():
     return [
         {"cmd":"list", "label":"List objects","param":"wcs://BUCKET RESFILE","func":"cmd_list","argc":2},
-        {"cmd":"listbucket", "label":"List buckets","param":"wcs://BUCKETS", "func":"cmd_listbucket","argc":0},
+        {"cmd":"listbucket", "label":"List buckets","param":"wcs://","func":cmd_listbucket,"argc":0},
         {"cmd":"get","label":"Download file","param":"URL", "func":"cmd_get","argc":1},
         {"cmd":"del","label":"Delete a file", "param":"wcs://BUCKET/OBJECT","func":"cmd_del", "argc":1},
         {"cmd":"mv","label":"Move a file from src bucket to des bucket", "param":"wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT","func":"cmd_mv","argc":2},
@@ -27,8 +28,28 @@ def get_commands_list():
         {"cmd":"setdeadline", "label":"Set deadline of file","param":"wcs://BUCKET/OBJECT deadline","func":"cmd_setdeadline","argc":2},
         {"cmd":"stat","label":"Get file info","param":"wcs://BUCKET/OBJECT","func":"cmd_stat", "argc":2},
         {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE PUTPOLICY", "func":"cmd_put","argc":3},
-        {"cmd":"deletePrefix","label":"Delete multiple files according to prefix","param":"wcs://BUCKET PREFIX","fun":"cmd_delprefix","argc":2}
+        {"cmd":"deletePrefix","label":"Delete multiple files according to prefix","param":"wcs://BUCKET PREFIX","func":cmd_delprefix,"argc":2}
     ]
+
+def cmd_listbucket(args):
+    cli = Client(Config())
+    print cli.list_buckets()
+
+def cmd_delprefix(args, options):
+    cli = Client(Config())
+    buckets = args[:-1]
+    bk = []
+    fops = []
+    for wcsb in buckets:
+        bk.append(wcsb.split("wcs://")[1])
+    prefix = args[-1]
+    for b in bk:
+        fops.append("bucket/{0}" % b)
+    fops = ';'.join(fops)
+    fops += '/prefix/{0}' % prefix
+    if 
+    print bk, prefix 
+
 
 def run_configure(config_file):
     cfg = Config()
@@ -142,7 +163,9 @@ def main():
     optparser.add_option(   "--mode", dest="mode", help="Mode for list objects of bucket")
     optparser.add_option(   "--relevance", dest="relevance", action="store_true", help="Whether modify deadline relevant .ts when modify deadline of m3u8 file" )
     optparser.add_option("-d", "--debug", dest="verbosity", action="store_const", const=logging.DEBUG, help="Enable debug output.")
-    optparser.add_option(   "--output", dest="outfile", )
+    optparser.add_option(   "--output", dest="output", help="Save request result to specified key, like:<bucket>:<key>")
+    optparser.add_option(   "--notify", dest="notifyURL", help="Notify url for request result")
+    optparser.add_option(   "--separate", dest="separate", help="Whether separate notify, bool type")
 
 
     optparser.set_description("Wcscmd is a tool for managing objects in WCS Object Storage."
@@ -186,15 +209,18 @@ def main():
         except AttributeError:
             pass
 
-    if cfg.block_size <= 0 or cfg.block_size % 4194304 != 0:
-        raise ParameterError("Block size %d B is not available" % (cfg.block_size))
-    if cfg.bput_size <= 0 or cfg.bput_size % 2 != 0:
-        raise ParameterError("Bput size %d B is not available" % (cfg.bput_size))
+    if int(cfg.block_size) <= 0 or (int(cfg.block_size) % 4194304) != 0:
+        raise ParameterError("Block size %d B is not available" % (int(cfg.block_size)))
+    if int(cfg.bput_size) <= 0 or (int(cfg.bput_size)) % 2 != 0:
+        raise ParameterError("Bput size %d B is not available" % (int(cfg.bput_size)))
+
+    if option.output:
+        
 
     if len(args) < 1:
         optparser.print_help()
         sys.exit()
-
+   
     command = args.pop(0)
     try:
         debug(u"Command: %s" % commands[command]["cmd"])

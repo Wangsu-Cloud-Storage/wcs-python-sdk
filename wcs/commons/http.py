@@ -8,19 +8,20 @@ except (ImportError, SyntaxError):
 import platform
 import requests
 from .config import Config
-from .config import Config
 from requests.adapters import HTTPAdapter
 
 _session = None
+timeout = float(Config.connection_timeout)
 
 def __return_wrapper(resp):
     if resp.text != '':
+        resp_header = {'x-reqid': resp.headers['x-reqid']}
         try:
-            return resp.status_code, eval(str(resp.text))
+            return resp.status_code, eval(str(resp.text)), resp_header
         except Exception as e:
-            return resp.status_code, {'message':resp.text}
+            return resp.status_code, {'message':resp.text}, resp_header
     else:
-        return -1, {'message':'Message Body is None. Please check your URL.'}
+        return -1, {'message':'Message Body is None. Please check your URL.'}, resp_header
         
 
 def _init():
@@ -31,26 +32,21 @@ def _init():
 
 
 def _post(url, headers, data=None, files=None):
-    null =''
-    true= 'true'
-    false='false'
     if _session is None:
         _init()
     try:
-        headers['user-agent'] = 'WCS-Python-SDK-3.0.2(http://wcs.chinanetcenter.com)'
-        r = requests.post(url=url, data=data, files=files, headers=headers, timeout=Config.connection_timeout, verify=True)
+        headers['user-agent'] = 'WCSCMD-1.0.0(http://wcs.chinanetcenter.com)'
+        r = requests.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=True)
     except Exception as e:
-        return -1,e
+        return -1,e,'Null'
     return __return_wrapper(r)
 
-def _get(url, headers=None,data=None):
-    null =''
-    true= 'true'
-    false='false'
+def _get(url, headers=None):
     try:
-        headers['user-agent'] = 'WCS-Python-SDK-3.0.2(http://wcs.chinanetcenter.com)'
-        r = requests.get(url, data=data,timeout=Config.connection_timeout, headers=headers, verify=True)
+        headers = headers or {}
+        headers['user-agent'] = 'WCSCMD-1.0.0(http://wcs.chinanetcenter.com)'
+        r = requests.get(url, headers=headers, timeout=timeout, verify=True)
     except Exception as e:
-        return -1,e
+        return -1,e,'Null'
     return __return_wrapper(r)
 

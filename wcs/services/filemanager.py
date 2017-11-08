@@ -2,7 +2,7 @@ from wcs.services.mgrbase import MgrBase
 from wcs.commons.http import _post
 from wcs.commons.http import _get
 from wcs.commons.util import urlsafe_base64_encode, urlsafe_base64_decode,entry
-
+from wcs.commons.config import Config
 from logging import debug, warning, error
 class BucketManager(MgrBase):
 
@@ -15,15 +15,21 @@ class BucketManager(MgrBase):
             yield n
             n += 1
 
+    def _https_check(self, url):
+        if Config.ishttps:
+            url = "https://" + url
+        else:
+            url = "http://" + url
+        return url
+
     def _make_delete_url(self, bucket, key):
         return '{0}/delete/{1}'.format(self.mgr_host, entry(bucket, key))
 
     def delete(self, bucket, key):
         url = self._make_delete_url(bucket, key)
+        url = self._https_checkt(url)
         debug('Start to post request of delete %s:%s' % (bucket, key))
-        code, text = _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
-        debug('The return code is %d and text of delete request is: %s' % (code, text))
-        return code, text
+        return _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 
     def _make_filestat_url(self, bucket, key):
         return '{0}/stat/{1}'.format(self.mgr_host, entry(bucket, key))
@@ -31,9 +37,7 @@ class BucketManager(MgrBase):
     def stat(self, bucket, key):
         url = self._make_filestat_url(bucket, key)
         debug('Start to get the stat of %s:%s' % ( bucket, key))
-        code, text = _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
-        debug('The return code : %d and text : %s' % (code, text))
-        return code, text
+        return _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
  
     def _make_url(self, operation, param):
         url = ['{0}/{1}'.format(self.mgr_host,operation)]
@@ -62,9 +66,7 @@ class BucketManager(MgrBase):
         if options:
             debug('List options is %s' % options)
         debug('List bucket %s' % bucket)
-        code, text = _get(url=url, data=options, headers=super(BucketManager, self)._gernerate_headers(url))
-        debug('The return code : %d and text : %s' % (code, text))
-        return code, text
+        return _get(url=url, data=options, headers=super(BucketManager, self)._gernerate_headers(url))
 
     def _make_move_url(self, srcbucket, srckey, dstbucket, dstkey):
         src = urlsafe_base64_encode('%s:%s' % (srcbucket, srckey))
@@ -75,9 +77,7 @@ class BucketManager(MgrBase):
     def move(self, srcbucket, srckey, dstbucket, dstkey):
         url = self._make_move_url(srcbucket, srckey, dstbucket, dstkey)
         debug('Move object %s from %s to %s:%s' % (srckey, srcbucket, dstbucket, dstkey))
-        code, text = _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
-        debug('The return code : %d and text : %s' % (code, text))
-        return code, text
+        return _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
  
     def _make_copy_url(self, srcbucket, srckey, dstbucket, dstkey):
         src = urlsafe_base64_encode('%s:%s' % (srcbucket, srckey))
@@ -88,9 +88,7 @@ class BucketManager(MgrBase):
     def copy(self, srcbucket, srckey, dstbucket, dstkey):
         url = self._make_copy_url(srcbucket, srckey, dstbucket, dstkey)
         debug('Copy object %s from %s to %s:%s' % (srckey, srcbucket, dstbucket, dstkey))
-        code, text = _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
-        debug('The return code : %d and text : %s' % (code, text))
-        return code, text
+        return _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 
     def setdeadline(self, bucket, key, deadline):
         url = '{0}/setdeadline'.format(self.mgr_host)
@@ -101,9 +99,7 @@ class BucketManager(MgrBase):
         param['deadline'] = deadline 
         body = super(BucketManager, self)._params_parse(param)
         debug('Set deadline of %s to %s' % (key, deadline))
-        code, text = _post(url=url, data=body, headers=super(BucketManager, self)._gernerate_headers(url, body))
-        debug('The return code : %d and text : %s' % (code, text))
-        return code, text
+        return _post(url=url, data=body, headers=super(BucketManager, self)._gernerate_headers(url, body))
 
     def uncompress(self,fops,bucket,key,notifyurl=None,force=None,separate=None):
         url = '%s/fops' % self.mgr_host
@@ -116,24 +112,20 @@ class BucketManager(MgrBase):
             options['separate'] = separate
         body = super(BucketManager, self)._params_parse(options)
         debug('Uncompress of %s : %s' % (bucket, key))
-        code, text = _post(url=url, data=body, headers=super(BucketManager, self)._gernerate_headers(url, body))
-        debug('The return code : %d and text : %s' % (code, text))
-        return code,text
+        return _post(url=url, data=body, headers=super(BucketManager, self)._gernerate_headers(url, body))
         
 
     def bucket_list(self):
         url = '{0}/bucket/list'.format(self.mgr_host)
+        url = self._https_check(url)
         debug('Now start to list buckets')
-        code,text = _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
-        debug('The return code: %d and text: %s' % (code, text))
-        return code, text
+        return _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 
     def bucket_stat(self, name, startdate, enddate):
         encode_name = urlsafe_base64_encode(name)
         options = {'name':encode_name, 'startdate':startdate, 'enddate':enddate}
         url = self._make_url('bucket/stat', options)
         debug('Now check storage of %s from %s to %s' % (name, startdate, enddate))
-        code,text = _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
-        debug('The return code: %d and text: %s' % (code, text))
+        return _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 
         
