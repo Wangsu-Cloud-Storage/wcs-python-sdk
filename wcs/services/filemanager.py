@@ -69,6 +69,7 @@ class BucketManager(MgrBase):
 
     def move(self, srcbucket, srckey, dstbucket, dstkey):
         url = self._make_move_url(srcbucket, srckey, dstbucket, dstkey)
+        url = https_check(url)
         debug('Move object %s from %s to %s:%s' % (srckey, srcbucket, dstbucket, dstkey))
         return _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
  
@@ -80,6 +81,7 @@ class BucketManager(MgrBase):
 
     def copy(self, srcbucket, srckey, dstbucket, dstkey):
         url = self._make_copy_url(srcbucket, srckey, dstbucket, dstkey)
+        url = https_check(url)
         debug('Copy object %s from %s to %s:%s' % (srckey, srcbucket, dstbucket, dstkey))
         return _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 

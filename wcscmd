@@ -19,17 +19,63 @@ def format_commands(progname, commands_list):
 
 def get_commands_list():
     return [
-        {"cmd":"list", "label":"List objects","param":"wcs://BUCKET RESFILE","func":"cmd_list","argc":2},
+        {"cmd":"list", "label":"List objects","param":"wcs://BUCKET RESFILE","func":cmd_list,"argc":2},
         {"cmd":"listbucket", "label":"List buckets","param":"wcs://","func":cmd_listbucket,"argc":0},
-        {"cmd":"get","label":"Download file","param":"URL", "func":"cmd_get","argc":1},
-        {"cmd":"del","label":"Delete a file", "param":"wcs://BUCKET/OBJECT","func":"cmd_del", "argc":1},
-        {"cmd":"mv","label":"Move a file from src bucket to des bucket", "param":"wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT","func":"cmd_mv","argc":2},
-        {"cmd": "cp", "label": "Copy a file from src bucket to des bucket","param": "wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT", "func":"cmd_cp","argc": 2},
-        {"cmd":"setdeadline", "label":"Set deadline of file","param":"wcs://BUCKET/OBJECT deadline","func":"cmd_setdeadline","argc":2},
-        {"cmd":"stat","label":"Get file info","param":"wcs://BUCKET/OBJECT","func":"cmd_stat", "argc":2},
-        {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE PUTPOLICY", "func":"cmd_put","argc":3},
+        {"cmd":"get","label":"Download file","param":"URL", "func":cmd_get,"argc":1},
+        {"cmd":"del","label":"Delete a file", "param":"wcs://BUCKET/OBJECT","func":cmd_del, "argc":1},
+        {"cmd":"mv","label":"Move a file from src bucket to des bucket", "param":"wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT","func":cmd_mv,"argc":2},
+        {"cmd": "cp", "label": "Copy a file from src bucket to des bucket","param": "wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT", "func":cmd_cp,"argc": 2},
+        {"cmd":"setdeadline", "label":"Set deadline of file","param":"wcs://BUCKET/OBJECT deadline","func":cmd_setdeadline,"argc":2},
+        {"cmd":"stat","label":"Get file info","param":"wcs://BUCKET/OBJECT","func":cmd_stat, "argc":2},
+        {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE PUTPOLICY", "func":cmd_put,"argc":3},
         {"cmd":"deletePrefix","label":"Delete multiple files according to prefix","param":"BUCKETLIST","func":cmd_delprefix,"argc":1}
     ]
+def cmd_list(args):
+    pass
+
+def cmd_listbucket(args):
+    pass
+
+def cmd_get(args):
+    pass
+
+def cmd_del(args):
+    pass
+
+def _args_parse(args):
+    try:
+        src = args[0].split("wcs://")[1]
+        dst = args[1].split("wcs://")[1]
+        srcbucket = src.split('/')[0]
+        srcobject = src.split(srcbucket)[1]
+        srcobject = srcobject.split('/')[1]
+        dstbucket = dst.split('/')[0]
+        dstobject = dst.split(dstbucket)[1]
+        dstobject = dstobject.split('/')[1]
+        return srcbucket, srcobject, dstbucket, dstobject
+    except Exception:
+        error("Invalid arguments")
+        sys.exit()
+
+def cmd_mv(args):
+    cli = Client(Config())
+    srcbk, srcob, dstbk, dstob = _args_parse(args)
+    print cli.move(srcbk, srcob, dstbk, dstob)
+
+
+def cmd_cp(args):
+    cli = Client(Config())
+    srcbk, srcob, dstbk, dstob = _args_parse(args)
+    print cli.copy(srcbk, srcob, dstbk, dstob)
+
+def cmd_setdeadline(args):
+    pass
+
+def cmd_stat(args):
+    pass
+
+def cmd_put(args):
+    pass
 
 def cmd_listbucket(args):
     cli = Client(Config())
