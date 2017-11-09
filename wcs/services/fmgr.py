@@ -1,7 +1,7 @@
 from wcs.services.mgrbase import MgrBase
 from wcs.commons.http import _post
 from wcs.commons.http import _get
-from wcs.commons.util import urlsafe_base64_encode
+from wcs.commons.util import urlsafe_base64_encode,https_check
 
 from logging import debug, warning, error
 
@@ -40,8 +40,12 @@ class Fmgr(MgrBase):
     def fmgr_delete(self, fops, notifyurl=None, separate=None):
         return self._fmgr_commons('delete',fops, notifyurl=None, separate=None)
 
-    def prefix_delete(self, fops, notifyurl=None, separate=None):
-        return self._fmgr_commons('deletePrefix',fops, notifyurl=None, separate=None)
+    def prefix_delete(self, reqdata):
+        url = '{0}/fmgr/{1}'.format(self.mgr_host,'deletePrefix')
+        url = https_check(url)
+        debug('Fmgr_%s request body is: %s' % ('deletePrefix',reqdata))
+        debug('Start to %s file' % 'deletePrefix')
+        return _post(url=url, data=reqdata, headers=super(Fmgr, self)._gernerate_headers(url, body=reqdata)) 
 
     def m3u8_delete(self, fops, notifyurl=None, separate=None):
         return self._fmgr_commons('deletem3u8',fops, notifyurl=None, separate=None)

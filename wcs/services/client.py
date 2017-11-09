@@ -1,3 +1,5 @@
+from wcs.commons.util import urlsafe_base64_encode
+from wcs.commons.config import Config
 from wcs.commons.auth import Auth
 from wcs.services.simpleupload import SimpleUpload
 from wcs.services.streamupload import StreamUpload
@@ -6,6 +8,7 @@ from wcs.services.filemanager import BucketManager
 from wcs.services.fmgr import Fmgr
 from wcs.services.persistentfop import PersistentFop
 from wcs.services.wslive import WsLive
+
 
 class Client(object):
     
@@ -71,8 +74,20 @@ class Client(object):
     def fmgr_delete(self,fops,notifyurl=None,separate=None):
         return self.fmgr.fmgr_delete(fops,notifyurl,separate)
 
-    def prefix_delete(self,fops,notifyurl=None,separate=None): 
-        return self.fmgr.prefix_delete(fops,notifyurl,separate)
+    def prefix_delete(self,bk_pre_list):
+        fops = []
+        for b in bk_pre_list:
+            fops.append("bucket/%s/prefix/%s" % (urlsafe_base64_encode(b[0]),urlsafe_base64_encode(b[1])))
+        fops = ';'.join(fops)
+        if Config.output:
+            fops += '/output/%s' % urlsafe_base64_encode(Config.output)
+        data = [fops]
+        if Config.notifyurl:
+            data.append('notifyURL=%s' % urlsafe_base64_encode(Config.notifyurl))
+        if Config.separate: 
+            data.append('separate=%s' % Config.separate)
+        reqdata = 'fops=' + '&'.join(data)  
+        return self.fmgr.prefix_delete(reqdata)
 
     def m3u8_delete(self,fops,notifyurl=None,separate=None):
         return self.fmgr.m3u8_delete(fops,notifyurl,separate)

@@ -28,28 +28,33 @@ def get_commands_list():
         {"cmd":"setdeadline", "label":"Set deadline of file","param":"wcs://BUCKET/OBJECT deadline","func":"cmd_setdeadline","argc":2},
         {"cmd":"stat","label":"Get file info","param":"wcs://BUCKET/OBJECT","func":"cmd_stat", "argc":2},
         {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE PUTPOLICY", "func":"cmd_put","argc":3},
-        {"cmd":"deletePrefix","label":"Delete multiple files according to prefix","param":"wcs://BUCKET PREFIX","func":cmd_delprefix,"argc":2}
+        {"cmd":"deletePrefix","label":"Delete multiple files according to prefix","param":"BUCKETLIST","func":cmd_delprefix,"argc":1}
     ]
 
 def cmd_listbucket(args):
     cli = Client(Config())
     print cli.list_buckets()
 
-def cmd_delprefix(args, options):
+def cmd_delprefix(args):
+    listfile = './'+args[0]
     cli = Client(Config())
-    buckets = args[:-1]
-    bk = []
-    fops = []
-    for wcsb in buckets:
-        bk.append(wcsb.split("wcs://")[1])
-    prefix = args[-1]
-    for b in bk:
-        fops.append("bucket/{0}" % b)
-    fops = ';'.join(fops)
-    fops += '/prefix/{0}' % prefix
-    if 
-    print bk, prefix 
-
+    bk_list = []
+    if os.path.isfile(listfile):
+        try:
+            with open(listfile, "rb") as f:
+                for line in f:
+                    bk_list.append(line.split())   
+        except IOError as e:
+            error("Sorry, file is not available")
+            sys.exit()
+        if len(bk_list):
+            print cli.prefix_delete(bk_list)
+        else:
+            error("File can not be empty")
+            sys.exit()
+    else:
+        error("Please privide a file")
+        sys.exit()
 
 def run_configure(config_file):
     cfg = Config()
@@ -214,8 +219,14 @@ def main():
     if int(cfg.bput_size) <= 0 or (int(cfg.bput_size)) % 2 != 0:
         raise ParameterError("Bput size %d B is not available" % (int(cfg.bput_size)))
 
-    if option.output:
-        
+    if options.output:
+        cfg.output = options.output
+
+    if options.notifyURL:
+        cfg.notifyurl = options.notifyURL
+
+    if options.separate:
+        cfg.separate = options.separate
 
     if len(args) < 1:
         optparser.print_help()
@@ -232,7 +243,9 @@ def main():
     if len(args) < commands[command]["argc"]:
         error(u"Not enough parameters for command '%s'" % command)
         sys.exit()
-
+    if len(args) > commands[command]["argc"]:
+        error(u"Too much parameters for command '%s'" % command)
+        sys.exit()
     rc = cmd_func(args)
     if rc is None:
         rc = "Nothing"

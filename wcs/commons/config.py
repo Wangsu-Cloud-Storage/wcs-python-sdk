@@ -38,7 +38,14 @@ class Config(object):
     # 是否断点续传
     upload_id = ''
  
-
+    #可选参数output
+    output = ''
+    
+    #可选参数notifyURL
+    notifyurl = ''
+    
+    #可选参数separate
+    separate = 0
     ## Creating a singleton
     def __new__(self, configfile=None, ak=None, sk=None, put_url=None, mgr_url=None ):
         if self._instance == None:

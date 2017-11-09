@@ -1,7 +1,7 @@
 from wcs.services.mgrbase import MgrBase
 from wcs.commons.http import _post
 from wcs.commons.http import _get
-from wcs.commons.util import urlsafe_base64_encode, urlsafe_base64_decode,entry
+from wcs.commons.util import urlsafe_base64_encode, https_check, entry
 from wcs.commons.config import Config
 from logging import debug, warning, error
 class BucketManager(MgrBase):
@@ -15,19 +15,12 @@ class BucketManager(MgrBase):
             yield n
             n += 1
 
-    def _https_check(self, url):
-        if Config.ishttps:
-            url = "https://" + url
-        else:
-            url = "http://" + url
-        return url
-
     def _make_delete_url(self, bucket, key):
         return '{0}/delete/{1}'.format(self.mgr_host, entry(bucket, key))
 
     def delete(self, bucket, key):
         url = self._make_delete_url(bucket, key)
-        url = self._https_checkt(url)
+        url = https_checkt(url)
         debug('Start to post request of delete %s:%s' % (bucket, key))
         return _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 
@@ -117,7 +110,7 @@ class BucketManager(MgrBase):
 
     def bucket_list(self):
         url = '{0}/bucket/list'.format(self.mgr_host)
-        url = self._https_check(url)
+        url = https_check(url)
         debug('Now start to list buckets')
         return _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 

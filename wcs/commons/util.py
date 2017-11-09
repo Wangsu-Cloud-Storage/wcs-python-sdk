@@ -149,3 +149,8 @@ def GetUuid():
     chars = string.ascii_letters+string.digits
     return ''.join([random.choice(chars) for i in range(32)])
 
+def https_check(url):
+    if Config.ishttps:
+        return "https://" + url
+    else:
+        return "http://" + url
