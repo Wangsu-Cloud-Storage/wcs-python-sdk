@@ -27,7 +27,7 @@ class BucketManager(MgrBase):
         return '{0}/stat/{1}'.format(self.mgr_host, entry(bucket, key))
 
     def stat(self, bucket, key):
-        url = https_checkt(self._make_filestat_url(bucket, key))
+        url = https_check(self._make_filestat_url(bucket, key))
         debug('Start to get the stat of %s:%s' % ( bucket, key))
         return _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
  

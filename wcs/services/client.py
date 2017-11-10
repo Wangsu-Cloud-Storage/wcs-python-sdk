@@ -59,9 +59,6 @@ class Client(object):
     def setdeadline(self,bucket,key,deadline):
         return self.bmgr.setdeadline(bucket,key,deadline)
 
-    def uncompress(self,fops,bucket,key,notifyurl=None,force=None,separate=None):
-         return self.bmgr.uncompress(fops,bucket,key,notifyurl,force,separate)
-
     def fmgr_move(self,fops,notifyurl=None,separate=None):
         return self.fmgr.fmgr_move(fops,notifyurl,separate)
 
