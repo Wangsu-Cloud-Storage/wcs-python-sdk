@@ -23,7 +23,6 @@ class Client(object):
         self.wsl = WsLive(self.auth,config.mgr_url)
 
     def simple_upload(self, path, policy):
-
         token = self.auth.uploadtoken(policy.putpolicy)
         return self.simpleupload.upload(path,token)
 

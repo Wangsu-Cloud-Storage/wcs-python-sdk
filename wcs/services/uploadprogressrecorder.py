@@ -30,18 +30,16 @@ class UploadProgressRecorder(object):
         else:
             raise Exception("tmp_record_folder is necessary!")
 
-    def get_upload_record(self, key):
-        record_file_name = base64.b64encode(key.encode('utf-8')).decode('utf-8')
-        upload_record_file_path = os.path.join(self.record_folder, record_file_name)
+    def get_upload_record(self, upload_id):
+        upload_record_file_path = os.path.join(self.record_folder,upload_id)
         if not os.path.isfile(upload_record_file_path):
             return None
         with open(upload_record_file_path, 'r') as f:
             results = f.read()
         return eval(results)
 
-    def set_upload_record(self, key, data):
-        record_file_name = base64.b64encode(key.encode('utf-8')).decode('utf-8')
-        upload_record_file_path = os.path.join(self.record_folder, record_file_name)
+    def set_upload_record(self, upload_id, data):
+        upload_record_file_path = os.path.join(self.record_folder,upload_id)
         lock = LockFile(upload_record_file_path)
         lock.acquire()
         with open(upload_record_file_path, 'w') as f:
@@ -49,7 +47,11 @@ class UploadProgressRecorder(object):
             f.write("\n")
         lock.release()
 
-    def delete_upload_record(self, key):
-        record_file_name = base64.b64encode(key.encode('utf-8')).decode('utf-8')
-        record_file_path = os.path.join(self.record_folder, record_file_name)
+    def delete_upload_record(self, upload_id):
+        record_file_path = os.path.join(self.record_folder, upload_id)
         os.remove(record_file_path)
+
+    def find_upload_record(self, upload_id):
+        path = os.path.join(self.record_folder,upload_id)
+        return os.path.isfile(path)
+          

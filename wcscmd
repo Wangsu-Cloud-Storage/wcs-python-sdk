@@ -146,9 +146,6 @@ def cmd_put(args):
     
     print cli.simple_upload(local, policy)
         
-       
-
- 
 def cmd_multiput(args):
     pass
 
