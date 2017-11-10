@@ -6,6 +6,7 @@ import sys
 import logging
 from optparse import OptionParser, Option, IndentedHelpFormatter
 import json
+import requests
 
 def output(message):
     sys.stdout.write(message + '\n')
@@ -22,13 +23,14 @@ def get_commands_list():
     return [
         {"cmd":"list", "label":"List objects","param":"wcs://BUCKET RESFILE","func":cmd_list,"argc":2},
         {"cmd":"listbucket", "label":"List buckets","param":"","func":cmd_listbucket,"argc":0},
-        {"cmd":"get","label":"Download file","param":"URL", "func":cmd_get,"argc":1},
+        {"cmd":"get","label":"Download file","param":"URL LOCAL", "func":cmd_get,"argc":2},
         {"cmd":"del","label":"Delete a file", "param":"wcs://BUCKET/OBJECT","func":cmd_del, "argc":1},
         {"cmd":"mv","label":"Move a file from src bucket to des bucket", "param":"wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT","func":cmd_mv,"argc":2},
         {"cmd": "cp", "label": "Copy a file from src bucket to des bucket","param": "wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT", "func":cmd_cp,"argc": 2},
         {"cmd":"setdeadline", "label":"Set deadline of file","param":"wcs://BUCKET/OBJECT deadline","func":cmd_setdeadline,"argc":2},
         {"cmd":"stat","label":"Get file info","param":"wcs://BUCKET/OBJECT","func":cmd_stat, "argc":2},
         {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE PUTPOLICY", "func":cmd_put,"argc":3},
+        {"cmd":"multiput","label":"Multipart upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE PUTPOLICY", "func":cmd_multiput,"argc":3},
         {"cmd":"deletePrefix","label":"Delete multiple files according to prefix","param":"BUCKETLIST","func":cmd_delprefix,"argc":1}
     ]
 
@@ -42,17 +44,14 @@ def cmd_list(args):
         try:
             with open(resfile, 'w') as f:
                 f.write(json.dumps(response))
-        except IOError as e:
-            error('Write result to %s fail' % resfile)
             sys.exit()
         debug("Request result saved to %s" % (resfile))
         debug("Request ID is: %s" % (reqid['x-reqid']))
     else:
-        error("Request fail, more detail please pay attention to %s " % (reqid['x-reqid']))
+        error("Request fail, more detail please pay attention to reqid: %s " % (reqid['x-reqid']))
     
-
 def cmd_get(args):
-    pass
+    GG   
 
 def cmd_del(args):
     pass
@@ -97,25 +96,10 @@ def cmd_listbucket(args):
     print cli.list_buckets()
 
 def cmd_delprefix(args):
-    listfile = './'+args[0]
+    bucket = args[0]
+    prefix = args[1]
     cli = Client(Config())
-    bk_list = []
-    if os.path.isfile(listfile):
-        try:
-            with open(listfile, "rb") as f:
-                for line in f:
-                    bk_list.append(line.split())   
-        except IOError as e:
-            error("Sorry, file is not available")
-            sys.exit()
-        if len(bk_list):
-            print cli.prefix_delete(bk_list)
-        else:
-            error("File can not be empty")
-            sys.exit()
-    else:
-        error("Please privide a file")
-        sys.exit()
+    print cli.prefix_delete(bucket, prefix)
 
 def run_configure(config_file):
     cfg = Config(config_file)

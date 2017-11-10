@@ -74,11 +74,8 @@ class Client(object):
     def fmgr_delete(self,fops,notifyurl=None,separate=None):
         return self.fmgr.fmgr_delete(fops,notifyurl,separate)
 
-    def prefix_delete(self,bk_pre_list):
-        fops = []
-        for b in bk_pre_list:
-            fops.append("bucket/%s/prefix/%s" % (urlsafe_base64_encode(b[0]),urlsafe_base64_encode(b[1])))
-        fops = ';'.join(fops)
+    def prefix_delete(self,bucket, prefix):
+        fops = 'bucket/%s/prefix/%s' % (urlsafe_base64_encode(bucket), urlsafe_base64_encode(prefix))
         if Config.output:
             fops += '/output/%s' % urlsafe_base64_encode(Config.output)
         data = [fops]
