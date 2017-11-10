@@ -37,7 +37,7 @@ class MultipartUpload(object):
             return True
         return False
 
-    def _define_config(self,path,token,upload_id):
+    def _define_config(self,path,token,upload_id=None):
         self.token = token
         self.path = path
         self.size = os.path.getsize(self.path)
@@ -187,8 +187,7 @@ class MultipartUpload(object):
         records['upload_record'] = []
         self.recorder.set_upload_record(self.uploadBatch,records)
 
-    def upload(self,path,token,upload_id):
-        debug('File %s multipart upload start!' % (path))
+    def upload(self,path,token,upload_id=None):
         self._define_config(path,token,upload_id)
         if self.recorder.find_upload_id(upload_id):
             offsets = self._records_parse(upload_id)

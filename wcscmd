@@ -147,7 +147,33 @@ def cmd_put(args):
     print cli.simple_upload(local, policy)
         
 def cmd_multiput(args):
-    pass
+    cfg = Config()
+    cli = Client(cfg)
+    bucket, object = _simple_arg_parse(args[0])
+    local = args[1]
+    policy["scope"] = '%s:%s' % (bucket, object)
+    if cfg.overwirte:
+        policy.set_conf('overwrite', cfg.overwirte)
+    if cfg.returnUrl:
+        policy.set_conf('returnUrl', cfg.returl)
+    if cfg.returnBody:
+        policy.set_conf('returnBody', cfg.returnBody)
+    if cfg.callbackUrl:
+        policy.set_conf('callbackUrl', cfg.callbackUrl)
+    if cfg.callbackBody:
+        policy.set_conf('callbackBody', cfg.callbackBody)
+    if cfg.persistentNotifyUrl:
+        policy.set_conf('persistentNotifyUrl',cfg.persistentNotifyUrl)
+    if cfg.persistentOps:
+        policy.set_conf('persistentOps', cfg.persistentOps)
+    if cfg.contentDetect:
+        policy.set_conf('contentDetect', cfg.contentDetect)
+    if cfg.detectNotifyURL:
+        policy.set_conf('detectNotifyURL', cfg.detectNotifyURL)
+    if cfg.detectNotifyRule:
+        policy.set_conf('detectNotifyRule', cfg.detectNotifyRule)
+
+    print cli.multipart_upload(path, policy, cfg.upload_id)
 
 def cmd_listbucket(args):
     cli = Client(Config())
