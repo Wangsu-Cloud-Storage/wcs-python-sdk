@@ -31,9 +31,9 @@ class Client(object):
         token = self.auth.uploadtoken(policy.putpolicy)
         return self.streamupload.upload(stream,token)
 
-    def multipart_upload(self,path,policy,params=None):
+    def multipart_upload(self,path,policy,upload_id=None):
         token = self.auth.uploadtoken(policy.putpolicy)
-        return self.multiupload.upload(path,token,params)
+        return self.multiupload.upload(path,token,upload_id)
         
     def bucket_list(self,bucket,prefix=None,marker=None,limit=None,mode=None):
         return self.bmgr.bucketlist(bucket,prefix,marker,limit,mode)

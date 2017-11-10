@@ -7,6 +7,9 @@ import logging
 from optparse import OptionParser, Option, IndentedHelpFormatter
 import json
 import requests
+from wcs.commons.putpolicy import PutPolicy
+
+policy = PutPolicy()
 
 def output(message):
     sys.stdout.write(message + '\n')
@@ -18,7 +21,6 @@ def format_commands(progname, commands_list):
         help += "   %s\n    	%s %s %s \n" % (cmd["label"], progname, cmd["cmd"], cmd["param"])
     return help
 
-
 def get_commands_list():
     return [
         {"cmd":"list", "label":"List objects","param":"wcs://BUCKET RESFILE","func":cmd_list,"argc":2},
@@ -29,8 +31,8 @@ def get_commands_list():
         {"cmd": "cp", "label": "Copy a file from src bucket to des bucket","param": "wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT", "func":cmd_cp,"argc": 2},
         {"cmd":"setdeadline", "label":"Set deadline of file","param":"wcs://BUCKET/OBJECT deadline","func":cmd_setdeadline,"argc":2},
         {"cmd":"stat","label":"Get file info","param":"wcs://BUCKET/OBJECT","func":cmd_stat, "argc":1},
-        {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE PUTPOLICY", "func":cmd_put,"argc":3},
-        {"cmd":"multiput","label":"Multipart upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE PUTPOLICY", "func":cmd_multiput,"argc":3},
+        {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE", "func":cmd_put,"argc":2},
+        {"cmd":"multiput","label":"Multipart upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE ", "func":cmd_multiput,"argc":2},
         {"cmd":"deletePrefix","label":"Delete multiple files according to prefix","param":"BUCKETLIST","func":cmd_delprefix,"argc":1}
     ]
 
@@ -116,8 +118,37 @@ def cmd_stat(args):
     print cli.stat(bucket,object)
 
 def cmd_put(args):
-    cli = Client(Config())
+    cfg = Config()
+    cli = Client(cfg)
+    bucket, object = _simple_arg_parse(args[0])
+    local = args[1]
+    policy["scope"] = '%s:%s' % (bucket, object)
+    if cfg.overwirte:
+        policy.set_conf('overwrite', cfg.overwirte)
+    if cfg.returnUrl:
+        policy.set_conf('returnUrl', cfg.returl)
+    if cfg.returnBody:
+        policy.set_conf('returnBody', cfg.returnBody)
+    if cfg.callbackUrl:
+        policy.set_conf('callbackUrl', cfg.callbackUrl)
+    if cfg.callbackBody:
+        policy.set_conf('callbackBody', cfg.callbackBody)
+    if cfg.persistentNotifyUrl:
+        policy.set_conf('persistentNotifyUrl',cfg.persistentNotifyUrl)
+    if cfg.persistentOps:
+        policy.set_conf('persistentOps', cfg.persistentOps)
+    if cfg.contentDetect:
+        policy.set_conf('contentDetect', cfg.contentDetect)
+    if cfg.detectNotifyURL:
+        policy.set_conf('detectNotifyURL', cfg.detectNotifyURL)
+    if cfg.detectNotifyRule:
+        policy.set_conf('detectNotifyRule', cfg.detectNotifyRule)
+    
+    print cli.simple_upload(local, policy)
+        
+       
 
+ 
 def cmd_multiput(args):
     pass
 
@@ -175,18 +206,6 @@ def run_configure(config_file):
             output(u"\nNew settings:")
             for option in options:
                 output(u"  %s: %s" % (option[0], getattr(cfg, option[0])))
-            #val = raw_input("\nTest access with supplied credentials? [Y/n] ")
-            #if val.lower().startswith("y") or val == "":
-            #    try:
-            #        cli = Client(cfg).list_buckets()
-            #        output(u"Success. Your access key and secret key worked fine :-)")
-            #    except WCSError, e:
-            #        error(u"Test failed: %s" % (e))
-            #        if e.code == "AccessDenied":
-            #            error(u"Are you sure your keys have s3:ListAllMyBuckets permissions?")
-            #        val = raw_input("\nRetry configuration? [Y/n] ")
-            #        if val.lower().startswith("y") or val == "":
-            #            continue
             val = raw_input("\nSave settings? [y/N] ")
             if val.lower().startswith("y"):
                 break
@@ -248,8 +267,19 @@ def main():
     optparser.add_option(   "--output", dest="output", help="Save request result to specified key, like:<bucket>:<key>")
     optparser.add_option(   "--notify", dest="notifyURL", help="Notify url for request result")
     optparser.add_option(   "--separate", dest="separate", help="Whether separate notify, bool type")
-
-
+    optparser.add_option(   "--overwrite", dest="overwirte", help="Whether overwrite existed key, bool type")
+    optparser.add_option(   "--returnurl", dest="returl", help="Url for return")
+    optparser.add_option(   "--returnbody", dest="retbody", help="Body of return")
+    optparser.add_option(   "--callbackurl", dest="cburl", help="Url for callback")
+    optparser.add_option(   "--callbackbody", dest="cbbody", help="Body of callback")
+    optparser.add_option(   "--persistentntyurl", dest="persistentntyurl", help="Url for persistent ops notify")
+    optparser.add_option(   "--persistentops", dest="persistentops", help="Persistent ops")
+    optparser.add_option(   "--contentdetect", dest="contentdetect", help="Content detect type")
+    optparser.add_option(   "--detectntyurl", dest="detectntyurl", help="Url for detect notify")
+    optparser.add_option(   "--detectntyrule", dest="detectntyrule", help="RUle for ectect notify")
+    
+    
+    
     optparser.set_description("Wcscmd is a tool for managing objects in WCS Object Storage."
                               + " It allows for uploading, downloading and removing objects form buckets")
 
@@ -279,6 +309,43 @@ def main():
            error(u"Configuration file not available.")
            error(u"Consider using --configure parameter to create one.")
            sys.exit()
+
+    if options.output:
+        cfg.output = options.output
+    if options.notifyURL:
+        cfg.notifyurl = options.notifyURL
+    if options.separate:
+        cfg.separate = options.separate
+    if options.limit:
+        cfg.limit = options.limit
+    if options.prefix:
+        cfg.prefix = options.prefix
+    if options.mode:
+        cfg.mode = options.mode
+    if options.marker:
+        cfg.marker = options.marker 
+    if options.overwirte:
+        cfg.overwirte = options.overwirte
+    if options.returl:
+        cfg.returnUrl = options.returl
+    if options.retbody:
+        cfg.returnBody = options.retbody
+    if options.cburl:
+        cfg.callbackUrl = options.cburl
+    if options.cbbody:
+        cfg.callbackBody = options.cbbody
+    if options.persistentntyurl:
+        cfg.persistentNotifyUrl = options.persistentntyurl
+    if options.persistentops:
+        cfg.persistentOps = options.persistentops
+    if options.contentdetect:
+        cfg.contentDetect = options.contentdetect
+    if options.detectntyurl:
+        cfg.detectNotifyURL = options.detectntyurl
+    if options.detectntyrule:
+        cfg.detectNotifyRule = options.detectntyrule
+
+
     if options.dump_config:
         cfg.dump_config(sys.stdout)
         sys.exit()
@@ -296,27 +363,6 @@ def main():
         raise ParameterError("Block size %d B is not available" % (int(cfg.block_size)))
     if int(cfg.bput_size) <= 0 or (int(cfg.bput_size)) % 2 != 0:
         raise ParameterError("Bput size %d B is not available" % (int(cfg.bput_size)))
-
-    if options.output:
-        cfg.output = options.output
-
-    if options.notifyURL:
-        cfg.notifyurl = options.notifyURL
-
-    if options.separate:
-        cfg.separate = options.separate
-
-    if options.limit:
-        cfg.limit = options.limit
-
-    if options.prefix:
-        cfg.prefix = options.prefix
-
-    if options.mode:
-        cfg.mode = options.mode
-
-    if options.marker:
-        cfg.marker = options.marker 
 
     if len(args) < 1:
         optparser.print_help()

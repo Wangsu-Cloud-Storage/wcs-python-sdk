@@ -46,16 +46,23 @@ class Config(object):
     #可选参数separate
     separate = 0
 
-    #可选参数limit
+    #bucket list可选参数limit
     limit = 1000
-    #可选参数prefix
     prefix = ''
-    #可选参数mode
     mode = 1
-    #可选参数marker
     marker = ''
 
-
+    #上传策略参数
+    overwrite = 0
+    returnUrl = ''
+    returnBody = ''
+    callbackUrl = ''
+    callbackBody = ''
+    persistentNotifyUrl = ''
+    persistentOps = ''
+    contentDetect = ''
+    detectNotifyURL = ''
+    detectNotifyRule = ''
 
     ## Creating a singleton
     def __new__(self, configfile=None, ak=None, sk=None, put_url=None, mgr_url=None ):
