@@ -37,17 +37,16 @@ def debug(msg):
 #    logger.warning(msg)
 #    logger.removeHandler(warnhandler)
 
-#def error(msg):
-#    logger.setLevel(logging.ERROR)
-#    logfile = os.path.join(path, "error_%s.log" % log_time)
-#    errorhandler = logging.FileHandler(logfile)
-#    errorhandler.setLevel(logging.ERROR)
-#    fmt = '%(asctime)s - %(levelname)s - %(message)s' 
-#    formatter = logging.Formatter(fmt)
-#    errorhandler.setFormatter(formatter)
-#    logger.addHandler(errorhandler)
-#    logger.error(msg)
-#    logger.removeHandler(errorhandler)
+def error(msg):
+    logger.setLevel(logging.ERROR)
+    errorhandler = logging.StreamHandler()
+    errorhandler.setLevel(logging.ERROR)
+    fmt = '%(asctime)s - %(levelname)s - %(message)s' 
+    formatter = logging.Formatter(fmt)
+    errorhandler.setFormatter(formatter)
+    logger.addHandler(errorhandler)
+    logger.error(msg)
+    logger.removeHandler(errorhandler)
 
         
 

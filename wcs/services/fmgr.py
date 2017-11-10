@@ -3,7 +3,7 @@ from wcs.commons.http import _post
 from wcs.commons.http import _get
 from wcs.commons.util import urlsafe_base64_encode,https_check
 
-from logging import debug, warning, error
+from wcs.commons.logme import debug, error
 
 class Fmgr(MgrBase):
 

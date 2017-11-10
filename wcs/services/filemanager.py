@@ -3,7 +3,7 @@ from wcs.commons.http import _post
 from wcs.commons.http import _get
 from wcs.commons.util import urlsafe_base64_encode, https_check, entry
 from wcs.commons.config import Config
-from logging import debug, warning, error
+from wcs.commons.logme import debug, error
 class BucketManager(MgrBase):
 
     def __init__(self, auth,mgr_url):
@@ -11,7 +11,7 @@ class BucketManager(MgrBase):
 
     def _limit_check(self):
         n = 0
-        while n < 1000:
+        while n < 1001:
             yield n
             n += 1
 
@@ -19,8 +19,7 @@ class BucketManager(MgrBase):
         return '{0}/delete/{1}'.format(self.mgr_host, entry(bucket, key))
 
     def delete(self, bucket, key):
-        url = self._make_delete_url(bucket, key)
-        url = https_checkt(url)
+        url = https_check(self._make_delete_url(bucket, key))
         debug('Start to post request of delete %s:%s' % (bucket, key))
         return _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 
@@ -28,7 +27,7 @@ class BucketManager(MgrBase):
         return '{0}/stat/{1}'.format(self.mgr_host, entry(bucket, key))
 
     def stat(self, bucket, key):
-        url = self._make_filestat_url(bucket, key)
+        url = https_checkt(self._make_filestat_url(bucket, key))
         debug('Start to get the stat of %s:%s' % ( bucket, key))
         return _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
  
@@ -52,24 +51,23 @@ class BucketManager(MgrBase):
                 error('Invalid limit ! Please redefine limit')
                 raise ValueError("Invalid limit")
         if prefix:
-            options['prefix'] = prefix
+            options['prefix'] = urlsafe_base64_encode(prefix)
         if mode:
             options['mode'] = mode
-        url = self._make_url('list', options)
+        url = https_check(self._make_url('list', options))
         if options:
             debug('List options is %s' % options)
         debug('List bucket %s' % bucket)
-        return _get(url=url, data=options, headers=super(BucketManager, self)._gernerate_headers(url))
+        return _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 
     def _make_move_url(self, srcbucket, srckey, dstbucket, dstkey):
         src = urlsafe_base64_encode('%s:%s' % (srcbucket, srckey))
         dst = urlsafe_base64_encode('%s:%s' % (dstbucket, dstkey)) 
         url = '{0}/move/{1}/{2}'.format(self.mgr_host, src, dst)
-        return url
+        return https_checkt(url)
 
     def move(self, srcbucket, srckey, dstbucket, dstkey):
         url = self._make_move_url(srcbucket, srckey, dstbucket, dstkey)
-        url = https_check(url)
         debug('Move object %s from %s to %s:%s' % (srckey, srcbucket, dstbucket, dstkey))
         return _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
  
@@ -77,16 +75,15 @@ class BucketManager(MgrBase):
         src = urlsafe_base64_encode('%s:%s' % (srcbucket, srckey))
         dst = urlsafe_base64_encode('%s:%s' % (dstbucket, dstkey))
         url = '{0}/copy/{1}/{2}'.format(self.mgr_host, src, dst)
-        return url
+        return https_check(url)
 
     def copy(self, srcbucket, srckey, dstbucket, dstkey):
         url = self._make_copy_url(srcbucket, srckey, dstbucket, dstkey)
-        url = https_check(url)
         debug('Copy object %s from %s to %s:%s' % (srckey, srcbucket, dstbucket, dstkey))
         return _post(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 
     def setdeadline(self, bucket, key, deadline):
-        url = '{0}/setdeadline'.format(self.mgr_host)
+        url = https_check('{0}/setdeadline'.format(self.mgr_host))
         param = {
             'bucket' : urlsafe_base64_encode(bucket),
         }
@@ -95,20 +92,6 @@ class BucketManager(MgrBase):
         body = super(BucketManager, self)._params_parse(param)
         debug('Set deadline of %s to %s' % (key, deadline))
         return _post(url=url, data=body, headers=super(BucketManager, self)._gernerate_headers(url, body))
-
-    def uncompress(self,fops,bucket,key,notifyurl=None,force=None,separate=None):
-        url = '%s/fops' % self.mgr_host
-        options = {'bucket':urlsafe_base64_encode(bucket),'key':urlsafe_base64_encode(key),'fops':urlsafe_base64_encode(fops)}
-        if notifyurl:
-            options['notifyurl'] =urlsafe_base64_encode(notifyurl)
-        if force:
-            options['force'] = force
-        if separate:
-            options['separate'] = separate
-        body = super(BucketManager, self)._params_parse(options)
-        debug('Uncompress of %s : %s' % (bucket, key))
-        return _post(url=url, data=body, headers=super(BucketManager, self)._gernerate_headers(url, body))
-        
 
     def bucket_list(self):
         url = '{0}/bucket/list'.format(self.mgr_host)

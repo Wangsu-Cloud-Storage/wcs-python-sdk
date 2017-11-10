@@ -2,8 +2,7 @@ import os
 import requests
 from requests_toolbelt import MultipartEncoder
 from wcs.commons.http import _post
-#from wcs.commons.logme import debug, warning, error
-from logging import debug, warning, error
+from wcs.commons.logme import debug,error
 
 class SimpleUpload(object):
 

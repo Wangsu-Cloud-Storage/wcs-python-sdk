@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-import logging
-from logging import debug, warning, error
+from wcs.commons.logme import debug,error
 import re
 import sys
 import io
@@ -46,6 +45,18 @@ class Config(object):
     
     #可选参数separate
     separate = 0
+
+    #可选参数limit
+    limit = 1000
+    #可选参数prefix
+    prefix = ''
+    #可选参数mode
+    mode = 1
+    #可选参数marker
+    marker = ''
+
+
+
     ## Creating a singleton
     def __new__(self, configfile=None, ak=None, sk=None, put_url=None, mgr_url=None ):
         if self._instance == None:

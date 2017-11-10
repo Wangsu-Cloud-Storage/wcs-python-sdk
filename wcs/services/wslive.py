@@ -1,7 +1,7 @@
 from wcs.services.mgrbase import MgrBase
 from wcs.commons.config import Config
 from wcs.commons.http import _get
-from logging import debug, warning, error 
+from wcs.commons.logme import debug,error 
 
 MGR = Config.mgr_url
 

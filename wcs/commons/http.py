@@ -17,11 +17,11 @@ def __return_wrapper(resp):
     if resp.text != '':
         resp_header = {'x-reqid': resp.headers['x-reqid']}
         try:
-            return eval(str(resp.text)), resp_header
+            return resp.status_code, eval(str(resp.text)), resp_header
         except Exception as e:
-            return {'message':resp.text}, resp_header
+            return -1, {'message':resp.text}, resp_header
     else:
-        return {'message':'Message Body is None. Please check your URL.'}, resp_header
+        return -1, {'message':'Message Body is None. Please check your URL.'}, resp_header
         
 
 def _init():
@@ -38,7 +38,7 @@ def _post(url, headers, data=None, files=None):
         headers['user-agent'] = 'WCSCMD-1.0.0(http://wcs.chinanetcenter.com)'
         r = requests.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=True)
     except Exception as e:
-        return e,'Null'
+        return -1,e,'Null'
     return __return_wrapper(r)
 
 def _get(url, headers=None):
@@ -47,6 +47,6 @@ def _get(url, headers=None):
         headers['user-agent'] = 'WCSCMD-1.0.0(http://wcs.chinanetcenter.com)'
         r = requests.get(url, headers=headers, timeout=timeout, verify=True)
     except Exception as e:
-        return e,'Null'
+        return -1,e,'Null'
     return __return_wrapper(r)
 

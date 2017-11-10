@@ -7,7 +7,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 from wcs.commons.config import Config
 from wcs.commons.http import _post
-from logging import debug,warning,error
+from wcs.commons.logme import debug,error
 from wcs.commons.util import readfile,file_to_stream,GetUuid
 from wcs.commons.util import urlsafe_base64_encode
 

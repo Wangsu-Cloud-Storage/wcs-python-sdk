@@ -3,8 +3,6 @@ from io import BytesIO
 from requests_toolbelt import MultipartEncoder
 
 from wcs.services.simpleupload import SimpleUpload
-from logging import debug, warning, error
-#from wcs.commons.logme import debug, warning, error
 
 class StreamUpload(SimpleUpload):
     

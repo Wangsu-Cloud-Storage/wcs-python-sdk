@@ -3,8 +3,9 @@
 import io
 import os
 import sys
+import logging
 from optparse import OptionParser, Option, IndentedHelpFormatter
-from wcs.commons.util import urlsafe_base64_encode
+import json
 
 def output(message):
     sys.stdout.write(message + '\n')
@@ -20,7 +21,7 @@ def format_commands(progname, commands_list):
 def get_commands_list():
     return [
         {"cmd":"list", "label":"List objects","param":"wcs://BUCKET RESFILE","func":cmd_list,"argc":2},
-        {"cmd":"listbucket", "label":"List buckets","param":"wcs://","func":cmd_listbucket,"argc":0},
+        {"cmd":"listbucket", "label":"List buckets","param":"","func":cmd_listbucket,"argc":0},
         {"cmd":"get","label":"Download file","param":"URL", "func":cmd_get,"argc":1},
         {"cmd":"del","label":"Delete a file", "param":"wcs://BUCKET/OBJECT","func":cmd_del, "argc":1},
         {"cmd":"mv","label":"Move a file from src bucket to des bucket", "param":"wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT","func":cmd_mv,"argc":2},
@@ -30,11 +31,25 @@ def get_commands_list():
         {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE PUTPOLICY", "func":cmd_put,"argc":3},
         {"cmd":"deletePrefix","label":"Delete multiple files according to prefix","param":"BUCKETLIST","func":cmd_delprefix,"argc":1}
     ]
-def cmd_list(args):
-    pass
 
-def cmd_listbucket(args):
-    pass
+def cmd_list(args):
+    cfg = Config()
+    cli = Client(cfg)
+    bucket = args[0].split("wcs://")[1]
+    resfile = './' + args[1]
+    code, response, reqid = cli.bucket_list(bucket,cfg.prefix, cfg.marker, int(cfg.limit),cfg.mode)
+    if code == 200:
+        try:
+            with open(resfile, 'w') as f:
+                f.write(json.dumps(response))
+        except IOError as e:
+            error('Write result to %s fail' % resfile)
+            sys.exit()
+        debug("Request result saved to %s" % (resfile))
+        debug("Request ID is: %s" % (reqid['x-reqid']))
+    else:
+        error("Request fail, more detail please pay attention to %s " % (reqid['x-reqid']))
+    
 
 def cmd_get(args):
     pass
@@ -103,7 +118,7 @@ def cmd_delprefix(args):
         sys.exit()
 
 def run_configure(config_file):
-    cfg = Config()
+    cfg = Config(config_file)
     options = [
         ("access_key","Access Key", "Access key and Secret key are your identifiers for WCS"),
         ("secret_key","Secret Key"),
@@ -127,6 +142,7 @@ def run_configure(config_file):
             for option in options:
                 prompt = option[1]
                 try:
+                   
                     val = getattr(cfg, option[0])
                     if type(val) is bool:
                         val = val and "Yes" or "No"
@@ -212,6 +228,7 @@ def main():
     optparser.add_option(   "--limit", dest="limit", help="Limit for list objects of bucket")
     optparser.add_option(   "--prefix", dest="prefix", help="Prefix for list objects of bucket")
     optparser.add_option(   "--mode", dest="mode", help="Mode for list objects of bucket")
+    optparser.add_option(   "--marker", dest="marker", help="Start string for list")
     optparser.add_option(   "--relevance", dest="relevance", action="store_true", help="Whether modify deadline relevant .ts when modify deadline of m3u8 file" )
     optparser.add_option("-d", "--debug", dest="verbosity", action="store_const", const=logging.DEBUG, help="Enable debug output.")
     optparser.add_option(   "--output", dest="output", help="Save request result to specified key, like:<bucket>:<key>")
@@ -233,6 +250,7 @@ def main():
 
     debug(u"wcscmd version 1.0.0")
     if options.run_config:
+        print options.config
         run_configure(options.config)
         sys.exit()
     try:
@@ -274,6 +292,18 @@ def main():
     if options.separate:
         cfg.separate = options.separate
 
+    if options.limit:
+        cfg.limit = options.limit
+
+    if options.prefix:
+        cfg.prefix = options.prefix
+
+    if options.mode:
+        cfg.mode = options.mode
+
+    if options.marker:
+        cfg.marker = options.marker 
+
     if len(args) < 1:
         optparser.print_help()
         sys.exit()
@@ -299,8 +329,8 @@ def main():
  
 if __name__ == '__main__':
     from wcs.commons.config import Config
-    import logging
-    from logging import debug, error, warning
+    from wcs.commons.logme import debug, error
     from wcs.services.client import Client
+    from wcs.commons.util import urlsafe_base64_encode
     main()
 

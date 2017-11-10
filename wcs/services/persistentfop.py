@@ -4,7 +4,7 @@ from wcs.commons.http import _post
 from wcs.commons.http import _get
 from wcs.commons.util import urlsafe_base64_encode
 
-from logging import debug, warning, error
+from wcs.commons.logme import debug, error
 
 MGR_URL = Config.mgr_url
 
