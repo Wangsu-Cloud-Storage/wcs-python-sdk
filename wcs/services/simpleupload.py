@@ -3,6 +3,7 @@ import requests
 from requests_toolbelt import MultipartEncoder
 from wcs.commons.http import _post
 from wcs.commons.logme import debug,error
+from wcs.commons.util import https_check
 
 class SimpleUpload(object):
 
@@ -22,6 +23,7 @@ class SimpleUpload(object):
         return open(path, 'rb')
 
     def _upload(self,url,encoder,headers,f):
+        url = https_check(url)
         try:
             r = requests.post(url=url, headers=headers, data=encoder, verify=True)
         except Exception as e:

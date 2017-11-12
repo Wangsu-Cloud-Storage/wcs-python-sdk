@@ -122,9 +122,9 @@ def cmd_put(args):
     cli = Client(cfg)
     bucket, object = _simple_arg_parse(args[0])
     local = args[1]
-    policy["scope"] = '%s:%s' % (bucket, object)
-    if cfg.overwirte:
-        policy.set_conf('overwrite', cfg.overwirte)
+    policy.set_conf('scope', '%s:%s' % (bucket, object))
+    if cfg.overwrite:
+        policy.set_conf('overwrite', int(cfg.overwrite))
     if cfg.returnUrl:
         policy.set_conf('returnUrl', cfg.returl)
     if cfg.returnBody:
@@ -143,7 +143,7 @@ def cmd_put(args):
         policy.set_conf('detectNotifyURL', cfg.detectNotifyURL)
     if cfg.detectNotifyRule:
         policy.set_conf('detectNotifyRule', cfg.detectNotifyRule)
-    
+    print local,policy.putpolicy
     print cli.simple_upload(local, policy)
         
 def cmd_multiput(args):
@@ -151,9 +151,9 @@ def cmd_multiput(args):
     cli = Client(cfg)
     bucket, object = _simple_arg_parse(args[0])
     local = args[1]
-    policy["scope"] = '%s:%s' % (bucket, object)
-    if cfg.overwirte:
-        policy.set_conf('overwrite', cfg.overwirte)
+    policy.set_conf('scope','%s:%s' % (bucket, object))
+    if cfg.overwrite:
+        policy.set_conf('overwrite', int(cfg.overwrite))
     if cfg.returnUrl:
         policy.set_conf('returnUrl', cfg.returl)
     if cfg.returnBody:
