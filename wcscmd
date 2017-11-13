@@ -121,23 +121,23 @@ def _dump_policy(cfg,policy):
     if cfg.overwrite:
         policy.set_conf('overwrite', int(cfg.overwrite))
     if cfg.returnUrl:
-        policy.set_conf('returnUrl', cfg.returnUrl)
+        policy.set_conf('returnUrl', str(cfg.returnUrl))
     if cfg.returnBody:
-        policy.set_conf('returnBody', cfg.returnBody)
+        policy.set_conf('returnBody', str(cfg.returnBody))
     if cfg.callbackUrl:
-        policy.set_conf('callbackUrl', cfg.callbackUrl)
+        policy.set_conf('callbackUrl', str(cfg.callbackUrl))
     if cfg.callbackBody:
-        policy.set_conf('callbackBody', cfg.callbackBody)
+        policy.set_conf('callbackBody', str(cfg.callbackBody))
     if cfg.persistentNotifyUrl:
-        policy.set_conf('persistentNotifyUrl',cfg.persistentNotifyUrl)
+        policy.set_conf('persistentNotifyUrl', str(cfg.persistentNotifyUrl))
     if cfg.persistentOps:
-        policy.set_conf('persistentOps', cfg.persistentOps)
+        policy.set_conf('persistentOps', str(cfg.persistentOps))
     if cfg.contentDetect:
-        policy.set_conf('contentDetect', cfg.contentDetect)
+        policy.set_conf('contentDetect', str(cfg.contentDetect))
     if cfg.detectNotifyURL:
-        policy.set_conf('detectNotifyURL', cfg.detectNotifyURL)
+        policy.set_conf('detectNotifyURL', str(cfg.detectNotifyURL))
     if cfg.detectNotifyRule:
-        policy.set_conf('detectNotifyRule', cfg.detectNotifyRule)
+        policy.set_conf('detectNotifyRule', str(cfg.detectNotifyRule))
     return policy
 
 def cmd_put(args):
@@ -159,7 +159,7 @@ def cmd_multiput(args):
     policy.set_conf('scope','%s:%s' % (bucket, object))
     policy = _dump_policy(cfg, policy)
     print local,policy.putpolicy
-    print cli.multipart_upload(path, policy, cfg.upload_id)
+    print cli.multipart_upload(local, policy, cfg.upload_id)
 
 def cmd_listbucket(args):
     cli = Client(Config())
