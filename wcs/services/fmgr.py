@@ -10,49 +10,32 @@ class Fmgr(MgrBase):
     def __init__(self, auth,url):
         super(Fmgr, self).__init__(auth,url)
 
-    def _generate_data_dict(self, fops,notifyurl=None, separate=None):
-        data = {'fops': fops}
-        if notifyurl:
-            data['notifyURL'] = urlsafe_base64_encode(notifyurl)
-        if separate:
-            data['separate'] = separate
-        return data
+    def _fmgr_commons(self, reqdata, method):
+        url = https_check('{0}/fmgr/{1}'.format(self.mgr_host,method))
+        debug('Request body is: %s' % (reqdata))
+        debug('Start to execute opration: %s' % method)
+        return _post(url=url, data=reqdata, headers=super(Fmgr, self)._gernerate_headers(url, body=reqdata)) 
+        
+    def fmgr_move(self, reqdata):
+        return self._fmgr_commons(reqdata, 'move')
 
-    def _fmgr_commons(self, method, fops,notifyurl=None,separate=None):
-        url = '{0}/fmgr/{1}'.format(self.mgr_host,method)
-        data = self._generate_data_dict(fops,notifyurl,separate)
-        reqdata = super(Fmgr, self)._params_parse(data)
-        debug('Fmgr_%s request body is: %s' % (method,reqdata))
-        debug('Start to %s file' % method)
-        code, text = _post(url=url, data=reqdata, headers=super(Fmgr, self)._gernerate_headers(url, body=reqdata)) 
-        debug('The return code : %d ,text : %s' % (code, text))
-        return code, text
-
-    def fmgr_move(self, fops,notifyurl=None,separate=None):
-        return self._fmgr_commons('move',fops,notifyurl=None,separate=None)
-
-    def fmgr_copy(self, fops, notifyurl=None, separate=None):
-        return self._fmgr_commons('copy',fops, notifyurl=None, separate=None)
+    def fmgr_copy(self, reqdata):
+        return self._fmgr_commons(reqdata, 'copy')
    
-    def fmgr_fetch(self, fops, notifyurl=None, force=None, separate=None):
-        return self._fmgr_commons('fetch',fops, notifyurl=None, separate=None) 
+    def fmgr_fetch(self, reqdata):
+        return self._fmgr_commons(reqdata, 'fetch') 
 
-    def fmgr_delete(self, fops, notifyurl=None, separate=None):
-        return self._fmgr_commons('delete',fops, notifyurl=None, separate=None)
+    def fmgr_delete(self, reqdata):
+        return self._fmgr_commons(reqdata,'delete')
 
     def prefix_delete(self, reqdata):
-        url = '{0}/fmgr/{1}'.format(self.mgr_host,'deletePrefix')
-        url = https_check(url)
-        debug('Fmgr_%s request body is: %s' % ('deletePrefix',reqdata))
-        debug('Start to %s file' % 'deletePrefix')
-        return _post(url=url, data=reqdata, headers=super(Fmgr, self)._gernerate_headers(url, body=reqdata)) 
+        return self._fmgr_commons(reqdata,'deletePrefix')
 
-    def m3u8_delete(self, fops, notifyurl=None, separate=None):
-        return self._fmgr_commons('deletem3u8',fops, notifyurl=None, separate=None)
+    def m3u8_delete(self, reqdata):
+        return self._fmgr_commons(reqdata, 'deletem3u8')
    
     def status(self, persistentId):
         url = '{0}/fmgr/status?persistentId={1}'.format(self.mgr_host, persistentId)
+        url = https_check(url)
         debug('Start to get status of persistentId: %s' % persistentId)
-        code, text = _get(url=url)
-        debug('The return code : %d, text : %s' % (code, text))
-        return code, text
+        return _get(url=url)

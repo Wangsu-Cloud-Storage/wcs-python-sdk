@@ -58,17 +58,38 @@ class Client(object):
     def setdeadline(self,bucket,key,deadline):
         return self.bmgr.setdeadline(bucket,key,deadline)
 
-    def fmgr_move(self,fops,notifyurl=None,separate=None):
-        return self.fmgr.fmgr_move(fops,notifyurl,separate)
+    def _parse_fops(self, fops):
+        data = [fops]
+        if Config.notifyurl:
+            data.append('notifyURL=%s' % urlsafe_base64_encode(Config.notifyurl))
+        if Config.separate: 
+            data.append('separate=%s' % Config.separate)
+        return 'fops=' + '&'.join(data)
+
+    def _commons(self,srcbk,srckey,dstbk,dstkey=None,prefix=None):
+        resource = urlsafe_base64_encode('%s:%s' % (srcbk,srckey))
+        fops = 'resource/%s/bucket/%s' % (resource,urlsafe_base64_encode(dstbk))
+        if dstkey:
+            fops += '/key/%s'% urlsafe_base64_encode(dstkey)
+        if prefix:
+            fops += '/prefix/%s' % urlsafe_base64_encode(prefix)
+        return fops
+        
+    def fmgr_move(self,srcbk,srckey,dstbk,dstkey,prefix=None):
+        fops = self._commons(srcbk,srckey,dstbk,dstkey,prefix)
+        return self.fmgr.fmgr_move(self._parse_fops(fops))
 
     def fmgr_copy(self,fops,notifyurl=None,separate=None): 
-        return self.fmgr.fmgr_copy(fops,notifyurl,separate)
+        fops = self._commons(srcbk,srckey,dstbk,dstkey,prefix)
+        return self.fmgr.fmgr_copy(self._parse_fops(fops))
 
-    def fmgr_fetch(self,fops,notifyurl=None,separate=None):
-        return self.fmgr.fmgr_fetch(fops,notifyurl,separate)
+    def fmgr_fetch(self,url,bucket,key,prefix=None):
+        fops = 'fetchURL/%s/bucket/%s' % (url,bucket)
+        return self.fmgr.fmgr_fetch(self._parse_fops(fops))
 
-    def fmgr_delete(self,fops,notifyurl=None,separate=None):
-        return self.fmgr.fmgr_delete(fops,notifyurl,separate)
+    def fmgr_delete(self,bucket,key):
+        fops = 'bucket/%s/key/%s' % (bucket,key)
+        return self.fmgr.fmgr_delete(self._parse_fops(fops))
 
     def prefix_delete(self,bucket, prefix):
         fops = 'bucket/%s/prefix/%s' % (urlsafe_base64_encode(bucket), urlsafe_base64_encode(prefix))
@@ -82,8 +103,9 @@ class Client(object):
         reqdata = 'fops=' + '&'.join(data)  
         return self.fmgr.prefix_delete(reqdata)
 
-    def m3u8_delete(self,fops,notifyurl=None,separate=None):
-        return self.fmgr.m3u8_delete(fops,notifyurl,separate)
+    def m3u8_delete(self,bucket,key,delete=1):
+        fops = 'bucket/%s/key/%s/deletes/%d' % (bucket,key,delet)
+        return self.fmgr.m3u8_delete(self._parse_fops(fops))
 
     def fmgr_status(self,persistentId):
         return self.fmgr.status(persistentId)

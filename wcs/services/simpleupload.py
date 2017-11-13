@@ -16,7 +16,7 @@ class SimpleUpload(object):
         fileds['file'] = ('filename', f, 'text/plain')
         encoder = MultipartEncoder(fileds)
         headers = {"Content-Type":encoder.content_type}
-        headers['user-agent'] = "WCS-Python-SDK-3.0.2(http://wcs.chinanetcenter.com)"
+        headers['user-agent'] = "WCSCMD-1.0.0(http://wcs.chinanetcenter.com)"
         return url, encoder, headers  
     
     def _gernerate_content(self,path):
