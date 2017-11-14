@@ -9,8 +9,6 @@ import json
 import requests
 from wcs.commons.putpolicy import PutPolicy
 
-policy = PutPolicy()
-
 def output(message):
     sys.stdout.write(message + '\n')
     sys.stdout.flush()
@@ -33,7 +31,7 @@ def get_commands_list():
         {"cmd":"stat","label":"Get file info","param":"wcs://BUCKET/OBJECT","func":cmd_stat, "argc":1},
         {"cmd":"put","label":"Upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE", "func":cmd_put,"argc":2},
         {"cmd":"multiput","label":"Multipart upload a local file to WCS","param":"wcs://BUCKET/OBJECT LOCALFILE ", "func":cmd_multiput,"argc":2},
-        {"cmd":"deletePrefix","label":"Delete multiple files according to prefix","param":"BUCKETLIST","func":cmd_delprefix,"argc":1}
+        {"cmd":"deletePrefix","label":"Delete multiple files according to prefix","param":"wcs://BUCKET PREFIX","func":cmd_delprefix,"argc":2}
     ]
 
 def cmd_list(args):
@@ -41,7 +39,7 @@ def cmd_list(args):
     cli = Client(cfg)
     bucket = args[0].split("wcs://")[1]
     resfile = './' + args[1]
-    code, response, reqid = cli.bucket_list(bucket,cfg.prefix, cfg.marker, int(cfg.limit),cfg.mode)
+    code, response, reqid = cli.bucket_list(bucket,cfg.prefix, cfg.marker, int(cfg.limit),int(cfg.mode))
     if code == 200:
         try:
             with open(resfile, 'w') as f:
@@ -57,15 +55,17 @@ def cmd_list(args):
 def cmd_get(args):
     url = args[0]
     key = './'+ url.split('/')[-1]
-    res = requests.get(url)
-    if res.status_code == 200:
-        try:
-            with open(key, 'w') as f:
-                f.write(res.text)
-        except:
-            error("Create local file fail")
-            sys.exit()
-    else:
+    try:
+        res = requests.get(url)
+        if res.status_code == 200:
+            debug("Download suc.")
+            try:
+                with open(key,'wb') as f:
+                    f.write(res.content)
+            except IOError as e:
+                error("Create local file fail for %s" % e)
+                sys.exit()
+    except:
         error("Download Fail,for %d, %s" (res.status_code, res.text))
 
 def _simple_arg_parse(arg):
@@ -74,11 +74,10 @@ def _simple_arg_parse(arg):
     object = tmp.split(bucket+'/')[1]
     return bucket, object
     
-
 def cmd_del(args):
     cli = Client(Config())
     bucket, object = _simple_arg_parse(args[0])
-    print cli.delete(bucket,object)
+    debug(cli.delete(bucket,object))
 
 def _couple_args_parse(args):
     try:
@@ -98,78 +97,48 @@ def _couple_args_parse(args):
 def cmd_mv(args):
     cli = Client(Config())
     srcbk, srcob, dstbk, dstob = _couple_args_parse(args)
-    print cli.move(srcbk, srcob, dstbk, dstob)
+    debug(cli.move(srcbk, srcob, dstbk, dstob))
 
 
 def cmd_cp(args):
     cli = Client(Config())
     srcbk, srcob, dstbk, dstob = _couple_args_parse(args)
-    print cli.copy(srcbk, srcob, dstbk, dstob)
+    debug(cli.copy(srcbk, srcob, dstbk, dstob))
 
 def cmd_setdeadline(args):
     cli = Client(Config())
     bucket, object = _simple_arg_parse(args[0])
     deadline = args[1]
-    print cli.setdeadline(bucket,object,deadline)
+    debug(cli.setdeadline(bucket,object,deadline))
 
 def cmd_stat(args):
     cli = Client(Config())
     bucket, object = _simple_arg_parse(args[0])
-    print cli.stat(bucket,object)
-
-def _dump_policy(cfg,policy): 
-    if cfg.overwrite:
-        policy.set_conf('overwrite', int(cfg.overwrite))
-    if cfg.returnUrl:
-        policy.set_conf('returnUrl', str(cfg.returnUrl))
-    if cfg.returnBody:
-        policy.set_conf('returnBody', str(cfg.returnBody))
-    if cfg.callbackUrl:
-        policy.set_conf('callbackUrl', str(cfg.callbackUrl))
-    if cfg.callbackBody:
-        policy.set_conf('callbackBody', str(cfg.callbackBody))
-    if cfg.persistentNotifyUrl:
-        policy.set_conf('persistentNotifyUrl', str(cfg.persistentNotifyUrl))
-    if cfg.persistentOps:
-        policy.set_conf('persistentOps', str(cfg.persistentOps))
-    if cfg.contentDetect:
-        policy.set_conf('contentDetect', str(cfg.contentDetect))
-    if cfg.detectNotifyURL:
-        policy.set_conf('detectNotifyURL', str(cfg.detectNotifyURL))
-    if cfg.detectNotifyRule:
-        policy.set_conf('detectNotifyRule', str(cfg.detectNotifyRule))
-    return policy
+    debug(cli.stat(bucket,object))
 
 def cmd_put(args):
     cfg = Config()
     cli = Client(cfg)
     bucket, object = _simple_arg_parse(args[0])
     local = args[1]
-    policy = PutPolicy()
-    policy.set_conf('scope', '%s:%s' % (bucket, object))
-    policy = _dump_policy(cfg, policy)
-    print cli.simple_upload(local, policy)
+    debug(cli.simple_upload(local, bucket,object))
         
 def cmd_multiput(args):
     cfg = Config()
     cli = Client(cfg)
-    policy = PutPolicy()
     bucket, object = _simple_arg_parse(args[0])
     local = args[1]
-    policy.set_conf('scope','%s:%s' % (bucket, object))
-    policy = _dump_policy(cfg, policy)
-    print local,policy.putpolicy
-    print cli.multipart_upload(local, policy, cfg.upload_id)
+    debug(cli.multipart_upload(local, bucket, object, cfg.upload_id))
 
 def cmd_listbucket(args):
     cli = Client(Config())
-    print cli.list_buckets()
+    debug(cli.list_buckets())
 
 def cmd_delprefix(args):
-    bucket = args[0]
+    bucket = args[0].split("wcs://")[1]
     prefix = args[1]
     cli = Client(Config())
-    print cli.prefix_delete(bucket, prefix)
+    debug(cli.prefix_delete(bucket, prefix))
 
 def run_configure(config_file):
     cfg = Config(config_file)

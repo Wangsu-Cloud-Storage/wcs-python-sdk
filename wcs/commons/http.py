@@ -9,6 +9,7 @@ import platform
 import requests
 from .config import Config
 from requests.adapters import HTTPAdapter
+import yaml
 
 _session = None
 timeout = float(Config.connection_timeout)
@@ -19,7 +20,11 @@ def __return_wrapper(resp):
         try:
             return resp.status_code, eval(str(resp.text)), resp_header
         except Exception as e:
-            return -1, {'message':resp.text}, resp_header
+            response_body = yaml.load(resp.text)
+            if 'code' in response_body.keys():
+                return response_body["code"],response_body,resp_header
+            else:
+                return -1, {'message':resp.text}, resp_header
     else:
         return -1, {'message':'Message Body is None. Please check your URL.'}, resp_header
         

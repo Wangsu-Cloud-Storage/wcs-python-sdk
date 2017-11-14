@@ -58,8 +58,6 @@ class PersistentFop(MgrBase):
         headers,reqdata = self._gernerate_headers(url,data)
         debug('PersistentFops is %s' % fops)
         debug('Start to post persistentFops')
-        code,text = _post(url=url, data=reqdata,headers=headers)
-        debug('Code: %d, text: %s' % (code, text))
-        return code,text
+        return _post(url=url, data=reqdata,headers=headers)
 
 

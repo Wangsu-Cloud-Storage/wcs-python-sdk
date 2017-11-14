@@ -64,7 +64,7 @@ class BucketManager(MgrBase):
         src = urlsafe_base64_encode('%s:%s' % (srcbucket, srckey))
         dst = urlsafe_base64_encode('%s:%s' % (dstbucket, dstkey)) 
         url = '{0}/move/{1}/{2}'.format(self.mgr_host, src, dst)
-        return https_checkt(url)
+        return https_check(url)
 
     def move(self, srcbucket, srckey, dstbucket, dstkey):
         url = self._make_move_url(srcbucket, srckey, dstbucket, dstkey)
@@ -102,7 +102,7 @@ class BucketManager(MgrBase):
     def bucket_stat(self, name, startdate, enddate):
         encode_name = urlsafe_base64_encode(name)
         options = {'name':encode_name, 'startdate':startdate, 'enddate':enddate}
-        url = self._make_url('bucket/stat', options)
+        url = https_check(self._make_url('bucket/stat', options))
         debug('Now check storage of %s from %s to %s' % (name, startdate, enddate))
         return _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 

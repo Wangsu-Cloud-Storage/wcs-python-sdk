@@ -125,7 +125,7 @@ class MultipartUpload(object):
             bput = readfile(f, offset, bput_size)
             blkcode, blktext,_ = _post(url=url,headers=headers, data=bput)
             while mkblk_retries and self.__need_retry(blkcode):
-                blkcode, blktext = _post(url=url, headers=headers, data=bput)
+                blkcode, blktext,_ = _post(url=url, headers=headers, data=bput)
                 mkblk_retries -= 1
             if blkcode != 200:
                 result = [offset, blkcode, blktext['message']]

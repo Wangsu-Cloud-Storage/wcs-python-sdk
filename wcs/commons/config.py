@@ -46,6 +46,9 @@ class Config(object):
     #可选参数separate
     separate = 0
 
+    #可选参数force
+    force = 0
+
     #bucket list可选参数limit
     limit = 1000
     prefix = ''
