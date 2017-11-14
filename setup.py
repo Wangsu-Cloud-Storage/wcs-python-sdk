@@ -27,14 +27,16 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 setup(
-    name='wcs-python-sdk',
+    name='wcscmd',
     version=find_version("wcs/__init__.py"),
-    description='Wangsu Cloud Storage SDK',
+    description='Wangsu Cloud Storage Command Tool',
     long_description='see:\nhttps://wcs.chinanetcenter.com/document/SDK\n',
     author='ChinaNetCenter.Wangsu Cloud Strage',
+    maintainer = 'https://github.com/Wangsu-Cloud-Storage'
     author_email = 'cdn_team_storage_wcs@chinanetcenter.com',
     url='https://wcs.chinanetcenter.com/document/SDK',
     packages=packages,
+    scripts=['wcscmd'] 
     license = 'MIT',
     classifiers=[
         'Intended Audience :: Developers',
@@ -50,7 +52,7 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    install_requires=['requests>=2.11.1','poster','logging','argparse', 'lockfile', 'requests_toolbelt'],
+    install_requires=['requests>=2.11.1','poster','logging','argparse', 'lockfile', 'requests_toolbelt','pyyaml'],
     
     entry_points={
         'console_scripts':[
