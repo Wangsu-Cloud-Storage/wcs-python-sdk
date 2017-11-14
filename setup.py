@@ -32,11 +32,11 @@ setup(
     description='Wangsu Cloud Storage Command Tool',
     long_description='see:\nhttps://wcs.chinanetcenter.com/document/SDK\n',
     author='ChinaNetCenter.Wangsu Cloud Strage',
-    maintainer = 'https://github.com/Wangsu-Cloud-Storage'
+    maintainer = 'https://github.com/Wangsu-Cloud-Storage',
     author_email = 'cdn_team_storage_wcs@chinanetcenter.com',
     url='https://wcs.chinanetcenter.com/document/SDK',
     packages=packages,
-    scripts=['wcscmd'] 
+    scripts=['wcscmd'],
     license = 'MIT',
     classifiers=[
         'Intended Audience :: Developers',

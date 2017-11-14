@@ -141,6 +141,10 @@ def cmd_delprefix(args):
     debug(cli.prefix_delete(bucket, prefix))
 
 def run_configure(config_file):
+    if os.path.exists(config_file):
+        cfg = Config(config_file)
+    else:
+        cfg = Config()
     cfg = Config(config_file)
     options = [
         ("access_key","Access Key", "Access key and Secret key are your identifiers for WCS"),
@@ -272,7 +276,6 @@ def main():
 
     debug(u"wcscmd version 1.0.0")
     if options.run_config:
-        print options.config
         run_configure(options.config)
         sys.exit()
     try:
