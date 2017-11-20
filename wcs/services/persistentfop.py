@@ -2,7 +2,7 @@ from wcs.services.mgrbase import MgrBase
 from wcs.commons.config import Config
 from wcs.commons.http import _post
 from wcs.commons.http import _get
-from wcs.commons.util import urlsafe_base64_encode
+from wcs.commons.util import urlsafe_base64_encode,https_check
 
 from wcs.commons.logme import debug, error
 
@@ -46,7 +46,7 @@ class PersistentFop(MgrBase):
         headers = super(PersistentFop, self)._gernerate_headers(url, body=reqdata) 
         return headers,reqdata
 
-    def execute(self,fops,bucket,key,force=None,separate=None,notifyurl=None):
+    def execute(self,fops,bucket,key,force=0,separate=0,notifyurl=None):
         data = {'bucket': urlsafe_base64_encode(bucket), 'key': urlsafe_base64_encode(key), 'fops': urlsafe_base64_encode(fops)}
         if notifyurl is not None:
             data['notifyURL'] = urlsafe_base64_encode(notifyurl)
@@ -54,7 +54,7 @@ class PersistentFop(MgrBase):
             data['force'] = 1
         if separate == 1:
             data['separate'] = 1
-        url = '{0}/fops'.format(self.mgr_host)
+        url = https_check('{0}/fops'.format(self.mgr_host))
         headers,reqdata = self._gernerate_headers(url,data)
         debug('PersistentFops is %s' % fops)
         debug('Start to post persistentFops')

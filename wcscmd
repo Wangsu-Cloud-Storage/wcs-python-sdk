@@ -138,7 +138,8 @@ def cmd_delprefix(args):
     bucket = args[0].split("wcs://")[1]
     prefix = args[1]
     cli = Client(Config())
-    debug(cli.prefix_delete(bucket, prefix))
+    fops = 'bucket/%s/prefix/%s' % (urlsafe_base64_encode(bucket), urlsafe_base64_encode(prefix))
+    debug(cli.prefix_delete(fops))
 
 def run_configure(config_file):
     if os.path.exists(config_file):
@@ -249,7 +250,7 @@ def main():
     optparser.add_option(   "--notify", dest="notifyURL", help="Notify url for request result")
     optparser.add_option(   "--separate", dest="separate", help="Whether separate notify, bool type")
     optparser.add_option(   "--overwrite", dest="overwirte", help="Whether overwrite existed key, bool type")
-    optparser.add_option(   "--returnurl", dest="returl", help="Url for return")
+    lptparser.add_option(   "--returnurl", dest="returl", help="Url for return")
     optparser.add_option(   "--returnbody", dest="retbody", help="Body of return")
     optparser.add_option(   "--callbackurl", dest="cburl", help="Url for callback")
     optparser.add_option(   "--callbackbody", dest="cbbody", help="Body of callback")

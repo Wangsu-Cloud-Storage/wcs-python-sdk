@@ -2,6 +2,7 @@ from wcs.services.mgrbase import MgrBase
 from wcs.commons.config import Config
 from wcs.commons.http import _get
 from wcs.commons.logme import debug,error 
+from wcs.commons.util import https_check
 
 MGR = Config.mgr_url
 
@@ -28,7 +29,7 @@ class WsLive(MgrBase):
             query['start'] = start
         if limit is not None:
             query['limit'] = limit
-        url = self._make_list_url(query)
+        url = https_check(self._make_list_url(query))
         if query is not None:
             debug('List params is %s' % query)
         debug('List bucket %s' % bucket)
