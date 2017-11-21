@@ -123,7 +123,7 @@ class WcsTestCases(unittest.TestCase):
         channel = ''
         startTime = ''
         endTime = ''
-        debug(self.cli.wslive_list(channel, startTime, endTime)) 
+        debug(self.cli.wslive_list(channel, startTime, endTime,self.bucket)) 
 
 if __name__ == '__main__':
     unittest.main()

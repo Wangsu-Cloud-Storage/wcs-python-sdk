@@ -37,9 +37,7 @@ class PersistentFop(MgrBase):
     def fops_status(self, persistentId):
         url = '{0}/status/get/prefop?persistentId={1}'.format(self.mgr_host, persistentId)
         debug('Start to get status of persistentId: %s' % persistentId)
-        code, text = _get(url=url)
-        debug('The return code and text of status request is:%d %s' % (code, text))
-        return code, text
+        return _get(url=url)
 
     def _gernerate_headers(self,url,data):
         reqdata = super(PersistentFop, self)._params_parse(data)

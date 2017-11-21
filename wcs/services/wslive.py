@@ -33,6 +33,4 @@ class WsLive(MgrBase):
         if query is not None:
             debug('List params is %s' % query)
         debug('List bucket %s' % bucket)
-        code, text = _get(url=url, data=query, headers=super(WsLive, self)._gernerate_headers(url)) 
-        debug('The return code : %d, text : %s' % (code, text))
-        return code, text 
+        return _get(url=url, headers=super(WsLive, self)._gernerate_headers(url)) 
