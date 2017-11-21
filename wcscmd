@@ -250,7 +250,7 @@ def main():
     optparser.add_option(   "--notify", dest="notifyURL", help="Notify url for request result")
     optparser.add_option(   "--separate", dest="separate", help="Whether separate notify, bool type")
     optparser.add_option(   "--overwrite", dest="overwirte", help="Whether overwrite existed key, bool type")
-    lptparser.add_option(   "--returnurl", dest="returl", help="Url for return")
+    optparser.add_option(   "--returnurl", dest="returl", help="Url for return")
     optparser.add_option(   "--returnbody", dest="retbody", help="Body of return")
     optparser.add_option(   "--callbackurl", dest="cburl", help="Url for callback")
     optparser.add_option(   "--callbackbody", dest="cbbody", help="Body of callback")
