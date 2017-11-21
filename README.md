@@ -1,27 +1,19 @@
-# Python SDK使用指南
-wcs-python-sdk从v1.0.0版本开始，SDK的功能包括：文件上传、资源管理、高级资源管理、持久化处理、相应操作状态查询以及直播录制文件查询。
+# WCS Python SDK用户文档
 
-此Python SDK适用于python 2.X和3.X环境，但是如果需要支持https，请将环境升级到2.7.9+再使用本SDK。
+标签（空格分隔）： 未分类
+
+wcs-python-sdk从v4.0.0版本开始，既可作为Python SDK使用，也可作为命令行工具使用
+
+* SDK的功能包括：文件上传、资源管理、高级资源管理、持久化处理、相应操作状态查询以及直播录制文件查询。
+* 命令行工具的功能包括：普通上传、分片上传、资源管理、按前缀删除文件
+* 此Python SDK适用于python 2.X
 
 ## 安装
 推荐使用pip安装
 
 * 直接安装
 
-    > Python2: pip install wcs-python-sdk
-    
-    > Python3: pip3 install wcs-python-sdk-3
- 
-
-* 源码安装
-    
-
-    > tar xvzf wcs-python-sdk-$VERSION.tar.gz
-
-    > cd wcs-python-sdk-$VERSION
-
-    > python setup.py install
-
+    >  pip install wcs-python-sdk
 
 ## 初始化
 在使用SDK之前，您需要获得一对有效的AccessKey和SecretKey签名授权。
@@ -30,13 +22,86 @@ wcs-python-sdk从v1.0.0版本开始，SDK的功能包括：文件上传、资源
 
 1. 开通网宿云存储账号
 2. 登录网宿SI平台，在安全管理-秘钥管理查看AccessKey和SecretKey
-3. 登录网宿SI平台，在安全管理-域名管理查看上传域名（puturl）和管理域名(mgrurl)。**如您使用的是http协议，最后的配置需添加http://前缀**
+3. 登录网宿SI平台，在安全管理-域名管理查看上传域名（puturl）和管理域名(mgrurl)。
 
-获取上面4个配置之后，调用如下代码进行初始化：
+获取上面4个配置之后，执行如下命令，通过命令好行交互的方式对配置信息进行初始化：
+wcscmd --configure
 
-    from wcs.services.client import Client
-    client = Client(Access_key, Secret_key, puturl, mgrurl)
+更新的配置信息会保存在$HOME目录下的.wcscfg文件中，同时可以通过一下方式打印上一步添加的配置信息：
+wcscmd --dump-config
+
+## wcscmd命令行工具使用
+
+#### 查阅工具使用说明
+    wcscmd --help
+    Commands:
+    List objects
+    	wcscmd list wcs://BUCKET RESFILE 
+    List buckets
+    	wcscmd listbucket  
+    Download file
+    	wcscmd get URL 
+    Delete a file
+    	wcscmd del wcs://BUCKET/OBJECT 
+    Move a file from src bucket to des bucket
+    	wcscmd mv wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT 
+    Copy a file from src bucket to des bucket
+    	wcscmd cp wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT 
+    Set deadline of file
+    	wcscmd setdeadline wcs://BUCKET/OBJECT deadline 
+    Get file info
+    	wcscmd stat wcs://BUCKET/OBJECT 
+    Upload a local file to WCS
+    	wcscmd put wcs://BUCKET/OBJECT LOCALFILE 
+    Multipart upload a local file to WCS
+    	wcscmd multiput wcs://BUCKET/OBJECT LOCALFILE  
+    Delete multiple files according to prefix
+    	wcscmd deletePrefix wcs://BUCKET PREFIX
+
+#### wcscmd[普通上传](https://wcs.chinanetcenter.com/document/API/FileUpload/Upload)
+
+上传策略可以通过编辑.wcscfg文件中响应的配置项进行定义，也可以通过命令行的option进行临时配置,
+
+     wcscmd put wcs://test/test-1k ./test-1k  --overwrite 1
+
+#### wcscmd[分片上传](https://wcs.chinanetcenter.com/document/API/FileUpload/SliceUpload)
+上传策略可以通过编辑.wcscfg文件中响应的配置项进行定义，也可以通过命令行的option进行临时配置，如果需要进行断点续传需要增加--upload-id这个option
+
+     wcscmd multiput wcs://test/test-100M /root/test-100M --upload-id 3IL3ce3kR6kDf4sihxh0LcWUpzTYEKFf
+     
+#### wcscmd[列举空间列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/listbucket)
+    wcscmd listbucket
+#### wcscmd[列举空间文件列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/list)
+空间test的列举结果会保存在当前目录的result文件中
+
+    wcscmd list wcs://test ./result --limit 4 
     
+#### wcscmd下载文件
+下载的文件会与源文件同名，并保存在当前目录下
+    
+    wcscmd get [URL]
+    
+#### wcscmd[获取文件信息](https://wcs.chinanetcenter.com/document/API/ResourceManage/stat)
+    wcscmd stat wcs://test/test-100M
+    
+#### wcscmd[设置文件保存期限](https://wcs.chinanetcenter.com/document/API/ResourceManage/setdeadline)
+保存时间单位为天，0表示尽快删除，-1表示取消过期时间，永久保存
+
+    wcscmd setdeadline wcs://test/test-100M 3
+    
+#### wcscmd[删除文件](https://wcs.chinanetcenter.com/document/API/ResourceManage/delete)
+    wcscmd del wcs://test/test-100M
+    
+#### wcscmd[按前缀删除文件](https://wcs.chinanetcenter.com/document/API/Fmgr/deletePrefix)
+
+    wcscmd deletePrefix wcs://test test-prefix
+
+#### wcscmd[移动文件](https://wcs.chinanetcenter.com/document/API/ResourceManage/move)
+    wcscmd move wcs://srctest/test1 wcs://dsttest/test2
+    
+#### wcscmd[复制文件](https://wcs.chinanetcenter.com/document/API/ResourceManage/copy)
+    wcscmd copy wcs://srctest/test1 wcs://dsttest/test2
+
 ## 计算文件etag值
 
 wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的形式体验这个功能
@@ -62,363 +127,165 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
     pkg_resources.DistributionNotFound: [modulename]
     解决方案： 
     pip install --upgrade setuptools
+
+## Python SDK使用
+配置信息初始化
     
-
-## 上传文件
-
-为了尽可能改善终端用户的上传体验，wcs-python-sdk提供了客户端直传功能，更多信息请参阅[wcs文档中心](https://wcs.chinanetcenter.com/document/API/FileUpload)
-
-### 普通上传：
-
+    import os
+    from os.path import expanduser
+    from wcs.commons.config import Config
     from wcs.services.client import Client
-    from wcs.commons.putpolicy import PutPolicy
-
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-  
-    # 设定上传策略
-    policy = PutPolicy()
-    policy.set_conf('scope','%s:%s' % (bucket,key))
-    .... 
     
-    # 文件上传
+    config_file = os.path.join(expanduser("~"), ".wcscfg")
+    cfg = Config(config_file) #加载配置文件
+    cli = Client(cfg) 初始化Client
+#### [普通上传](https://wcs.chinanetcenter.com/document/API/FileUpload/Upload)
+上传策略通过编辑.wcscfg文件中响应的配置项进行定义
+
+    key = ''
+    bucket = ''
     filepath = ''
-    client.simple_upload(filepath,policy)
-   
-### 回调上传
-
-    from wcs.services.client import Client
-    from wcs.commons.putpolicy import PutPolicy
-
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
+    cli.simple_upload(filepath, bucket, key)
     
-    # 设定上传策略，上传策略中设定了回调url以及callbackbody
-    policy = PutPolicy()
-    policy.set_conf('scope','%s:%s' % (bucket,key)
-    policy.set_conf('callbackUrl',{callback})
-    policy.set_conf('callbackBody','bucket=$(bucket)&key=$(key)')
-    ....
+#### [分片上传](https://wcs.chinanetcenter.com/document/API/FileUpload/SliceUpload)
+上传策略通过编辑.wcscfg文件中响应的配置项进行定义，断点续传需要提供upload id，可以在上传时传入，或者在.wcscfg中编辑
 
-    # 文件上传
+    key = ''
+    bucket = ''
     filepath = ''
-    client.simple_upload(filepath,policy)
-     
-        
-### 通知上传
-
-    # 以图片加水印为例
-    from wcs.services.client import Client
-    from wcs.commons.putpolicy import PutPolicy
-
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
+    upload_id = ''
+    cli.multipart_upload(filepath, bucket, key，upload_id)
     
-    # 设定上传策略，上传策略中设定了回调url以及callbackbody
-    policy = PutPolicy()
-    policy.set_conf('scope','%s:%s' % (bucket,key)
-    ops = 'watermark/png/mode/1/dissolve/50|saveas/bHVtai10ZXN0OnF3YXItZm9wcw=='
-    policy.set_conf('persistentOps',ops)
-    policy.set_conf('persistentNotifyUrl', {notify})
-    policy.set_conf('returnBody','key=$(key)&persistentId=$(persistentId)&fsize=$(fsize)')
-    ....
+#### 流地址上传
+上传策略通过编辑.wcscfg文件中相应的配置项进行定义，上传时需要提供流地址
 
-    # 文件上传
-    filepath = ''
-    client.simple_upload(filepath,policy)
-
-转码操作具体参数请参阅[ops参数格式](https://wcs.chinanetcenter.com/document/API/Appendix/fopsParam)；saveas为转码后文件另存为指定文件，参数中需要填入"空间:文件名"[URL安全的Base64编码](https://wcs.chinanetcenter.com/document/API/Appendix/UrlsafeBase64)后的值。
-
-由此可知，上传成功后的行为主要是由[上传凭证](https://wcs.chinanetcenter.com/document/API/Token/UploadToken)中的上传策略来指定，其中上传策略可以指定的行为不止这些，具体请参阅[上传策略](https://wcs.chinanetcenter.com/document/API/Token/UploadToken#上传策略数据)
-
-
-### 流地址上传
-
-用户在上传文件时，提交文件的流地址，SDK通过流地址获取文件二进制流，然后通过mulitpart/form形式上传
-
-**范例：** 
-
-    from wcs.services.client import Client
-    from wcs.commons.putpolicy import PutPolicy
-
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-  
-    # 设定上传策略
-    policy = PutPolicy()
-    policy.set_conf('scope','%s:%s' % (bucket,key))
-    .... 
-    
-    # 流地址上传
+    key = ''
+    bucket = ''
     stream = ''
-    client.simple_upload(stream,policy)
-
-
-### 分片上传
-
-当文件大小超过500MB建议用户采用分片上传接口，具体分片流程请参阅[分片上传](https://wcs.chinanetcenter.com/document/API/FileUpload/SliceUpload)
-
-**范例：** 
-
-    from wcs.services.client import Client
-    from wcs.commons.putpolicy import PutPolicy
-
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-  
-    # 设定上传策略
-    policy = PutPolicy()
-    policy.set_conf('scope','%s:%s' % (bucket,key))
-    .... 
+    cli.simple_upload(stream, bucket, key)
     
-    # 文件上传
-    filepath = ''
-    param = '' #可选
-    client.multipart_upload(filepath,policy，param)
-   
+#### [列举空间列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/listbucket)
 
-## 资源管理
+    cli.list_buckets()
 
-### 资源列举
-该接口提供在云存储平台分批列举指定空间内的资源，列举条目数，指定前缀等详细参数说明见[列举资源](https://wcs.chinanetcenter.com/document/API/ResourceManage/list)
+#### [列举空间对象列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/list)
+接口相关的4个可选参数（limit，mode，prefix，marker）可以在调用时传入，也可以通过.wcscfg文件中相应的配置项进行定义
 
-**范例：** 
+    cli.bucket_list(self.bucket)
+
+#### [获取空间存储量](https://wcs.chinanetcenter.com/document/API/ResourceManage/bucketstat)
+    startdate = '2017-11-10'
+    enddate = '2017-11-12'
+    bucket = ''
+    cli.bucket_stat(bucket, startdate, enddate)
     
-    from wcs.services.client import Client
-
-    # 设定参数
+#### [获取文件信息](https://wcs.chinanetcenter.com/document/API/ResourceManage/stat)
+    key = ''
     bucket = ''
-    limit =  #可选
-    prefix =  #可选
-    marker =  #可选
-    mode =  #可选 
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.list(bucket, prefix, marker, limit, mode)
-
-### 文件删除
-该接口提供在云存储平台上删除一个指定资源文件
-
-**范例：** 
-
-    from wcs.services.client import Client
-
+    cli.stat(bucket, key)
+    
+#### [文件删除](https://wcs.chinanetcenter.com/document/API/ResourceManage/delete)（同步）
+    key = ''
     bucket = ''
-    key = '' 
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.delete(bucket, key)
-
-### 获取文件信息
-该接口用于在云存储平台上获取一个文件的信息描述，包括文件名，文件大小，文件的ETag信息，以MIME信息表达的文件类型，文件上传时间。
-
-**范例：**   
-
-    from wcs.services.client import Client
-
-    # 设定参数
-    bucket = ''
-    key = '' 
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.stat(bucket, key)
-   
-### 文件复制
-该接口提供将指定资源复制为新命名资源。如果目标空间存在同名资源，不会覆盖。
- 
-    from wcs.services.client import Client
-
+    cli.delete(bucket, key)
+    
+#### [文件移动](https://wcs.chinanetcenter.com/document/API/ResourceManage/move)（同步）
     srcbucket = ''
-    srckey = '' 
+    srckey = ''
     dstbucket = ''
     dstkey = ''
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.copy(srcbucket, srckey,dstbucket,dstkey)
-
-### 文件移动
-该接口提供将指定资源移动为新命名资源。如果目标空间存在同名资源，不会覆盖。
-
-**范例：**
-
-    from wcs.services.client import Client
-
-    # 设定参数
+    cli.move(srcbucket, srckey, dstbucket, dstkey)
+#### [文件复制](https://wcs.chinanetcenter.com/document/API/ResourceManage/copy)（同步）
     srcbucket = ''
-    srckey = '' 
+    srckey = ''
     dstbucket = ''
     dstkey = ''
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.move(srcbucket, srckey,dstbucket,dstkey)
-
-### 设置文件过期时间
-
-该接口支持用户设置文件的保存期限，超过设置的天数文件自动删除。
-
-**范例：**
-
-    from wcs.services.client import Client
-
-    # 设定参数
+    cli.copy(srcbucket, srckey, dstbucket, dstkey)
+#### [设置文件过期时间](https://wcs.chinanetcenter.com/document/API/ResourceManage/setdeadline)
     bucket = ''
     key = ''
-    deadline = ''
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.setdeadline(bucket, key, deadline)
-
-
-### 文件解压缩
-该接口提供在云存储平台对压缩包进行解压缩的功能。解压缩后在云存储上默认生成一个list文件，文件内容包含解压缩后的文件信息。
-
-
-**范例：**
-
-    from wcs.services.client import Client
-
-    # 设定参数
+    deadline = 3
+    cli.setdeadline(bucket, key, deadline)
+#### [文件移动](https://wcs.chinanetcenter.com/document/API/Fmgr/move)（异步）
+    srcbucket = 'srcbucket'
+    srckey = '1.doc'
+    dstbucket = 'dstbucket'
+    dstkey = '2.doc'
+    resource = urlsafe_base64_encode('%s:%s' % (srcbucket,srckey))
+    fops = 'resource/%s/bucket/%s/key/%s' % (resource,urlsafe_base64_encode(dstbucket), urlsafe_base64_encode(dstkey))
+    cli.fmgr_move(fops)
+#### [文件复制](https://wcs.chinanetcenter.com/document/API/Fmgr/copy)（异步）
+    srcbucket = 'srcbucket'
+    srckey = '1.doc'
+    dstbucket = 'dstbucket'
+    dstkey = '2.doc'
+    resource = urlsafe_base64_encode('%s:%s' % (srcbucket,srckey))
+    fops = 'resource/%s/bucket/%s/key/%s' % (resource,urlsafe_base64_encode(dstbucket), urlsafe_base64_encode(dstkey))
+    cli.fmgr_copy(fops)
+#### [文件抓取](https://wcs.chinanetcenter.com/document/API/Fmgr/fetch)
+    url = 'http://a20170704-weihb.w.wcsapi.biz.matocloud.com/1.doc'
+    key = '1.doc'
+    bucket = 'test'
+    fetchurl = urlsafe_base64_encode(url)
+    enbucket = urlsafe_base64_encode(bucket)
+    enkey = urlsafe_base64_encode(key)
+    fops = 'fetchURL/%s/bucket/%s/key/%s' % (fetchurl, enbucket, enkey)
+    cli.fmgr_fetch(fops)
+#### 文件删除（异步）
+    key = '1.doc'
+    bucket = 'test'
+    enbucket = urlsafe_base64_encode(bucket)
+    enkey = urlsafe_base64_encode(key)
+    fops = 'bucket/%s/key/%s' % (enbucket, enkey)
+    cli.fmgr_delete(fops)
+#### [按前缀删除文件](https://wcs.chinanetcenter.com/document/API/Fmgr/deletePrefix)
+    prefix = 'test'
+    bucket = 'bucket'
+    enbucket = urlsafe_base64_encode(bucket)
+    enprefix = urlsafe_base64_encode(prefix)
+    fops = 'bucket/%s/prefix/%s' % (enbucket, enprefix)
+    cli.prefix_delete(fops)
+#### [删除M3U8文件](https://wcs.chinanetcenter.com/document/API/Fmgr/deletem3u8)
     bucket = ''
     key = ''
-    fops = 'decompression/zip'
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.setdeadline(fops,bucket, key)
-
-## 高级资源管理
-
-### 文件移动
-该接口提供将指定资源移动到另一个空间，或者在同一空间重命名。请求参数以如下格式组织，作为请求内容提交，请求参数定义详见[文件移动](https://wcs.chinanetcenter.com/document/API/Fmgr/move)
-   
-    from wcs.services.client import Client
-
-    # 参数配置
-    movefops = ''
-    notifyurl = ''  #可选
-    separate =    #可选
-
-    # 文件移动
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.fmgr_move(movefops, notifyurl, separate)
-
-### 文件复制
-该接口提供将指定资源复制为新命名资源。请求参数以如下格式组织，作为请求内容提交,请求参数定义详见[文件复制](https://wcs.chinanetcenter.com/document/API/Fmgr/copy)
-    
-    from wcs.services.client import Client
-
-    # 参数配置
-    copyfops = ''
-    notifyurl = ''  #可选
-    separate =    #可选
-
-    # 文件复制
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.fmgr_copy(copyfops, notifyurl, separate)
-
-### 文件删除
-该接口提供删除指定资源。请求参数以如下格式组织，作为请求内容提交，请求参数定义详见[文件删除](https://wcs.chinanetcenter.com/document/API/Fmgr/delete)
-    
-    from wcs.services.client import Client
-
-    # 参数配置
-    delops = ''
-    notifyurl = ''  #可选
-    separate =    #可选
-
-    # 文件删除
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.fmgr_copy(delfops, notifyurl, separate)
-
-### 文件抓取
-该接口提供从指定URL抓取资源，并存储到指定空间。请求参数以如下格式组织，作为请求内容提交，请求参数定义详见[抓取资源](https://wcs.chinanetcenter.com/document/API/Fmgr/fetch)
-
-    from wcs.services.client import Client
-
-    # 参数配置
-    fetops = ''
-    notifyurl = ''  #可选
-    separate =    #可选
-
-    # 文件抓取
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.fmgr_fetch(fetfops, notifyurl, separate)
-
-### 按前缀删除资源
-该接口提供删除符合指定前缀的资源。请求参数以如下格式组织，作为请求内容提交，请求参数详见[前缀删除资源](https://wcs.chinanetcenter.com/document/API/Fmgr/deletePrefix)
-    
-    from wcs.services.client import Client
-
-    # 参数配置
-    preops = ''
-    notifyurl = ''  #可选
-    separate =    #可选
-
-    # 文件按前缀删除
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.prefix_delete(prefops, notifyurl, separate)
-
-
-### 删除m3u8文件
-该接口提供删除指定资源。请求参数以如下格式组织，作为请求内容提交，请求参数详见[删除m3u8文件](https://wcs.chinanetcenter.com/document/API/Fmgr/deletem3u8)
-   
-    from wcs.services.client import Client
-
-    # 参数配置
-    m3u8ops = ''
-    notifyurl = ''  #可选
-    separate =    #可选
-
-    # 删除m3u8文件
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.m3u8_delete(m3u8ops, notifyurl, separate)
-
-### Fmgr任务查询
-该接口提供查询Fmgr任务的执行情况。 
-
-注：notifyURL收到的Fmgr任务通知内容的格式与该接口响应内容的格式一致。
-
-    from wcs.services.client import Client
-
-    # 参数配置
+    enbucket = urlsafe_base64_encode(bucket)
+    enkey = urlsafe_base64_encode(key)
+    fops = 'bucket/%s/key/%s' % (enbucket, enkey)
+    cli.m3u8_delete(fops)
+#### 高级资源管理任务查询
     persistentId = ''
+    cli.fmgr_status(persistentId)
+    
+#### [音视频处理](https://wcs.chinanetcenter.com/document/API/Video-op)
+    bucket = 'test'
+    key = 'test.mp4'
+    fops = 'vframe/jpg/offset/1'
+    cli.ops_execute(fops,bucket,key)
+    
+#### 直播录制文件查询
+请求参数说明如下：
 
-    # 任务查询
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    client.fmgr_status(persistentId)
+| 参数       | 必填	| 描述 |
+| --------   | -----:   | :----: |
+| channelname        | 是      |   直播流名    |
+| startTime        | 是      |   指定直播开始时间，格式为YYYYMMDDmmhhss    |
+| endTime	        | 是      |   指定直播结束时间，格式为YYYYMMDDmmhhss    |
+|bucket             | 是      |指定空间 |
+|start              | 否      |指定起始位置，查询结果从该位置开始返回，如0、1、100 默认值为1，即从查询范围内的第一条记录开始返回|
+|limit              |否       |指定查询个数。不指定则查询所有记录|
 
-## 持久化操作
-该接口用于根据ops的定义对某个音视频文件进行持久化处理，ops参数定义方式见[ops参数格式](https://wcs.chinanetcenter.com/document/API/Appendix/fopsParam#音视频处理)
 
-以视频截图为例：
-   
-    from wcs.services.client import Client
 
-    # 参数配置
-    bucket = ''
-    key = ''
-    ops = ''
-    force =  #可选
-    notifyurl = ''   #可选
-    separate =    #可选
 
-    # 持久化操作
-    client = Client(Access_key, Secret_key, put_url, mgr_url)
-    code,text = client.ops_execute(ops, bucket,key,notifyurl, separate)
-    # 任务执行状态查询
-    client.ops_status(text['persistentId'])
-
-## 直播录制文件查询
-该接口支持用户查询直播录制的文件列表。请求参数说明如下：
-
-    参数        必填	描述
-    channelname	是	直播流名。
-    startTime	是	指定直播开始时间。格式为YYYYMMDDmmhhss。
-    endTime	    是	指定直播结束时间。格式为YYYYMMDDmmhhss。结束时间不能小于开始时间，且与开始时间间隔不能超过7天。
-    bucket	    是	指定空间。
-    start	    否	指定起始位置，查询结果从该位置开始返回，如0、1、100 默认值为1，即从查询范围内的第一条记录开始返回。
-    limit	    否	指定查询个数。不指定则查询所有记录。
-
-****
-接口调用实例：
-
-   
-    from wcs.services.client import Client
-
-    # 参数配置
     channelname = ''
     startTime = ''
     endTime = ''
     bucket = ''
     start = '' #可选
     limit = '' #可选
-       
-    # 直播录制文件查询
-    client.wslive_list(channelname,startTime,startTime, bucket,start,limit)
+   
+    cli.wslive_list(channelname,startTime,startTime, bucket,start,limit)
+ 
+
+
+

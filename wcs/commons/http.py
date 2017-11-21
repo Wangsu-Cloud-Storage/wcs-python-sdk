@@ -40,7 +40,7 @@ def _post(url, headers, data=None, files=None):
     if _session is None:
         _init()
     try:
-        headers['user-agent'] = 'WCSCMD-1.0.0(http://wcs.chinanetcenter.com)'
+        headers['user-agent'] = 'WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)'
         r = requests.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=True)
     except Exception as e:
         return -1,e,'Null'
@@ -49,7 +49,7 @@ def _post(url, headers, data=None, files=None):
 def _get(url, headers=None):
     try:
         headers = headers or {}
-        headers['user-agent'] = 'WCSCMD-1.0.0(http://wcs.chinanetcenter.com)'
+        headers['user-agent'] = 'WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)'
         r = requests.get(url, headers=headers, timeout=timeout, verify=True)
     except Exception as e:
         return -1,e,'Null'

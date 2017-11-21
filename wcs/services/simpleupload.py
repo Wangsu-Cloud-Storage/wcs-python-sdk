@@ -16,7 +16,7 @@ class SimpleUpload(object):
         fileds['file'] = ('filename', f, 'text/plain')
         encoder = MultipartEncoder(fileds)
         headers = {"Content-Type":encoder.content_type}
-        headers['user-agent'] = "WCSCMD-1.0.0(http://wcs.chinanetcenter.com)"
+        headers['user-agent'] = "WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)"
         return url, encoder, headers  
     
     def _gernerate_content(self,path):
@@ -35,10 +35,11 @@ class SimpleUpload(object):
             debug(e)
             return -1,e
         f.close()
-        debug('Status Code:' + str(r.status_code))
-        debug('Response Body:')
-        debug(r.text)
-        return r.status_code,r.text
+        try:
+            r_header = {'x-reqid': r.headers['x-reqid']}
+            return r.status_code,r.text,r_headers
+        except:           
+            return r.status_code,r.text
 
     def upload(self, filepath,token):
         if os.path.exists(filepath) and os.path.isfile(filepath):
