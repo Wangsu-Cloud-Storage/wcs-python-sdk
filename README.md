@@ -171,7 +171,7 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
 #### [列举空间对象列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/list)
 接口相关的4个可选参数（limit，mode，prefix，marker）可以在调用时传入，也可以通过.wcscfg文件中相应的配置项进行定义
 
-    cli.bucket_list(self.bucket)
+    cli.bucket_list(bucket,limit=10)
 
 #### [获取空间存储量](https://wcs.chinanetcenter.com/document/API/ResourceManage/bucketstat)
     startdate = '2017-11-10'
