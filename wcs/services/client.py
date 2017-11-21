@@ -46,8 +46,26 @@ class Client(object):
         upload_id = tmp_upload_id or self.cfg.upload_id
         return self.multiupload.upload(path,token,upload_id)
         
-    def bucket_list(self,bucket,prefix=None,marker=None,limit=None,mode=None):
-        return self.bmgr.bucketlist(bucket,prefix,marker,limit,mode)
+    def bucket_list(self,bucket,prefix=None, marker=None, limit=None, mode=None):
+        try:
+            pre = prefix or str(Config.prefix)
+        except Error:
+            pre = ''
+        
+        try:
+            m = mode or int(Config.mode)
+        except Error:
+            m = ''
+        
+        try:
+            mar = marker or str(Config.marker)
+        except Error:
+            mar = ''
+        try:
+            l = limit or int(Config.limit)
+        except Error:
+            l = ''
+        return self.bmgr.bucketlist(bucket,pre,mar,l,m)
 
     def list_buckets(self):
         return self.bmgr.bucket_list()

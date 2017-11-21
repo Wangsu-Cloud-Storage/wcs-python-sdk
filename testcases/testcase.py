@@ -32,7 +32,7 @@ class WcsTestCases(unittest.TestCase):
         debug(self.cli.multipart_upload(big, self.bucket, key, self.cfg.upload_id))
         
     def test_bucket_list(self):
-        debug(self.cli.bucket_list(self.bucket,str(self.cfg.prefix), str(self.cfg.marker), int(self.cfg.limit),int(self.cfg.mode)))
+        debug(self.cli.bucket_list(self.bucket))
 
     def test_bucket_stat(self):
         startdate = '2017-11-10'
