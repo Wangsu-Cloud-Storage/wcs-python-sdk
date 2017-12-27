@@ -35,7 +35,7 @@ class PersistentFop(MgrBase):
         return ops_list
 
     def fops_status(self, persistentId):
-        url = '{0}/status/get/prefop?persistentId={1}'.format(self.mgr_host, persistentId)
+        url = https_check('{0}/status/get/prefop?persistentId={1}'.format(self.mgr_host, persistentId))
         debug('Start to get status of persistentId: %s' % persistentId)
         return _get(url=url)
 

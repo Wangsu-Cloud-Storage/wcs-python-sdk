@@ -1,4 +1,4 @@
-import os
+import os,sys
 import unittest
 from os.path import expanduser
 from wcs.commons.config import Config
@@ -15,6 +15,7 @@ class WcsTestCases(unittest.TestCase):
         self.cfg = Config(config_file)
         self.cli = Client(self.cfg)
         self.bucket = 'ezvizws-test'
+        #self.bucket = 'haoweilaizby-test001'
  
     def test_simple_upload(self):
         key = 'MegaSAS.log'
@@ -27,9 +28,10 @@ class WcsTestCases(unittest.TestCase):
         debug(self.cli.stream_upload(stream, self.bucket, key))
         
     def test_multipart_upload(self):
-        big = '/root/liuxj/test-100M'
-        key = 'test-100M'
-        debug(self.cli.multipart_upload(big, self.bucket, key, self.cfg.upload_id))
+        big = '/root/liuxj/test-1G'
+        #big = '/root/liuxj/test-100M'
+        key = 'test-1G'
+        debug(self.cli.multipart_upload(big, self.bucket, key,'IPlLesAI9cMxzp19YyvBBiEHRS5iQTXw'))
         
     def test_bucket_list(self):
         debug(self.cli.bucket_list(self.bucket))
@@ -108,6 +110,7 @@ class WcsTestCases(unittest.TestCase):
 
     def test_fmgr_stat(self):
         persistentId = '2012dee7ddcbfbde413f98e58d8981348bf8'
+        persistentId = '1000dd9a6a1991b34924a4dde3eaec15c42f'
         debug(self.cli.fmgr_status(persistentId))
 
     def test_ops(self):

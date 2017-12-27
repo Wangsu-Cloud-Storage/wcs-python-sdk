@@ -38,7 +38,7 @@ def cmd_list(args):
     cfg = Config()
     cli = Client(cfg)
     bucket = args[0].split("wcs://")[1]
-    resfile = './' + args[1]
+    resfile = os.path.join(os.getcwd(),args[1])
     code, response, reqid = cli.bucket_list(bucket,cfg.prefix, cfg.marker, int(cfg.limit),int(cfg.mode))
     if code == 200:
         try:
