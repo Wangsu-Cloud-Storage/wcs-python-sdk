@@ -54,7 +54,7 @@ def cmd_list(args):
     
 def cmd_get(args):
     url = args[0]
-    key = './'+ url.split('/')[-1]
+    key = os.getcmd() + url.split('/')[-1]
     try:
         res = requests.get(url)
         if res.status_code == 200:
@@ -85,10 +85,10 @@ def _couple_args_parse(args):
         dst = args[1].split("wcs://")[1]
         srcbucket = src.split('/')[0]
         srcobject = src.split(srcbucket)[1]
-        srcobject = srcobject.split('/')[1]
+        srcobject = '/'.join(srcobject.split('/')[1:])
         dstbucket = dst.split('/')[0]
         dstobject = dst.split(dstbucket)[1]
-        dstobject = dstobject.split('/')[1]
+        dstobject = '/'.join(dstobject.split('/')[1:])
         return srcbucket, srcobject, dstbucket, dstobject
     except Exception:
         error("Invalid arguments")
