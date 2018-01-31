@@ -1,4 +1,6 @@
 import ast
+import os
+from os.path import expanduser
 try:
     import simplejson as json
 except (ImportError, SyntaxError):
@@ -12,7 +14,9 @@ from requests.adapters import HTTPAdapter
 import yaml
 
 _session = None
-timeout = float(Config.connection_timeout)
+config_file = os.path.join(expanduser("~"), ".wcscfg")
+cfg = Config(config_file)
+timeout = float(cfg.connection_timeout)
 
 def __return_wrapper(resp):
     if resp.text != '':
@@ -24,9 +28,9 @@ def __return_wrapper(resp):
             if 'code' in response_body.keys():
                 return response_body["code"],response_body,resp_header
             else:
-                return -1, {'message':resp.text}, resp_header
+                return -2, {'message':resp.text}, resp_header
     else:
-        return -1, {'message':'Message Body is None. Please check your URL.'}, resp_header
+        return -2, {'message':'Message Body is None. Please check your URL.'}, resp_header
         
 
 def _init():
@@ -41,6 +45,7 @@ def _post(url, headers, data=None, files=None):
         _init()
     try:
         headers['user-agent'] = 'WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)'
+        #headers['Expect'] = '100-conitnue'
         r = requests.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=True)
     except Exception as e:
         return -1,e,'Null'

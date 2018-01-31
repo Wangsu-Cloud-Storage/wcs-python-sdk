@@ -25,17 +25,17 @@ def debug(msg):
     logger.debug(msg)
     logger.removeHandler(debughandler)
 
-#def warning(msg):
-#    logger.setLevel(logging.WARNING)
-#    logfile = os.path.join(path, "warnging_%s.log" % log_time)
-#    warnhandler = logging.FileHandler(logfile)
-#    warnhandler.setLevel(logging.WARNING)
-#    fmt = '%(asctime)s - %(levelname)s - %(message)s' 
-#    formatter = logging.Formatter(fmt)
-#    warnhandler.setFormatter(formatter)
-#    logger.addHandler(warnhandler)
-#    logger.warning(msg)
-#    logger.removeHandler(warnhandler)
+def warning(msg):
+    logger.setLevel(logging.WARNING)
+    logfile = os.path.join(path, "warnging_%s.log" % log_time)
+    warnhandler = logging.FileHandler(logfile)
+    warnhandler.setLevel(logging.WARNING)
+    fmt = '%(asctime)s - %(levelname)s - %(message)s' 
+    formatter = logging.Formatter(fmt)
+    warnhandler.setFormatter(formatter)
+    logger.addHandler(warnhandler)
+    logger.warning(msg)
+    logger.removeHandler(warnhandler)
 
 def error(msg):
     logger.setLevel(logging.ERROR)

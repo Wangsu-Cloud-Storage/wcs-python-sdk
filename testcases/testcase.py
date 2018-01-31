@@ -14,24 +14,22 @@ class WcsTestCases(unittest.TestCase):
     def setUp(self):
         self.cfg = Config(config_file)
         self.cli = Client(self.cfg)
-        self.bucket = 'ezvizws-test'
-        #self.bucket = 'haoweilaizby-test001'
+        self.bucket = ''
  
     def test_simple_upload(self):
-        key = 'MegaSAS.log'
-        small = '/root/MegaSAS.log'
-        debug(self.cli.simple_upload(small, self.bucket, key))
+        key = ''
+        path = ''
+        debug(self.cli.simple_upload(path, self.bucket, key))
 
     def test_stream_upload(self):
-        stream = 'http://a20170704-weihb.w.wcsapi.biz.matocloud.com/1.doc'
+        stream = 'http://www.example.com/1.doc'
         key = '1.doc'
         debug(self.cli.stream_upload(stream, self.bucket, key))
         
     def test_multipart_upload(self):
-        big = '/root/liuxj/test-1G'
-        #big = '/root/liuxj/test-100M'
-        key = 'test-1G'
-        debug(self.cli.multipart_upload(big, self.bucket, key,'IPlLesAI9cMxzp19YyvBBiEHRS5iQTXw'))
+        path = ''
+        key = ''
+        debug(self.cli.multipart_upload(path, self.bucket, key))
         
     def test_bucket_list(self):
         debug(self.cli.bucket_list(self.bucket))
@@ -42,45 +40,45 @@ class WcsTestCases(unittest.TestCase):
         debug(self.cli.bucket_stat(self.bucket, startdate, enddate))
 
     def test_stat(self):
-        key = 'MegaSAS.log'
+        key = ''
         debug(self.cli.stat(self.bucket, key))
 
     def test_delete(self):
-        key = 'test-100M'
+        key = ''
         debug(self.cli.delete(self.bucket,key))
 
     def test_move(self):
-        srckey = '1.doc'
-        dstkey = '2.doc'
+        srckey = ''
+        dstkey = ''
         debug(self.cli.move(self.bucket, srckey, self.bucket,dstkey))
 
     def test_copy(self):
-        srckey = '2.doc'
-        dstkey = '1.doc'
+        srckey = ''
+        dstkey = ''
         debug(self.cli.copy(self.bucket, srckey, self.bucket,dstkey))
     
     def test_setdeadline(self):
-        key = '1.doc'
-        deadline = '10'
+        key = ''
+        deadline = ''
         debug(self.cli.setdeadline(self.bucket, key, deadline))
 
     def test_fmgr_move(self):
-        srckey = '1.doc'
-        dstkey = '2.doc'
+        srckey = ''
+        dstkey = ''
         resource = urlsafe_base64_encode('%s:%s' % (self.bucket,srckey))
         fops = 'resource/%s/bucket/%s/key/%s' % (resource,urlsafe_base64_encode(self.bucket), urlsafe_base64_encode(dstkey))
         debug(self.cli.fmgr_move(fops))
         
     def test_fmgr_copy(self):
-        srckey = '2.doc'
-        dstkey = '1.doc'
+        srckey = ''
+        dstkey = ''
         resource = urlsafe_base64_encode('%s:%s' % (self.bucket,srckey))
         fops = 'resource/%s/bucket/%s/key/%s' % (resource,urlsafe_base64_encode(self.bucket), urlsafe_base64_encode(dstkey))
         debug(self.cli.fmgr_copy(fops))
 
     def test_fmgr_fetch(self):
-        url = 'http://a20170704-weihb.w.wcsapi.biz.matocloud.com/1.doc'
-        key = '1.doc'
+        url = 'http://www.example.com/1.doc'
+        key = ''
         fetchurl = urlsafe_base64_encode(url)
         enbucket = urlsafe_base64_encode(self.bucket)
         enkey = urlsafe_base64_encode(key)
@@ -88,34 +86,33 @@ class WcsTestCases(unittest.TestCase):
         debug(self.cli.fmgr_fetch(fops))
 
     def test_fmgr_delete(self):
-        key = '1.doc'
+        key = ''
         enbucket = urlsafe_base64_encode(self.bucket)
         enkey = urlsafe_base64_encode(key)
         fops = 'bucket/%s/key/%s' % (enbucket, enkey)
         debug(self.cli.fmgr_delete(fops))
 
     def test_fmgr_prefix_del(self):
-        prefix = 'test'
+        prefix = ''
         enbucket = urlsafe_base64_encode(self.bucket)
         enprefix = urlsafe_base64_encode(prefix)
         fops = 'bucket/%s/prefix/%s' % (enbucket, enprefix)
         debug(self.cli.prefix_delete(fops))
 
     def test_fmgr_m3u8_del(self):
-        key = 'Wildlife111.wmv'
+        key = ''
         enbucket = urlsafe_base64_encode(self.bucket) 
         enkey = urlsafe_base64_encode(key)
         fops = 'bucket/%s/key/%s' % (enbucket, enkey)
         debug(self.cli.m3u8_delete(fops))
 
     def test_fmgr_stat(self):
-        persistentId = '2012dee7ddcbfbde413f98e58d8981348bf8'
-        persistentId = '1000dd9a6a1991b34924a4dde3eaec15c42f'
+        persistentId = ''
         debug(self.cli.fmgr_status(persistentId))
 
     def test_ops(self):
-        key = 'Wildlife111.wmv'
-        fops = 'vframe/jpg/offset/1'
+        key = ''
+        fops = ''
         debug(self.cli.ops_execute(fops,self.bucket,key))
 
     def test_ops_status(self):

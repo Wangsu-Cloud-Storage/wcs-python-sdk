@@ -1,19 +1,27 @@
-import os
+import os,sys
 import time
+from os.path import expanduser
 from multiprocessing import Lock
 from multiprocessing.dummy import Pool as ThreadPool 
 
 from wcs.commons.config import Config
 from wcs.commons.http import _post
-from wcs.commons.logme import debug,error
+from wcs.commons.logme import debug,warning,error
 from wcs.commons.util import readfile,GetUuid
 from wcs.commons.util import urlsafe_base64_encode,https_check
 
 from wcs.services.uploadprogressrecorder import UploadProgressRecorder
 
-concurrency = int(Config.concurrency)
-block_size = int(Config.block_size)
-bput_size = int(Config.bput_size)
+config_file = os.path.join(expanduser("~"), ".wcscfg")
+
+cfg = Config(config_file)
+try:
+    concurrency = int(cfg.concurrency)
+    block_size = int(cfg.block_size)
+    bput_size = int(cfg.bput_size)
+except ValueError as e:
+    error(u"Invalid value,please check .wcscfg file")
+    sys.exit()
 
 lock = Lock()
 
@@ -32,7 +40,7 @@ class MultipartUpload(object):
         self.recorder = None
 
     def __need_retry(self,code):
-        if code == 500:
+        if code == 500 or code == -1:
             return True
         return False
 
@@ -114,7 +122,11 @@ class MultipartUpload(object):
         url,size = self._mlk_url(offset)
         url = https_check(url)
         headers = self.__generate_headers()        
-        mkblk_retries = int(Config.mkblk_retries)
+        try:
+            mkblk_retries = int(cfg.mkblk_retries)
+        except ValueError as e:
+            warning('parameter mkblk_retries is invalid, so use default value 3')
+            mkblk_retries = 3
         with open(self.path, 'rb') as f:
             bput = readfile(f, offset, bput_size)
             blkcode, blktext,_ = _post(url=url,headers=headers, data=bput)
@@ -133,7 +145,11 @@ class MultipartUpload(object):
         bput_next = readfile(f, offset_next, bput_size)
         bputcode = 200
         bputtext = {'ctx' : ctx}
-        bput_retries = int(Config.bput_retries)
+        try:
+            bput_retries = int(cfg.bput_retries)
+        except ValueError as e:
+            warning('parameter bput_retries is invalid, so use default value 3')
+            bput_retries = 3
         while bput_next and bputnum < block_size/bput_size:
             bputcode, bputtext, _ = self._make_bput_post(ctx, bputnum, bput_next)
             while bput_retries and self.__need_retry(bputcode):
@@ -177,7 +193,11 @@ class MultipartUpload(object):
         return blkstatus
 
     def _make_file(self):
-        mkfile_retries = int(Config.mkfile_retries)
+        try:
+            mkfile_retries = int(cfg.mkfile_retries)
+        except ValueError as e:
+            warning(u"parameter mkfile_retries is invalid, so use default value 3")
+            mkfile_retries = 3
         blkstatus = self._get_blkstatus()
         url = https_check(self.__file_url())
         body = ','.join(blkstatus)
@@ -208,12 +228,18 @@ class MultipartUpload(object):
         if len(offsets) != 0:
             debug('Thare are %d offsets need to upload' % (len(offsets)))
             debug('Now start upload file blocks') 
-            #for offset in offsets:
-            #    self._make_block(offset)
-            pool = ThreadPool(concurrency)
-            pool.map(self._make_block, offsets)
-            pool.close()
-            pool.join()
+            if concurrency > 0:
+                pool = ThreadPool(concurrency)
+                pool.map(self._make_block, offsets)
+                pool.close()
+                pool.join()
+                
+            elif concurrency == 0:
+                for offset in offsets:
+                    self._make_block(offset)
+            else:
+                raise ValueError('Invalid concurrency')
+                sys.exit()
 
         if self._is_complete():
             debug('Now all blocks have upload suc.')

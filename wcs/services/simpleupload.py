@@ -16,6 +16,7 @@ class SimpleUpload(object):
         fileds['file'] = ('filename', f, 'text/plain')
         encoder = MultipartEncoder(fileds)
         headers = {"Content-Type":encoder.content_type}
+        headers['Expect'] = '100-continue'
         headers['user-agent'] = "WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)"
         return url, encoder, headers  
     

@@ -326,7 +326,6 @@ def main():
     if options.detectntyrule:
         cfg.detectNotifyRule = options.detectntyrule
 
-
     if options.dump_config:
         cfg.dump_config(sys.stdout)
         sys.exit()

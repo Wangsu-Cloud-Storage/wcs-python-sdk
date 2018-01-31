@@ -1,5 +1,4 @@
 from wcs.commons.util import urlsafe_base64_encode
-from wcs.commons.config import Config
 from wcs.commons.auth import Auth
 from wcs.services.simpleupload import SimpleUpload
 from wcs.services.streamupload import StreamUpload
@@ -9,7 +8,6 @@ from wcs.services.fmgr import Fmgr
 from wcs.services.persistentfop import PersistentFop
 from wcs.services.wslive import WsLive
 from wcs.commons.putpolicy import PutPolicy
-
 
 class Client(object):
     
@@ -48,21 +46,21 @@ class Client(object):
         
     def bucket_list(self,bucket,prefix=None, marker=None, limit=None, mode=None):
         try:
-            pre = prefix or str(Config.prefix)
+            pre = prefix or str(self.cfg.prefix)
         except Error:
             pre = ''
         
         try:
-            m = mode or int(Config.mode)
+            m = mode or int(self.cfg.mode)
         except Error:
             m = ''
         
         try:
-            mar = marker or str(Config.marker)
+            mar = marker or str(self.cfg.marker)
         except Error:
             mar = ''
         try:
-            l = limit or int(Config.limit)
+            l = limit or int(self.cfg.limit)
         except Error:
             l = ''
         return self.bmgr.bucketlist(bucket,pre,mar,l,m)
@@ -90,12 +88,12 @@ class Client(object):
 
     def _parse_fops(self, fops):
         data = [fops]
-        if Config.notifyurl:
-            data.append('notifyURL=%s' % urlsafe_base64_encode(Config.notifyurl))
-        if Config.separate: 
-            data.append('separate=%s' % Config.separate)
-        if Config.force:
-            data.append('force=%s' % Config.force)
+        if self.cfg.notifyurl:
+            data.append('notifyURL=%s' % urlsafe_base64_encode(self.cfg.notifyurl))
+        if self.cfg.separate: 
+            data.append('separate=%s' % self.cfg.separate)
+        if self.cfg.force:
+            data.append('force=%s' % self.cfg.force)
         return 'fops=' + '&'.join(data)
 
     def fmgr_move(self, fops):
@@ -120,12 +118,12 @@ class Client(object):
         return self.fmgr.status(persistentId)
 
     def ops_execute(self,fops,bucket,key):
-        f = int(Config.force)
-        if Config.separate:
-            separate = int(Config.separate)
+        f = int(self.cfg.force)
+        if self.cfg.separate:
+            separate = int(self.cfg.separate)
         else:
             separate = 0
-        notifyurl = Config.notifyurl or ''
+        notifyurl = self.cfg.notifyurl or ''
         return self.pfops.execute(fops,bucket,key,f,separate,notifyurl)
  
     def ops_status(self,persistentId):
