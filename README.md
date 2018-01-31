@@ -30,7 +30,7 @@ wcscmd --configure
 更新的配置信息会保存在$HOME目录下的.wcscfg文件中，同时可以通过下面的命令打印上一步添加的配置信息：
 wcscmd --dump-config
 
-## wcscmd命令行工具使用
+## wcscmd命令行工具使用(Windows系统执行命令需要添加python再执行,如python wcscmd --help)
 
 #### 查阅工具使用说明
     wcscmd --help
