@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
 
 import base64
 import json
@@ -7,16 +8,14 @@ import tempfile
 import shutil
 from wcs.commons.config import Config
 
-
 tmp_record_folder = Config.tmp_record_folder
 
 class UploadProgressRecorder(object):
     """持久化上传记录类
     该类默认保存每个文件的上传记录到文件系统中，用于断点续传
-    上传记录为json格式：
+    当前上传记录的格式是在tmp_record_folder目录下，生成已当前上传任务的upload id命名的目录，然后在目录tmp_record_folder/upload id下生成多个文件，每个文件以块offset命名，并记录了这个块的上传结果，上传结果为json格式：
     {
         "size": file size,
-        "uploadBatch": slice upload task ID,
         "offset": position of block,
         "ctx": contexts
     }

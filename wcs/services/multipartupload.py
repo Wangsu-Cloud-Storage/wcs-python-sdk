@@ -1,3 +1,6 @@
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
+
 import os,sys
 import time
 from os.path import expanduser
@@ -14,19 +17,29 @@ from wcs.services.uploadprogressrecorder import UploadProgressRecorder
 
 config_file = os.path.join(expanduser("~"), ".wcscfg")
 
-cfg = Config(config_file)
-try:
-    concurrency = int(cfg.concurrency)
-    block_size = int(cfg.block_size)
-    bput_size = int(cfg.bput_size)
-except ValueError as e:
-    error(u"Invalid value,please check .wcscfg file")
-    sys.exit()
-
 lock = Lock()
 
 class MultipartUpload(object):
-    
+    """分片上传类
+    分片上传引入了块和片，一个文件由一到多个块组成，而每个块由一到多个片组成，块大小和片大小是可配的。块之间可以并发上传也可以顺序上传，块内的片之间只能顺序上传
+    分片上传通过导入UploadProgressRecorder实现断点续传
+    Attributes:
+        url: 上传域名
+        token: 鉴权token
+        path: 源文件路径
+        size: 源文件大小
+        key: 源文件名
+        blocknum: 源文件块数目
+        results: 读取上传进度到这个变量
+        uploadBatch: upload id
+        progress: 当前上传进度
+        recorder: UploadProgressRecorder的实例
+        cfg: Config的实例
+        concurrency: 块并发度
+        block_size: 块大小
+        bput_size: 片大小
+        
+    """   
     def __init__(self,url):
         self.url = url
         self.token = ''
@@ -38,6 +51,15 @@ class MultipartUpload(object):
         self.uploadBatch = ''
         self.progress = 0
         self.recorder = None
+        self.cfg = Config(config_file)
+        try:
+            self.concurrency = int(self.cfg.concurrency)
+            self.block_size = int(self.cfg.block_size)
+            self.bput_size = int(self.cfg.bput_size)
+        except ValueError as e:
+            error(u"Invalid value,please check .wcscfg file")
+            sys.exit()
+            
 
     def __need_retry(self,code):
         if code == 500 or code == -1:
@@ -49,10 +71,10 @@ class MultipartUpload(object):
         self.path = path
         self.size = os.path.getsize(self.path)
         self.key = os.path.basename(path)
-        if self.size % block_size != 0:
-            self.blocknum = int(self.size/block_size + 1)
+        if self.size % self.block_size != 0:
+            self.blocknum = int(self.size/self.block_size + 1)
         else:
-            self.blocknum = int(self.size/block_size)
+            self.blocknum = int(self.size/self.block_size)
         self.results = []
         self.uploadBatch = upload_id or ''
         self.progress = 0
@@ -70,7 +92,7 @@ class MultipartUpload(object):
 
     def _records_parse(self, upload_id):
         records = self.recorder.get_upload_record()
-        offsetlist = [i * (block_size) for i in range(0,self.blocknum)]
+        offsetlist = [i * (self.block_size) for i in range(0,self.blocknum)]
         debug(records)
         if records:
             self.uploadBatch = records['uploadBatch']
@@ -79,15 +101,15 @@ class MultipartUpload(object):
                 record = eval(record)
                 if record['code'] == 200:
                     offsetlist.remove(record['offset'])
-                    blockid = record['offset']/block_size
+                    blockid = record['offset']/self.block_size
                     if blockid < self.blocknum - 1:
-                        self.progress += block_size
+                        self.progress += self.block_size
                     else:              
-                        self.progress += self.size - (blockid * block_size)       
+                        self.progress += self.size - (blockid * self.block_size)       
         return offsetlist
     
     def _make_bput_post(self, ctx, bputnum, bput_next):
-        url = https_check(self.__bput_url(ctx, bputnum*bput_size))
+        url = https_check(self.__bput_url(ctx, bputnum*self.bput_size))
         headers = self.__generate_headers()
         return _post(url=url, headers=headers, data=bput_next)
 
@@ -111,11 +133,11 @@ class MultipartUpload(object):
         return headers
 
     def _mlk_url(self, offset):
-        blockid = offset/block_size
+        blockid = offset/self.block_size
         if blockid < self.blocknum - 1:
-            size = block_size
+            size = self.block_size
         else:
-            size = int(self.size - (blockid * block_size))
+            size = int(self.size - (blockid * self.block_size))
         return self.__block_url(int(size), blockid), size
 
     def _make_block(self, offset):
@@ -123,12 +145,12 @@ class MultipartUpload(object):
         url = https_check(url)
         headers = self.__generate_headers()        
         try:
-            mkblk_retries = int(cfg.mkblk_retries)
+            mkblk_retries = int(self.cfg.mkblk_retries)
         except ValueError as e:
             warning('parameter mkblk_retries is invalid, so use default value 3')
             mkblk_retries = 3
         with open(self.path, 'rb') as f:
-            bput = readfile(f, offset, bput_size)
+            bput = readfile(f, offset, self.bput_size)
             blkcode, blktext,_ = _post(url=url,headers=headers, data=bput)
             while mkblk_retries and self.__need_retry(blkcode):
                 blkcode, blktext,_ = _post(url=url, headers=headers, data=bput)
@@ -141,16 +163,16 @@ class MultipartUpload(object):
     
     def _make_bput(self, f, ctx, offset):
         bputnum = 1
-        offset_next = offset + bput_size
-        bput_next = readfile(f, offset_next, bput_size)
+        offset_next = offset + self.bput_size
+        bput_next = readfile(f, offset_next, self.bput_size)
         bputcode = 200
         bputtext = {'ctx' : ctx}
         try:
-            bput_retries = int(cfg.bput_retries)
+            bput_retries = int(self.cfg.bput_retries)
         except ValueError as e:
             warning('parameter bput_retries is invalid, so use default value 3')
             bput_retries = 3
-        while bput_next and bputnum < block_size/bput_size:
+        while bput_next and bputnum < self.block_size/self.bput_size:
             bputcode, bputtext, _ = self._make_bput_post(ctx, bputnum, bput_next)
             while bput_retries and self.__need_retry(bputcode):
                 bputcode, bputtext, _ = self._make_bput_post(ctx, bputnum, bput_next)
@@ -159,7 +181,7 @@ class MultipartUpload(object):
                 return offset, bputcode, bputtext['message']
             ctx = bputtext['ctx']
             offset_next = offset + bputtext['offset']
-            bput_next = readfile(f, offset_next, bput_size)
+            bput_next = readfile(f, offset_next, self.bput_size)
             bputnum += 1
         return offset, bputcode, bputtext['ctx']
  
@@ -175,7 +197,7 @@ class MultipartUpload(object):
         return 1
 
     def _get_failoffsets(self):
-        offsetlist = [i *  int(Config.block_size) for i in range(0, self.blocknum)]
+        offsetlist = [i *  int(self.block_size) for i in range(0, self.blocknum)]
         if self.results:
             for result in self.results['upload_record']:
                 result = eval(result)
@@ -185,7 +207,7 @@ class MultipartUpload(object):
         
     def _get_blkstatus(self):
         blkstatus = []
-        for offset in [i * (block_size) for i in range(0,self.blocknum)]:
+        for offset in [i * (self.block_size) for i in range(0,self.blocknum)]:
             for result in self.results['upload_record']:
                 result = eval(result)
                 if offset == result['offset']:
@@ -194,7 +216,7 @@ class MultipartUpload(object):
 
     def _make_file(self):
         try:
-            mkfile_retries = int(cfg.mkfile_retries)
+            mkfile_retries = int(self.cfg.mkfile_retries)
         except ValueError as e:
             warning(u"parameter mkfile_retries is invalid, so use default value 3")
             mkfile_retries = 3
@@ -211,6 +233,7 @@ class MultipartUpload(object):
 
     def _initial_records(self):
         self.uploadBatch = GetUuid()
+        debug('New upload id: %s' % self.uploadBatch)
         self.recorder = UploadProgressRecorder(self.uploadBatch)
 
     def upload(self,path,token,upload_id=None):
@@ -223,18 +246,18 @@ class MultipartUpload(object):
         else:
             debug("Now start a new multipart upload task")
             self._initial_records()
-            offsets = [i * (block_size) for i in range(0,self.blocknum)]
+            offsets = [i * (self.block_size) for i in range(0,self.blocknum)]
 
         if len(offsets) != 0:
             debug('Thare are %d offsets need to upload' % (len(offsets)))
             debug('Now start upload file blocks') 
-            if concurrency > 0:
-                pool = ThreadPool(concurrency)
+            if self.concurrency > 0:
+                pool = ThreadPool(self.concurrency)
                 pool.map(self._make_block, offsets)
                 pool.close()
                 pool.join()
                 
-            elif concurrency == 0:
+            elif self.concurrency == 0:
                 for offset in offsets:
                     self._make_block(offset)
             else:

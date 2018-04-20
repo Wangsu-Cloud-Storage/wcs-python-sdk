@@ -2,8 +2,9 @@
 from hashlib import sha1
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 import base64
-import os
+import os,re
 import logging
+
 from .compat import b, s
 import tempfile
 import random
@@ -150,7 +151,16 @@ def GetUuid():
     return ''.join([random.choice(chars) for i in range(32)])
 
 def https_check(url):
-    if Config.ishttps:
-        return "https://" + url
+    # by caiyz 20180408
+    reobj  = re.compile('^http://|https://')
+    if reobj.match(url.lower()):
+        return url
     else:
-        return "http://" + url
+        if Config.ishttps:
+            return "https://" + url
+        else:
+            return "http://" + url
+    # if Config.ishttps:
+    #     return "https://" + url
+    # else:
+    #     return "http://" + url

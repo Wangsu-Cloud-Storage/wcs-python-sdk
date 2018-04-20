@@ -1,3 +1,5 @@
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
 from wcs.commons.util import urlsafe_base64_encode
 from wcs.commons.auth import Auth
 from wcs.services.simpleupload import SimpleUpload
@@ -10,7 +12,19 @@ from wcs.services.wslive import WsLive
 from wcs.commons.putpolicy import PutPolicy
 
 class Client(object):
-    
+    """接口封装类
+    该类封装了SDK提供的全部API，用户在开发时只需要实例化这个类就可以调用SDK提供的全部接口，而不需要根据不同的API实例化不同的类
+    Attributes:
+        auth: 上传&管理token计算实例
+        simpleupload: 普通上传实例
+        streamupload: 流地址上传实例
+        multiupload: 分片上传实例
+        bmgr: 资源管理实例
+        fmgr: 高级资源管理实例
+        pfops: 音视频持久化操作实例
+        wsl: 直播录制文件列举实例
+        cfg: 配置文件管理实例
+    """
     def __init__(self, config):
         self.auth = Auth(config.access_key, config.secret_key)
         self.simpleupload = SimpleUpload(config.put_url)
@@ -47,21 +61,21 @@ class Client(object):
     def bucket_list(self,bucket,prefix=None, marker=None, limit=None, mode=None):
         try:
             pre = prefix or str(self.cfg.prefix)
-        except Error:
+        except Exception:
             pre = ''
         
         try:
             m = mode or int(self.cfg.mode)
-        except Error:
+        except Exception:
             m = ''
         
         try:
             mar = marker or str(self.cfg.marker)
-        except Error:
+        except Exception:
             mar = ''
         try:
             l = limit or int(self.cfg.limit)
-        except Error:
+        except Exception:
             l = ''
         return self.bmgr.bucketlist(bucket,pre,mar,l,m)
 

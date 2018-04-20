@@ -42,7 +42,3 @@ class PutPolicy(object):
             self.set_conf('detectNotifyURL', str(cfg.detectNotifyURL))
         if cfg.detectNotifyRule:
             self.set_conf('detectNotifyRule', str(cfg.detectNotifyRule))
-
-
-
-        

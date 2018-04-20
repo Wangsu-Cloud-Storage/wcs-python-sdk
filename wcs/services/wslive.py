@@ -1,3 +1,5 @@
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
 from wcs.services.mgrbase import MgrBase
 from wcs.commons.config import Config
 from wcs.commons.http import _get
@@ -7,7 +9,9 @@ from wcs.commons.util import https_check
 MGR = Config.mgr_url
 
 class WsLive(MgrBase):
-
+    """直播录制文件查询类
+    该类继承自mgrbase
+    """
     def __init__(self, auth,url):
         super(WsLive, self).__init__(auth,url)
 

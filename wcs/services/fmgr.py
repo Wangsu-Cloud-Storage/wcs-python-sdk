@@ -1,3 +1,6 @@
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
+
 from wcs.services.mgrbase import MgrBase
 from wcs.commons.http import _post
 from wcs.commons.http import _get
@@ -6,6 +9,9 @@ from wcs.commons.util import urlsafe_base64_encode,https_check
 from wcs.commons.logme import debug, error
 
 class Fmgr(MgrBase):
+    """高级资源管理类
+    高级资源管理继承自mgrbase
+    """
 
     def __init__(self, auth,url):
         super(Fmgr, self).__init__(auth,url)

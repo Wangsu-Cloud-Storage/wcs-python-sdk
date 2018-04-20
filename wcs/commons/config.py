@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
-from wcs.commons.logme import debug,error
 import re
 import sys
 import io
+from inspect import isfunction
+
+from wcs.commons.logme import debug,error,warning
 
 class Config(object):
 
@@ -83,7 +85,8 @@ class Config(object):
 
     def option_list(self):
         retval = []
-        funclist = ['option_list', 'read_config_file','dump_config','update_option']
+        #funclist = ['option_list', 'read_config_file','dump_config','update_option']
+        funclist = [x for x in Config.__dict__.keys() if isfunction(Config.__dict__[x])] #caiy 20180305,动态获取类的方法列表
         for option in dir(self):
             if option.startswith("_") or option in funclist:
                 continue
@@ -120,7 +123,7 @@ class ConfigParser(object):
         self.parse_file(file, sections)
 
     def parse_file(self, file, sections=[]):
-        debug("ConfigParse: Reading file '%s'" % file)
+        #debug("ConfigParse: Reading file '%s'" % file)
         if type(sections) != type([]):
             sections = [sections]
         in_our_section = True
@@ -128,7 +131,7 @@ class ConfigParser(object):
         r_comment = re.compile("^\s*#.*")
         r_empty = re.compile("\s*$")
         r_data = re.compile("^\s*(?P<key>\w+)\s*=\s*(?P<value>.*)")
-        r_quotes = re.compile("^\"(.*)\"\s*$")
+        r_quotes = re.compile("^\"(.*)\"\s*$") #匹配双引号
         with io.open(file, "r", encoding=self.get('encoding', 'UTF-8')) as fp:
             for line in fp:
                 if r_comment.match(line) or r_empty.match(line):
@@ -145,10 +148,13 @@ class ConfigParser(object):
                         data["value"] = data["value"][1:-1]
                     self.__setitem__(data["key"],data["value"])
                     if data["key"] in ("access_key","secret_key"):
-                        print_value = ("%s...%d_chars...%s") % (data["value"][-2], len(data["value"]) - 3, data["value"][-1:1])
+                        try: #caiyz 20180315 添加异常处理
+                            print_value = ("%s...%d_chars...%s") % (data["value"][-2], len(data["value"]) - 3, data["value"][-1:1])
+                        except IndexError,e:
+                            debug(u"{} is empty".format(data["key"]))
                     else:
                         print_value = data["value"]
-                    debug("ConfigParser: %s->%s" % (data["key"], print_value))
+                    #debug("ConfigParser: %s->%s" % (data["key"], print_value))
                     continue
                 warning("Ingnoring invalid line in '%s': %s" % (file, line))
     def __geteitem__(self, name):

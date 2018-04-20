@@ -1,3 +1,6 @@
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
+
 import os
 import requests
 from requests_toolbelt import MultipartEncoder
@@ -6,6 +9,11 @@ from wcs.commons.logme import debug,error
 from wcs.commons.util import https_check
 
 class SimpleUpload(object):
+    """普通上传类
+    该类实现了WCS的普通上传功能
+    Attributes:
+        url: 上传域名    
+    """
 
     def __init__(self,url):
         self.url = url
@@ -38,7 +46,7 @@ class SimpleUpload(object):
         f.close()
         try:
             r_header = {'x-reqid': r.headers['x-reqid']}
-            return r.status_code,r.text,r_headers
+            return r.status_code,r.text,r_header
         except:           
             return r.status_code,r.text
 
