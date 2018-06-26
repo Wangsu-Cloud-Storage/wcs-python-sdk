@@ -1,6 +1,12 @@
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
+
 import ast
 import os
 from os.path import expanduser
+import sys
+reload(sys)
+sys.setdefaultencoding( "utf-8" )
 try:
     import simplejson as json
 except (ImportError, SyntaxError):
@@ -12,13 +18,12 @@ import requests
 from .config import Config
 from requests.adapters import HTTPAdapter
 import yaml
+config_file = os.path.join(expanduser("~"), ".wcscfg")
 
 _session = None
-config_file = os.path.join(expanduser("~"), ".wcscfg")
-cfg = Config(config_file)
-timeout = float(cfg.connection_timeout)
 
 def __return_wrapper(resp):
+
     if resp.text != '':
         resp_header = {'x-reqid': resp.headers['x-reqid']}
         try:
@@ -30,6 +35,7 @@ def __return_wrapper(resp):
             else:
                 return -2, {'message':resp.text}, resp_header
     else:
+        resp_header = resp.headers
         return -2, {'message':'Message Body is None. Please check your URL.'}, resp_header
         
 
@@ -41,21 +47,32 @@ def _init():
 
 
 def _post(url, headers, data=None, files=None):
+    cfg = Config(config_file)
+    timeout = float(cfg.connection_timeout)
     if _session is None:
         _init()
     try:
         headers['user-agent'] = 'WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)'
         #headers['Expect'] = '100-conitnue'
-        r = requests.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=True)
+        if cfg.isverify:
+            r = requests.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=True)
+        else:
+            r = requests.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=False)
     except Exception as e:
-        return -1,e,'Null'
+        errormessage = {'message':e}
+        return -1,errormessage,'Null'
     return __return_wrapper(r)
 
 def _get(url, headers=None):
+    cfg = Config(config_file)
+    timeout = float(cfg.connection_timeout)
     try:
         headers = headers or {}
         headers['user-agent'] = 'WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)'
-        r = requests.get(url, headers=headers, timeout=timeout, verify=True)
+        if cfg.isverify:
+            r = requests.get(url, headers=headers, timeout=timeout, verify=True)
+        else:
+            r = requests.get(url, headers=headers, timeout=timeout, verify=False)
     except Exception as e:
         return -1,e,'Null'
     return __return_wrapper(r)

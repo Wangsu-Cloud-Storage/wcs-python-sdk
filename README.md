@@ -1,7 +1,5 @@
 # WCS Python SDK用户文档
 
-标签（空格分隔）： 未分类
-
 wcs-python-sdk从v4.0.0版本开始，既可作为Python SDK使用，也可作为命令行工具使用
 
 * SDK的功能包括：文件上传、资源管理、高级资源管理、持久化处理、相应操作状态查询以及直播录制文件查询。
@@ -14,6 +12,9 @@ wcs-python-sdk从v4.0.0版本开始，既可作为Python SDK使用，也可作�
 * 直接安装
 
     >  pip install wcs-python-sdk
+
+* 更新方式
+   >pip install -U wcs-python-sdk
 
 ## 初始化
 在使用SDK之前，您需要获得一对有效的AccessKey和SecretKey签名授权。
@@ -30,12 +31,51 @@ wcscmd --configure
 更新的配置信息会保存在$HOME目录下的.wcscfg文件中，同时可以通过下面的命令打印上一步添加的配置信息：
 wcscmd --dump-config
 
-## wcscmd命令行工具使用(Windows系统执行命令需要添加python再执行,如python wcscmd --help)
+.wcscfg文件中的配置参数说明如下：
+
+    access_key  #用户ak
+    block_size  #分片上传块大小，默认值4194304，配置时不需要带单位，默认单位为B
+    bput_retries  #分片上传，bput请求重传次数
+    bput_size  #分片上传块内片大小，默认值524288，配置时不需要带单位，默认单位为B
+    callbackBody  #回调上传成功后，服务端提交到callbackurl的数据
+    callbackUrl  #回调上传成功后，服务端以POST方式请求该地址
+    concurrency  #分片上传的块并发度，当并发度设置为0时为顺序上传
+    connection_retries  #请求建立连接时的重传次数
+    connection_timeout  #请求建立连接的超时时间
+    contentDetect  #文件上传成功后，进行内容鉴定操作
+    detectNotifyRule  #鉴定结果通知规则设置
+    detectNotifyURL  #接收鉴定结果的通知地址，要求必须是公网URL地址
+    force  #强制执行数据处理，默认值为0，不强制执行数据处理并覆盖原结果
+    ishttps  #是否使用https发起请求
+    limit  #列举资源API的limit参数，配置列举条目
+    marker #列举资源API的maker参数，配置上次列举返回的位置标记，作为本次列举的起点信息
+    mgr_url  #用户的管理域名
+    mkblk_retries  #分片上传，mkblk请求重传次数
+    mkfile_retries   #分片上传，mkfile请求重传次数
+    mode   #列举资源API的mode参数，配置列表排序方式
+    notifyurl  #异步处理API处理结果通知接收URL
+    output   #将任务处理结果的描述信息保存到指定文件，格式为：<bucket>:<key>。
+    overwrite   #上传API发现文件已存在时是否覆盖
+    persistentNotifyUrl   #接收预处理结果通知的地址
+    persistentOps  #文件上传成功后，预处理指令列表
+    prefix  #列举资源API的prefix参数
+    put_url   #用户上传域名
+    returnBody  #上传成功后，自定义最终返回給上传端的数据
+    returnUrl  #上传成功后，服务端以POST方式请求该地址
+    secret_key  #用户sk
+    separate  #处理指令是否分开通知
+    tmp_record_folder  #分片上传上传进度记录目录
+    upload_id   #分片上传断点续传的任务id
+
+
+## wcscmd命令行工具使用
+
+Windows系统执行命令需要添加python再执行,如python wcscmd --help
 
 #### 查阅工具使用说明
     wcscmd --help
     Commands:
-    List objects
+    List objects  支持后面加参数 如--prefix aa
     	wcscmd list wcs://BUCKET RESFILE 
     List buckets
     	wcscmd listbucket  
@@ -50,7 +90,7 @@ wcscmd --dump-config
     Set deadline of file
     	wcscmd setdeadline wcs://BUCKET/OBJECT deadline 
     Get file info
-    	wcscmd stat wcs://BUCKET/OBJECT 
+    	wcscmd stat wcs://BUCKET/OBJECT
     Upload a local file to WCS
     	wcscmd put wcs://BUCKET/OBJECT LOCALFILE 
     Multipart upload a local file to WCS
@@ -65,7 +105,7 @@ wcscmd --dump-config
      wcscmd put wcs://test/test-1k ./test-1k  --overwrite 1
 
 #### wcscmd[分片上传](https://wcs.chinanetcenter.com/document/API/FileUpload/SliceUpload)
-上传策略可以通过编辑.wcscfg文件中响应的配置项进行定义，也可以通过命令行的option进行临时配置，如果需要进行断点续传需要增加--upload-id这个option
+上传策略可以通过编辑.wcscfg文件中响应的配置项进行定义，也可以通过命令行的option进行临时配置，如果需要进行断点续传需要增加--upload-id这个option，这个upload-id的优先级高于在.wcscfg中配置的upload id
 
      wcscmd multiput wcs://test/test-100M /root/test-100M --upload-id 3IL3ce3kR6kDf4sihxh0LcWUpzTYEKFf
      
@@ -74,12 +114,13 @@ wcscmd --dump-config
 #### wcscmd[列举空间文件列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/list)
 空间test的列举结果会保存在当前目录的result文件中
 
-    wcscmd list wcs://test ./result --limit 4 
+    wcscmd list wcs://test ./result --limit 4  --marker 2
     
 #### wcscmd下载文件
-下载的文件会与源文件同名，并保存在当前目录下
+未带filename 参数，下载的文件默认会与源文件同名，并保存在当前目录下
+带有filename 参数，下载文件保存在当前目录下，文件名称为参数filename
     
-    wcscmd get [URL]
+    wcscmd get [URL] [filename]
     
 #### wcscmd[获取文件信息](https://wcs.chinanetcenter.com/document/API/ResourceManage/stat)
     wcscmd stat wcs://test/test-100M
@@ -148,13 +189,15 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
     cli.simple_upload(filepath, bucket, key)
     
 #### [分片上传](https://wcs.chinanetcenter.com/document/API/FileUpload/SliceUpload)
-上传策略通过编辑.wcscfg文件中响应的配置项进行定义，断点续传需要提供upload id，可以在上传时传入，或者在.wcscfg中编辑
+上传策略通过编辑.wcscfg文件中响应的配置项进行定义，断点续传需要提供upload id，在上传时传入，这个upload id优先级高于在.wcscfg中配置的upload id
 
     key = ''
     bucket = ''
     filepath = ''
     upload_id = ''
     cli.multipart_upload(filepath, bucket, key，upload_id)
+
+另外，当前上传记录的格式是在tmp\_record\_folder目录下，生成已当前上传任务的upload id命名的目录，然后在目录tmp\_record\_folder/upload id下生成多个文件，每个文件以块offset命名，并记录了这个块的上传结果
     
 #### 流地址上传
 上传策略通过编辑.wcscfg文件中相应的配置项进行定义，上传时需要提供流地址
@@ -167,6 +210,7 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
 #### [列举空间列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/listbucket)
 
     cli.list_buckets()
+    说明：prefix 参数传入不需要base64安全编码
 
 #### [列举空间对象列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/list)
 接口相关的4个可选参数（limit，mode，prefix，marker）可以在调用时传入，也可以通过.wcscfg文件中相应的配置项进行定义

@@ -1,3 +1,5 @@
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
 import requests
 from io import BytesIO
 from requests_toolbelt import MultipartEncoder
@@ -5,7 +7,9 @@ from requests_toolbelt import MultipartEncoder
 from wcs.services.simpleupload import SimpleUpload
 
 class StreamUpload(SimpleUpload):
-    
+    """流地址上传类
+    该类继承自普通上传类，用于流地址上传，与普通上传相比差别是源数据来源于一个公网URL由URL获取到数据内容之后，不是落盘而是写入内存，再调用普通上传API完成上传
+    """   
     def __init__(self, url):
         super(StreamUpload, self).__init__(url)
 

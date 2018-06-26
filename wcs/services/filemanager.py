@@ -1,3 +1,6 @@
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
+
 from wcs.services.mgrbase import MgrBase
 from wcs.commons.http import _post
 from wcs.commons.http import _get
@@ -5,7 +8,9 @@ from wcs.commons.util import urlsafe_base64_encode, https_check, entry
 from wcs.commons.config import Config
 from wcs.commons.logme import debug, error
 class BucketManager(MgrBase):
-
+    """资源管理类
+    资源管理类继承自mgrbase
+    """
     def __init__(self, auth,mgr_url):
         super(BucketManager, self).__init__(auth,mgr_url)
 
@@ -84,9 +89,7 @@ class BucketManager(MgrBase):
 
     def setdeadline(self, bucket, key, deadline):
         url = https_check('{0}/setdeadline'.format(self.mgr_host))
-        param = {
-            'bucket' : urlsafe_base64_encode(bucket),
-        }
+        param = { 'bucket' : urlsafe_base64_encode(bucket)}
         param['key'] = urlsafe_base64_encode(key) 
         param['deadline'] = deadline 
         body = super(BucketManager, self)._params_parse(param)
@@ -106,4 +109,3 @@ class BucketManager(MgrBase):
         debug('Now check storage of %s from %s to %s' % (name, startdate, enddate))
         return _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
 
-        

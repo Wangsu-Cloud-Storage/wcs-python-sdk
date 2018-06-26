@@ -1,15 +1,20 @@
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
+
 from wcs.services.mgrbase import MgrBase
 from wcs.commons.config import Config
 from wcs.commons.http import _post
 from wcs.commons.http import _get
-from wcs.commons.util import urlsafe_base64_encode,https_check
+from wcs.commons.util import urlsafe_base64_encode,https_check,entry
 
 from wcs.commons.logme import debug, error
 
 MGR_URL = Config.mgr_url
 
 class PersistentFop(MgrBase):
-
+    """音视频持久化操作类
+    该类继承自mgrbase
+    """
     def __init__(self,auth,url):
         super(PersistentFop, self).__init__(auth,url)
       
@@ -26,7 +31,7 @@ class PersistentFop(MgrBase):
         return '|'.join(cmds)
 
     def _op_save(self,op, bucket, key):
-        return _pipe_cmd(op, 'saveas/' + entry(bucket, key))
+        return self._pipe_cmd(op, 'saveas/' + entry(bucket, key))
 
     def build_ops(self,ops,bucket,key):
         ops_list = []

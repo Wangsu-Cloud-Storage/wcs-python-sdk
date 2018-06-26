@@ -1,29 +1,39 @@
 #!/usr/bin/python
-## -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+
 import io
 import os
 import sys
 import logging
+import urllib2
+import string
+import chardet
+
 from optparse import OptionParser, Option, IndentedHelpFormatter
 import json
 import requests
+
 from wcs.commons.putpolicy import PutPolicy
+from wcs.commons.error_deal import ParameterError
+from wcs.__init__ import __version__
 
 def output(message):
     sys.stdout.write(message + '\n')
     sys.stdout.flush()
 
 def format_commands(progname, commands_list):
+    #Define commands display format
     help = "Commands:" + "\n"
     for cmd in commands_list:
         help += "   %s\n    	%s %s %s \n" % (cmd["label"], progname, cmd["cmd"], cmd["param"])
     return help
 
 def get_commands_list():
+    #Return all commands list of wcscmd 
     return [
         {"cmd":"list", "label":"List objects","param":"wcs://BUCKET RESFILE","func":cmd_list,"argc":2},
         {"cmd":"listbucket", "label":"List buckets","param":"","func":cmd_listbucket,"argc":0},
-        {"cmd":"get","label":"Download file","param":"URL", "func":cmd_get,"argc":1},
+        {"cmd":"get","label":"Download file","param":"URL", "func":cmd_get,"argc":2},
         {"cmd":"del","label":"Delete a file", "param":"wcs://BUCKET/OBJECT","func":cmd_del, "argc":1},
         {"cmd":"mv","label":"Move a file from src bucket to des bucket", "param":"wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT","func":cmd_mv,"argc":2},
         {"cmd": "cp", "label": "Copy a file from src bucket to des bucket","param": "wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT", "func":cmd_cp,"argc": 2},
@@ -35,6 +45,7 @@ def get_commands_list():
     ]
 
 def cmd_list(args):
+    #Define implementation of List Objects API 
     cfg = Config()
     cli = Client(cfg)
     bucket = args[0].split("wcs://")[1]
@@ -53,33 +64,60 @@ def cmd_list(args):
         error("Request fail, more detail please pay attention to reqid: %s " % (reqid['x-reqid']))
     
 def cmd_get(args):
-    url = args[0]
-    key = os.getcmd() + url.split('/')[-1]
+    #Define implementation of download file from URL
     try:
-        res = requests.get(url)
+        if chardet.detect(args[0]).get('encoding') == 'ISO-8859-1':
+            url = args[0].decode('gbk').encode('utf8')
+        else:
+            url = args[0]
+        url_encode =  str(urllib2.quote(url,safe=string.printable))
+        if len(args)>1:
+            key = os.path.join(os.getcwd(),args[1])
+        else:
+            url = urllib2.unquote(str(url)).decode('utf8')
+            filename = url.split('?')
+            if len(filename) >= 2:
+                filename.pop(-1)
+                filename = '/'.join('?'.join(filename).split('/')[3:])
+                key = os.path.join(os.getcwd(),filename)
+            else:
+                filename = url.split('/')[-1]
+                key = os.path.join(os.getcwd(),filename)
+        res = requests.get(url_encode)
         if res.status_code == 200:
             debug("Download suc.")
             try:
                 with open(key,'wb') as f:
                     f.write(res.content)
+                debug('File saved successfully,File:[{}]'.format(key))
             except IOError as e:
                 error("Create local file fail for %s" % e)
                 sys.exit()
-    except:
-        error("Download Fail,for %d, %s" (res.status_code, res.text))
+        else:
+            error_text = res.text
+            error("Download Fail:%s"%error_text)
+    except Exception as e:
+        error("Download Fail:%s" %e)
 
 def _simple_arg_parse(arg):
-    tmp = arg.split("wcs://")[1]
-    bucket = tmp.split('/')[0]
-    object = tmp.split(bucket+'/')[1]
-    return bucket, object
+    #Parse commands with only one wcs://bucket/[prefix1]/[prefix2]/object
+    try:
+        tmp = arg.split("wcs://")[1]
+        bucket = tmp.split('/')[0]
+        obj = tmp.split(bucket+'/')[1]
+    except Exception:
+        error("Invalid arguments")
+        sys.exit()
+    return bucket, obj
     
 def cmd_del(args):
+    #Define implementation of Object Delete API
     cli = Client(Config())
-    bucket, object = _simple_arg_parse(args[0])
-    debug(cli.delete(bucket,object))
+    bucket, obj = _simple_arg_parse(args[0])
+    debug(cli.delete(bucket,obj))
 
 def _couple_args_parse(args):
+    #Parse commands with two wcs://srcbucket/[srcprefix1]/[srcprefix2]/srcobject wcs://dstbucket/[dstprefix1]/[dstprefix2]/dstobject
     try:
         src = args[0].split("wcs://")[1]
         dst = args[1].split("wcs://")[1]
@@ -89,48 +127,54 @@ def _couple_args_parse(args):
         dstbucket = dst.split('/')[0]
         dstobject = dst.split(dstbucket)[1]
         dstobject = '/'.join(dstobject.split('/')[1:])
-        return srcbucket, srcobject, dstbucket, dstobject
     except Exception:
         error("Invalid arguments")
         sys.exit()
+    return srcbucket, srcobject, dstbucket, dstobject
 
 def cmd_mv(args):
+    #Define implementation of Synchronous move API 
     cli = Client(Config())
     srcbk, srcob, dstbk, dstob = _couple_args_parse(args)
     debug(cli.move(srcbk, srcob, dstbk, dstob))
 
-
 def cmd_cp(args):
+    #Define implementation of Synchronous copy API
     cli = Client(Config())
     srcbk, srcob, dstbk, dstob = _couple_args_parse(args)
     debug(cli.copy(srcbk, srcob, dstbk, dstob))
 
 def cmd_setdeadline(args):
+    #Define implementation of Set Deadline API
     cli = Client(Config())
-    bucket, object = _simple_arg_parse(args[0])
+    bucket, obj = _simple_arg_parse(args[0])
     deadline = args[1]
-    debug(cli.setdeadline(bucket,object,deadline))
+    debug(cli.setdeadline(bucket,obj,deadline))
 
 def cmd_stat(args):
+    #Define implementation of stat API
     cli = Client(Config())
-    bucket, object = _simple_arg_parse(args[0])
-    debug(cli.stat(bucket,object))
+    bucket, obj = _simple_arg_parse(args[0])
+    debug(cli.stat(bucket,obj))
 
 def cmd_put(args):
+    #Define implementation of simple upload API
     cfg = Config()
     cli = Client(cfg)
-    bucket, object = _simple_arg_parse(args[0])
+    bucket, obj = _simple_arg_parse(args[0])
     local = args[1]
-    debug(cli.simple_upload(local, bucket,object))
+    debug(cli.simple_upload(local, bucket, obj))
         
 def cmd_multiput(args):
+    #Define implementation of multipart upload
     cfg = Config()
     cli = Client(cfg)
-    bucket, object = _simple_arg_parse(args[0])
+    bucket, obj = _simple_arg_parse(args[0])
     local = args[1]
-    debug(cli.multipart_upload(local, bucket, object, cfg.upload_id))
+    debug(cli.multipart_upload(local, bucket, obj, cfg.upload_id))
 
 def cmd_listbucket(args):
+    #
     cli = Client(Config())
     debug(cli.list_buckets())
 
@@ -160,7 +204,8 @@ def run_configure(config_file):
         ("mkfile_retries","Mkfile_Retries","Multipart Upload Mkfile retries"),
         ("tmp_record_folder","Tmp_Record_Folder","Multipart Upload record folder"),
         ("concurrency","Concurrency","Multipart Upload Concurrency"),
-        ("ishttps","IsHttps","Use https or not")
+        ("ishttps","IsHttps","Use https or not"),
+        ("isverify","isverify","Use verify or not")
     ]
     try:
         while True:
@@ -206,7 +251,7 @@ def run_configure(config_file):
         return
     except IOError, e:
         error(u"Writing config file failed: %s: %s" % (config_file, e.strerror))
-        sys.exit(EX_IOERR)
+        sys.exit()
 
 class MyHelpFormatter(IndentedHelpFormatter):
     def format_epilog(self, epilog):
@@ -249,7 +294,7 @@ def main():
     optparser.add_option(   "--output", dest="output", help="Save request result to specified key, like:<bucket>:<key>")
     optparser.add_option(   "--notify", dest="notifyURL", help="Notify url for request result")
     optparser.add_option(   "--separate", dest="separate", help="Whether separate notify, bool type")
-    optparser.add_option(   "--overwrite", dest="overwirte", help="Whether overwrite existed key, bool type")
+    optparser.add_option(   "--overwrite", dest="overwrite", help="Whether overwrite existed key, bool type")
     optparser.add_option(   "--returnurl", dest="returl", help="Url for return")
     optparser.add_option(   "--returnbody", dest="retbody", help="Body of return")
     optparser.add_option(   "--callbackurl", dest="cburl", help="Url for callback")
@@ -259,9 +304,7 @@ def main():
     optparser.add_option(   "--contentdetect", dest="contentdetect", help="Content detect type")
     optparser.add_option(   "--detectntyurl", dest="detectntyurl", help="Url for detect notify")
     optparser.add_option(   "--detectntyrule", dest="detectntyrule", help="RUle for ectect notify")
-    
-    
-    
+
     optparser.set_description("Wcscmd is a tool for managing objects in WCS Object Storage."
                               + " It allows for uploading, downloading and removing objects form buckets")
 
@@ -274,7 +317,7 @@ def main():
     #    logging.basicConfig(level=options.verbosity, format='%(levelname)s: %(message)s', stream=sys.stdderr)
     #if run_config:
 
-    debug(u"wcscmd version 1.0.0")
+    debug(u"wcscmd version {}".format(__version__))
     if options.run_config:
         run_configure(options.config)
         sys.exit()
@@ -293,6 +336,8 @@ def main():
 
     if options.output:
         cfg.output = options.output
+    if options.upload_id:
+        cfg.upload_id = options.upload_id
     if options.notifyURL:
         cfg.notifyurl = options.notifyURL
     if options.separate:
@@ -305,8 +350,8 @@ def main():
         cfg.mode = options.mode
     if options.marker:
         cfg.marker = options.marker 
-    if options.overwirte:
-        cfg.overwirte = options.overwirte
+    if options.overwrite:
+        cfg.overwrite = options.overwrite
     if options.returl:
         cfg.returnUrl = options.returl
     if options.retbody:
@@ -325,7 +370,6 @@ def main():
         cfg.detectNotifyURL = options.detectntyurl
     if options.detectntyrule:
         cfg.detectNotifyRule = options.detectntyrule
-
     if options.dump_config:
         cfg.dump_config(sys.stdout)
         sys.exit()
@@ -338,16 +382,20 @@ def main():
             cfg.update_option(option, value)
         except AttributeError:
             pass
-
-    if int(cfg.block_size) <= 0 or (int(cfg.block_size) % 4194304) != 0:
-        raise ParameterError("Block size %d B is not available" % (int(cfg.block_size)))
-    if int(cfg.bput_size) <= 0 or (int(cfg.bput_size)) % 2 != 0:
-        raise ParameterError("Bput size %d B is not available" % (int(cfg.bput_size)))
+        try:
+            #caiyz 20180306 add option check
+            if option =='block_size' :
+                if int(cfg.block_size) <= 0 or (int(cfg.block_size) % 4194304) != 0:
+                    raise ParameterError("Block size %d B is not available" % (int(cfg.block_size)))
+            if option == 'bput_size':
+                if int(cfg.bput_size) <= 0 or (int(cfg.bput_size)) % 2 != 0:
+                    raise ParameterError("Bput size %d B is not available" % (int(cfg.bput_size)))
+        except ParameterError as e:
+            print e
 
     if len(args) < 1:
         optparser.print_help()
         sys.exit()
-   
     command = args.pop(0)
     try:
         debug(u"Command: %s" % commands[command]["cmd"])
@@ -355,13 +403,17 @@ def main():
     except KeyError as e:
         error(u"Invalid command: %s" % command)
         sys.exit()
-
-    if len(args) < commands[command]["argc"]:
-        error(u"Not enough parameters for command '%s'" % command)
-        sys.exit()
-    if len(args) > commands[command]["argc"]:
-        error(u"Too much parameters for command '%s'" % command)
-        sys.exit()
+    if command == 'get':
+        if len(args) > commands[command]["argc"]:
+            error(u"Too much parameters for command '%s'" % command)
+            sys.exit()
+    else:
+        if len(args) < commands[command]["argc"]:
+            error(u"Not enough parameters for command '%s'" % command)
+            sys.exit()
+        if len(args) > commands[command]["argc"]:
+            error(u"Too much parameters for command '%s'" % command)
+            sys.exit()
     rc = cmd_func(args)
     if rc is None:
         rc = "Nothing"
@@ -373,4 +425,3 @@ if __name__ == '__main__':
     from wcs.services.client import Client
     from wcs.commons.util import urlsafe_base64_encode
     main()
-

@@ -1,11 +1,23 @@
+#!/usr/bin/python
+## -*- coding: utf-8 -*-
+
 import os
 import requests
 from requests_toolbelt import MultipartEncoder
 from wcs.commons.http import _post
+from os.path import expanduser
 from wcs.commons.logme import debug,error
 from wcs.commons.util import https_check
 
+from wcs.commons.config import Config
+config_file = os.path.join(expanduser("~"), ".wcscfg")
+
 class SimpleUpload(object):
+    """普通上传类
+    该类实现了WCS的普通上传功能
+    Attributes:
+        url: 上传域名    
+    """
 
     def __init__(self,url):
         self.url = url
@@ -24,9 +36,13 @@ class SimpleUpload(object):
         return open(path, 'rb')
 
     def _upload(self,url,encoder,headers,f):
+        cfg = Config(config_file)
         url = https_check(url)
         try:
-            r = requests.post(url=url, headers=headers, data=encoder, verify=True)
+            if cfg.isverify:
+                r = requests.post(url=url, headers=headers, data=encoder, verify=True)
+            else:
+                r = requests.post(url=url, headers=headers, data=encoder, verify=False)
         except Exception as e:
             f.close()
             debug('Request url:' + url)
@@ -38,7 +54,7 @@ class SimpleUpload(object):
         f.close()
         try:
             r_header = {'x-reqid': r.headers['x-reqid']}
-            return r.status_code,r.text,r_headers
+            return r.status_code,r.text,r_header
         except:           
             return r.status_code,r.text
 
