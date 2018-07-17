@@ -119,6 +119,7 @@ Windows系统执行命令需要添加python再执行,如python wcscmd --help
 #### wcscmd下载文件
 未带filename 参数，下载的文件默认会与源文件同名，并保存在当前目录下
 带有filename 参数，下载文件保存在当前目录下，文件名称为参数filename
+url 需要用''引号包含起来
     
     wcscmd get [URL] [filename]
     
