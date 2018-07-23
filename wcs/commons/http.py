@@ -23,11 +23,10 @@ config_file = os.path.join(expanduser("~"), ".wcscfg")
 _session = None
 
 def __return_wrapper(resp):
-
     if resp.text != '':
         resp_header = {'x-reqid': resp.headers['x-reqid']}
         try:
-            return resp.status_code, eval(str(resp.text)), resp_header
+            return resp.status_code, json.loads(str(resp.text)), resp_header
         except Exception as e:
             response_body = yaml.load(resp.text)
             if 'code' in response_body.keys():
@@ -73,7 +72,7 @@ def _get(url, headers=None):
             r = requests.get(url, headers=headers, timeout=timeout, verify=True)
         else:
             r = requests.get(url, headers=headers, timeout=timeout, verify=False)
+
     except Exception as e:
         return -1,e,'Null'
     return __return_wrapper(r)
-
