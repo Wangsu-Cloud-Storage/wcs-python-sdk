@@ -138,11 +138,12 @@ def _couple_args_parse(args):
         src = args[0].split("wcs://")[1]
         dst = args[1].split("wcs://")[1]
         srcbucket = src.split('/')[0]
-        srcobject = src.split(srcbucket)[1]
-        srcobject = '/'.join(srcobject.split('/')[1:])
+        srcobject = src.split('/')[1:]
+        srcobject = '/'.join(srcobject)
+
         dstbucket = dst.split('/')[0]
-        dstobject = dst.split(dstbucket)[1]
-        dstobject = '/'.join(dstobject.split('/')[1:])
+        dstobject = dst.split('/')[1:]
+        dstobject = '/'.join(dstobject)
     except Exception:
         error("Invalid arguments")
         sys.exit()
