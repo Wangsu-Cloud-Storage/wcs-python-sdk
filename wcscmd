@@ -60,18 +60,21 @@ def cmd_list(args):
     cli = Client(cfg)
     bucket = args[0].split("wcs://")[1]
     resfile = os.path.join(os.getcwd(), args[1])
-    code, response, reqid = cli.bucket_list(bucket, cfg.prefix, cfg.marker, int(cfg.limit), int(cfg.mode))
-    if code == 200:
-        try:
-            with open(resfile, 'w') as f:
-                f.write(json.dumps(response))
-        except IOError:
-            debug("Save Fail")
-            sys.exit()
-        debug("Request result saved to %s" % (resfile))
-        debug("Request ID is: %s" % (reqid['x-reqid']))
-    else:
-        error("Request fail, more detail please pay attention to reqid: %s " % (reqid['x-reqid']))
+    try:
+        code, response, reqid = cli.bucket_list(bucket, cfg.prefix, cfg.marker, int(cfg.limit), int(cfg.mode))
+        if code == 200:
+            try:
+                with open(resfile, 'w') as f:
+                    f.write(json.dumps(response))
+            except IOError:
+                debug("Save Fail")
+                sys.exit()
+            debug("Request result saved to %s" % (resfile))
+            debug("Request ID is: %s" % (reqid['x-reqid']))
+        else:
+            error("Request fail, more detail please pay attention to reqid: %s " % (reqid['x-reqid']))
+    except Exception,E:
+        error(E)
 
 
 def cmd_get(args):
@@ -231,7 +234,8 @@ def run_configure(config_file):
         ("tmp_record_folder", "Tmp_Record_Folder", "Multipart Upload record folder"),
         ("concurrency", "Concurrency", "Multipart Upload Concurrency"),
         ("ishttps", "IsHttps", "Use https or not"),
-        ("isverify", "isverify", "Use verify or not")
+        ("isverify", "isverify", "Use verify or not"),
+        ("mode", "mode", "List objects mode")
     ]
     try:
         while True:

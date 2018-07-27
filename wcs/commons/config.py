@@ -57,7 +57,7 @@ class Config(object):
     #bucket list可选参数limit
     limit = 1000
     prefix = ''
-    mode = 1
+    mode = 3
     marker = ''
 
     #上传策略参数

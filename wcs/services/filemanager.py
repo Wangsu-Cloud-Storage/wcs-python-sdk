@@ -57,7 +57,7 @@ class BucketManager(MgrBase):
                 raise ValueError("Invalid limit")
         if prefix:
             options['prefix'] = urlsafe_base64_encode(prefix)
-        if mode:
+        if mode == 1 or mode == 0:
             options['mode'] = mode
         url = https_check(self._make_url('list', options))
         if options:
