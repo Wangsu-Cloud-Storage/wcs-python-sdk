@@ -97,20 +97,27 @@ Windows系统执行命令需要添加python再执行,如python wcscmd --help
     	wcscmd multiput wcs://BUCKET/OBJECT LOCALFILE  
     Delete multiple files according to prefix
     	wcscmd deletePrefix wcs://BUCKET PREFIX
+    Fops audio/video processing
+    	wcscmd fops wcs://BUCKET/OBJECT fopsparm
+    Get fops task results
+    	wcscmd fopsStatus  persistentId
+    Get fmgr task results
+    	wcscmd fmgrStatus  persistentId
 
 #### wcscmd[普通上传](https://wcs.chinanetcenter.com/document/API/FileUpload/Upload)
 
-上传策略可以通过编辑.wcscfg文件中相应的配置项进行定义，也可以通过命令行的option进行临时配置,
+上传策略可以通过编辑.wcscfg文件中响应的配置项进行定义，也可以通过命令行的option进行临时配置,
 
      wcscmd put wcs://test/test-1k ./test-1k  --overwrite 1
 
 #### wcscmd[分片上传](https://wcs.chinanetcenter.com/document/API/FileUpload/SliceUpload)
-上传策略可以通过编辑.wcscfg文件中相应的配置项进行定义，也可以通过命令行的option进行临时配置，如果需要进行断点续传需要增加--upload-id这个option，这个upload-id的优先级高于在.wcscfg中配置的upload id
+上传策略可以通过编辑.wcscfg文件中响应的配置项进行定义，也可以通过命令行的option进行临时配置，如果需要进行断点续传需要增加--upload-id这个option，这个upload-id的优先级高于在.wcscfg中配置的upload id
 
      wcscmd multiput wcs://test/test-100M /root/test-100M --upload-id 3IL3ce3kR6kDf4sihxh0LcWUpzTYEKFf
      
 #### wcscmd[列举空间列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/listbucket)
     wcscmd listbucket
+
 #### wcscmd[列举空间文件列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/list)
 空间test的列举结果会保存在当前目录的result文件中
 
@@ -144,8 +151,8 @@ url 需要用''引号包含起来
 #### wcscmd[复制文件](https://wcs.chinanetcenter.com/document/API/ResourceManage/copy)
     wcscmd copy wcs://srctest/test1 wcs://dsttest/test2
 
-## 计算文件etag值
 
+## 计算文件etag值
 wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的形式体验这个功能
 
     
@@ -182,7 +189,7 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
     cfg = Config(config_file) #加载配置文件
     cli = Client(cfg) 初始化Client
 #### [普通上传](https://wcs.chinanetcenter.com/document/API/FileUpload/Upload)
-上传策略通过编辑.wcscfg文件中相应的配置项进行定义
+上传策略通过编辑.wcscfg文件中响应的配置项进行定义
 
     key = ''
     bucket = ''
@@ -190,7 +197,7 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
     cli.simple_upload(filepath, bucket, key)
     
 #### [分片上传](https://wcs.chinanetcenter.com/document/API/FileUpload/SliceUpload)
-上传策略通过编辑.wcscfg文件中相应的配置项进行定义，断点续传需要提供upload id，在上传时传入，这个upload id优先级高于在.wcscfg中配置的upload id
+上传策略通过编辑.wcscfg文件中响应的配置项进行定义，断点续传需要提供upload id，在上传时传入，这个upload id优先级高于在.wcscfg中配置的upload id
 
     key = ''
     bucket = ''

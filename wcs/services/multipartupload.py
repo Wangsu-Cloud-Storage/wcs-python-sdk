@@ -98,7 +98,14 @@ class MultipartUpload(object):
             self.uploadBatch = records['uploadBatch']
             self.results = records['upload_record']
             for record in self.results:
-                record = eval(record)
+                try:
+                    record = eval(record)
+                except SyntaxError as e:
+                    debug('Get ctx/offset fail,error ctx/offset:{0}'.format(record))
+
+                except Exception as exc_e:
+                    debug('Get ctx/offset fail,errorinfo:{0}'.format(exc_e))
+
                 if record['code'] == 200:
                     offsetlist.remove(record['offset'])
                     blockid = record['offset']/self.block_size
@@ -157,9 +164,11 @@ class MultipartUpload(object):
                 mkblk_retries -= 1
             if blkcode != 200:
                 result = [offset, blkcode, blktext['message']]
+                debug('make block fail,code :{0},message :{1}'.format(blkcode, blktext))
             else:
                 result = self._make_bput(f, blktext['ctx'], offset)
         self._record_upload_progress(result,size)
+        return blkcode
     
     def _make_bput(self, f, ctx, offset):
         bputnum = 1
@@ -248,17 +257,20 @@ class MultipartUpload(object):
             offsets = [i * (self.block_size) for i in range(0,self.blocknum)]
 
         if len(offsets) != 0:
-            debug('Thare are %d offsets need to upload' % (len(offsets)))
+            debug('There are %d offsets need to upload' % (len(offsets)))
             debug('Now start upload file blocks') 
             if self.concurrency > 0:
                 pool = ThreadPool(self.concurrency)
                 pool.map(self._make_block, offsets)
                 pool.close()
                 pool.join()
-                
+
             elif self.concurrency == 0:
                 for offset in offsets:
-                    self._make_block(offset)
+                    return_code = self._make_block(offset)
+                    if 400 <= int(return_code) <= 499:
+                        debug('Single-Thread,attempt authentication failed,exit the task.')
+                        sys.exit()
             else:
                 raise ValueError('Invalid concurrency')
                 sys.exit()
@@ -270,5 +282,5 @@ class MultipartUpload(object):
             fail_list = self._get_failoffsets() 
             upload_record = str(Config.tmp_record_folder) + self.uploadBatch
             debug('Sorry! Mulitpart upload fail,more detail see %s' % upload_record) 
-            raise Exception("Multipart upload fail")
+            #raise Exception("Multipart upload fail")
 

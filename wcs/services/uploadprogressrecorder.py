@@ -70,4 +70,4 @@ class UploadProgressRecorder(object):
 
     def find_upload_record(self):
         return os.path.exists(self.record_folder)
-          
+

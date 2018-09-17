@@ -58,8 +58,8 @@ def _post(url, headers, data=None, files=None):
         else:
             r = requests.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=False)
     except Exception as e:
-        errormessage = {'message':e}
-        return -1,errormessage,'Null'
+        errormessage = {'message':str(e)}
+        return -1,errormessage,'None'
     return __return_wrapper(r)
 
 def _get(url, headers=None):
@@ -72,7 +72,7 @@ def _get(url, headers=None):
             r = requests.get(url, headers=headers, timeout=timeout, verify=True)
         else:
             r = requests.get(url, headers=headers, timeout=timeout, verify=False)
-
     except Exception as e:
-        return -1,e,'Null'
+        resp_header = {'x-reqid': 'None'}
+        return -1,e,resp_header
     return __return_wrapper(r)

@@ -38,19 +38,16 @@ def get_commands_list():
         {"cmd": "listbucket", "label": "List buckets", "param": "", "func": cmd_listbucket, "argc": 0},
         {"cmd": "get", "label": "Download file", "param": "URL", "func": cmd_get, "argc": 2},
         {"cmd": "del", "label": "Delete a file", "param": "wcs://BUCKET/OBJECT", "func": cmd_del, "argc": 1},
-        {"cmd": "mv", "label": "Move a file from src bucket to des bucket",
-         "param": "wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT", "func": cmd_mv, "argc": 2},
-        {"cmd": "cp", "label": "Copy a file from src bucket to des bucket",
-         "param": "wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT", "func": cmd_cp, "argc": 2},
-        {"cmd": "setdeadline", "label": "Set deadline of file", "param": "wcs://BUCKET/OBJECT deadline",
-         "func": cmd_setdeadline, "argc": 2},
+        {"cmd": "mv", "label": "Move a file from src bucket to des bucket",  "param": "wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT", "func": cmd_mv, "argc": 2},
+        {"cmd": "cp", "label": "Copy a file from src bucket to des bucket",  "param": "wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT", "func": cmd_cp, "argc": 2},
+        {"cmd": "setdeadline", "label": "Set deadline of file", "param": "wcs://BUCKET/OBJECT deadline", "func": cmd_setdeadline, "argc": 2},
         {"cmd": "stat", "label": "Get file info", "param": "wcs://BUCKET/OBJECT", "func": cmd_stat, "argc": 1},
-        {"cmd": "put", "label": "Upload a local file to WCS", "param": "wcs://BUCKET/OBJECT LOCALFILE", "func": cmd_put,
-         "argc": 2},
-        {"cmd": "multiput", "label": "Multipart upload a local file to WCS", "param": "wcs://BUCKET/OBJECT LOCALFILE ",
-         "func": cmd_multiput, "argc": 2},
-        {"cmd": "deletePrefix", "label": "Delete multiple files according to prefix", "param": "wcs://BUCKET PREFIX",
-         "func": cmd_delprefix, "argc": 2}
+        {"cmd": "put", "label": "Upload a local file to WCS", "param": "wcs://BUCKET/OBJECT LOCALFILE", "func": cmd_put,"argc": 2},
+        {"cmd": "multiput", "label": "Multipart upload a local file to WCS", "param": "wcs://BUCKET/OBJECT LOCALFILE ", "func": cmd_multiput, "argc": 2},
+        {"cmd": "deletePrefix", "label": "Delete multiple files according to prefix", "param": "wcs://BUCKET PREFIX", "func": cmd_delprefix, "argc": 2},
+        {"cmd": "fops", "label": "Fops audio/video processing ", "param": "wcs://BUCKET/OBJECT fopsparm", "func": cmd_fops, "argc": 2},
+        {"cmd": "fopsStatus", "label": "Get fops task results ", "param": "persistentId", "func": cmd_fopsstatus, "argc": 1},
+        {"cmd": "fmgrStatus", "label": "Get fmgrStatus task results ", "param": "persistentId", "func": cmd_fmgrstatus, "argc": 1}
     ]
 
 
@@ -72,6 +69,7 @@ def cmd_list(args):
             debug("Request result saved to %s" % (resfile))
             debug("Request ID is: %s" % (reqid['x-reqid']))
         else:
+            debug("error-message:%s" % response)
             error("Request fail, more detail please pay attention to reqid: %s " % (reqid['x-reqid']))
     except Exception,E:
         error(E)
@@ -214,6 +212,28 @@ def cmd_delprefix(args):
     debug(cli.prefix_delete(fops))
 
 
+def cmd_fops(args):
+    # Define implementation of Fops API
+    cli = Client(Config())
+    bucket,obj = _simple_arg_parse(args[0])
+    fops = args[1]
+    debug(cli.ops_execute(fops,bucket,obj))
+
+
+def cmd_fopsstatus(args):
+    # Define implementation of fops status API
+    cli = Client(Config())
+    persistentId = args[0]
+    debug(cli.ops_status(persistentId))
+
+
+def cmd_fmgrstatus(args):
+    # Define implementation of fmgr status API
+    cli = Client(Config())
+    persistentId = args[0]
+    debug(cli.fmgr_status(persistentId))
+
+
 def run_configure(config_file):
     if os.path.exists(config_file):
         cfg = Config(config_file)
@@ -333,6 +353,7 @@ def main():
     optparser.add_option("--output", dest="output", help="Save request result to specified key, like:<bucket>:<key>")
     optparser.add_option("--notify", dest="notifyURL", help="Notify url for request result")
     optparser.add_option("--separate", dest="separate", help="Whether separate notify, bool type")
+    optparser.add_option("--force", dest="force", help="Whether to enforce data processing, bool type")
     optparser.add_option("--overwrite", dest="overwrite", help="Whether overwrite existed key, bool type")
     optparser.add_option("--returnurl", dest="returl", help="Url for return")
     optparser.add_option("--returnbody", dest="retbody", help="Body of return")
@@ -383,6 +404,8 @@ def main():
         cfg.notifyurl = options.notifyURL
     if options.separate:
         cfg.separate = options.separate
+    if options.force:
+        cfg.force = options.force
     if options.limit:
         cfg.limit = options.limit
     if options.prefix:
