@@ -1,5 +1,7 @@
 import argparse
+
 from wcs.commons.util import etag
+
 
 def main():
     parser = argparse.ArgumentParser(prog='WCS Python SDK')

@@ -2,14 +2,14 @@
 ## -*- coding: utf-8 -*-
 
 import os
+from os.path import expanduser
+
 import requests
 from requests_toolbelt import MultipartEncoder
-from wcs.commons.http import _post
-from os.path import expanduser
+from wcs.commons.config import Config
 from wcs.commons.logme import debug,error
 from wcs.commons.util import https_check
-
-from wcs.commons.config import Config
+from requests.adapters import HTTPAdapter
 config_file = os.path.join(expanduser("~"), ".wcscfg")
 
 class SimpleUpload(object):
@@ -21,6 +21,11 @@ class SimpleUpload(object):
 
     def __init__(self,url):
         self.url = url
+        session = requests.Session()
+        session.mount('http://', HTTPAdapter(max_retries=Config.connection_retries))
+        session.mount('https://', HTTPAdapter(max_retries=Config.connection_retries))
+        global _session
+        _session = session
 
     def _gernerate_tool(self, f,token):
         fileds = {"token":token}
@@ -38,11 +43,16 @@ class SimpleUpload(object):
     def _upload(self,url,encoder,headers,f):
         cfg = Config(config_file)
         url = https_check(url)
+        if cfg.keepalive == True:
+            pass
+        else:
+            _session.keep_alive = False
+            headers['Connection'] = 'close'
         try:
             if cfg.isverify:
-                r = requests.post(url=url, headers=headers, data=encoder, verify=True)
+                r = _session.post(url=url, headers=headers, data=encoder, verify=True)
             else:
-                r = requests.post(url=url, headers=headers, data=encoder, verify=False)
+                r = _session.post(url=url, headers=headers, data=encoder, verify=False)
         except Exception as e:
             f.close()
             debug('Request url:' + url)

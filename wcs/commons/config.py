@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-import os
+import io
 import re
 import sys
-import io
 from inspect import isfunction
 
 from wcs.commons.logme import debug,error,warning
+
 
 class Config(object):
 
@@ -38,6 +38,8 @@ class Config(object):
     ishttps = False
     #是否开启证书校验
     isverify = True
+    #keep-alive 配置
+    keepalive = False
 
     # 是否断点续传
     upload_id = ''

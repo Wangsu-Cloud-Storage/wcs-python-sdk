@@ -1,10 +1,10 @@
 #!/usr/bin/python
 ## -*- coding: utf-8 -*-
-from wcs.services.mgrbase import MgrBase
 from wcs.commons.config import Config
 from wcs.commons.http import _get
-from wcs.commons.logme import debug,error 
+from wcs.commons.logme import debug
 from wcs.commons.util import https_check
+from wcs.services.mgrbase import MgrBase
 
 MGR = Config.mgr_url
 

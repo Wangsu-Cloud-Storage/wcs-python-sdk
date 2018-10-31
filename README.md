@@ -134,9 +134,11 @@ url 需要用''引号包含起来
     wcscmd stat wcs://test/test-100M
     
 #### wcscmd[设置文件保存期限](https://wcs.chinanetcenter.com/document/API/ResourceManage/setdeadline)
-保存时间单位为天，0表示尽快删除，-1表示取消过期时间，永久保存
+保存时间单位为天，0表示尽快删除，-1表示取消过期时间，永久保存,要设置-1的时候，需要将整个包含在引号内
 
     wcscmd setdeadline wcs://test/test-100M 3
+    wcscmd setdeadline wcs://test/test-100M '"-1"'
+
     
 #### wcscmd[删除文件](https://wcs.chinanetcenter.com/document/API/ResourceManage/delete)
     wcscmd del wcs://test/test-100M

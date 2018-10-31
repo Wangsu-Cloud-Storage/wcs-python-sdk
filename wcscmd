@@ -12,6 +12,7 @@ import chardet
 from optparse import OptionParser, Option, IndentedHelpFormatter
 import json
 import requests
+from  ast import literal_eval
 
 from wcs.commons.putpolicy import PutPolicy
 from wcs.commons.error_deal import ParameterError
@@ -169,7 +170,7 @@ def cmd_setdeadline(args):
     # Define implementation of Set Deadline API
     cli = Client(Config())
     bucket, obj = _simple_arg_parse(args[0])
-    deadline = args[1]
+    deadline = literal_eval(args[1])
     debug(cli.setdeadline(bucket, obj, deadline))
 
 
@@ -255,7 +256,8 @@ def run_configure(config_file):
         ("concurrency", "Concurrency", "Multipart Upload Concurrency"),
         ("ishttps", "IsHttps", "Use https or not"),
         ("isverify", "isverify", "Use verify or not"),
-        ("mode", "mode", "List objects mode")
+        ("mode", "mode", "List objects mode"),
+        ("keepalive", "keepalive", "request to use keepalive mode")
     ]
     try:
         while True:

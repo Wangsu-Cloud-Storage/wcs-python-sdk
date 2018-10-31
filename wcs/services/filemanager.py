@@ -1,12 +1,13 @@
 #!/usr/bin/python
 ## -*- coding: utf-8 -*-
 
-from wcs.services.mgrbase import MgrBase
-from wcs.commons.http import _post
 from wcs.commons.http import _get
-from wcs.commons.util import urlsafe_base64_encode, https_check, entry
-from wcs.commons.config import Config
+from wcs.commons.http import _post
 from wcs.commons.logme import debug, error
+from wcs.commons.util import urlsafe_base64_encode, https_check, entry
+from wcs.services.mgrbase import MgrBase
+
+
 class BucketManager(MgrBase):
     """资源管理类
     资源管理类继承自mgrbase

@@ -1,10 +1,10 @@
 #!/usr/bin/python
 ## -*- coding: utf-8 -*-
-import requests
 from io import BytesIO
-from requests_toolbelt import MultipartEncoder
 
+import requests
 from wcs.services.simpleupload import SimpleUpload
+
 
 class StreamUpload(SimpleUpload):
     """流地址上传类

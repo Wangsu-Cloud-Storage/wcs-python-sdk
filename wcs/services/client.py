@@ -1,15 +1,16 @@
 #!/usr/bin/python
 ## -*- coding: utf-8 -*-
-from wcs.commons.util import urlsafe_base64_encode
 from wcs.commons.auth import Auth
-from wcs.services.simpleupload import SimpleUpload
-from wcs.services.streamupload import StreamUpload
-from wcs.services.multipartupload import MultipartUpload
+from wcs.commons.putpolicy import PutPolicy
+from wcs.commons.util import urlsafe_base64_encode
 from wcs.services.filemanager import BucketManager
 from wcs.services.fmgr import Fmgr
+from wcs.services.multipartupload import MultipartUpload
 from wcs.services.persistentfop import PersistentFop
+from wcs.services.simpleupload import SimpleUpload
+from wcs.services.streamupload import StreamUpload
 from wcs.services.wslive import WsLive
-from wcs.commons.putpolicy import PutPolicy
+
 
 class Client(object):
     """接口封装类

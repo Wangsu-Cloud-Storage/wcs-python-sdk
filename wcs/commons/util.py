@@ -5,7 +5,7 @@ import base64
 import os,re
 import logging
 
-from .compat import b, s
+from wcs.commons.compat import b, s
 import tempfile
 import random
 import string

@@ -21,7 +21,6 @@ import yaml
 config_file = os.path.join(expanduser("~"), ".wcscfg")
 
 _session = None
-
 def __return_wrapper(resp):
     if resp.text != '':
         resp_header = {'x-reqid': resp.headers['x-reqid']}
@@ -41,6 +40,7 @@ def __return_wrapper(resp):
 def _init():
     session = requests.Session()
     session.mount('http://', HTTPAdapter(max_retries=Config.connection_retries))
+    session.mount('https://', HTTPAdapter(max_retries=Config.connection_retries))
     global _session
     _session = session
 
@@ -53,10 +53,15 @@ def _post(url, headers, data=None, files=None):
     try:
         headers['user-agent'] = 'WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)'
         #headers['Expect'] = '100-conitnue'
-        if cfg.isverify:
-            r = requests.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=True)
+        if cfg.keepalive == True:
+            pass
         else:
-            r = requests.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=False)
+            _session.keep_alive = False
+            headers['Connection'] = 'close'
+        if cfg.isverify:
+            r = _session.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=True)
+        else:
+            r = _session.post(url=url, data=data, files=files, headers=headers, timeout=timeout, verify=False)
     except Exception as e:
         errormessage = {'message':str(e)}
         return -1,errormessage,'None'
@@ -65,13 +70,20 @@ def _post(url, headers, data=None, files=None):
 def _get(url, headers=None):
     cfg = Config(config_file)
     timeout = float(cfg.connection_timeout)
+    if _session is None:
+        _init()
     try:
         headers = headers or {}
         headers['user-agent'] = 'WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)'
-        if cfg.isverify:
-            r = requests.get(url, headers=headers, timeout=timeout, verify=True)
+        if cfg.keepalive == True:
+            pass
         else:
-            r = requests.get(url, headers=headers, timeout=timeout, verify=False)
+            _session.keep_alive = False
+            headers['Connection'] = 'close'
+        if cfg.isverify:
+            r = _session.get(url, headers=headers, timeout=timeout, verify=True)
+        else:
+            r = _session.get(url, headers=headers, timeout=timeout, verify=False)
     except Exception as e:
         resp_header = {'x-reqid': 'None'}
         return -1,e,resp_header

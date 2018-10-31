@@ -1,11 +1,11 @@
 #!/usr/bin/python
 ## -*- coding: utf-8 -*-
 
-import base64
 import json
-import os,sys
-import tempfile
+import os
 import shutil
+import sys
+
 from wcs.commons.config import Config
 
 tmp_record_folder = Config.tmp_record_folder

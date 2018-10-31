@@ -1,18 +1,18 @@
 #!/usr/bin/python
 ## -*- coding: utf-8 -*-
 
-import os,sys
+import os
+import sys
 import time
-from os.path import expanduser
 from multiprocessing import Lock
-from multiprocessing.dummy import Pool as ThreadPool 
+from multiprocessing.dummy import Pool as ThreadPool
+from os.path import expanduser
 
 from wcs.commons.config import Config
 from wcs.commons.http import _post
 from wcs.commons.logme import debug,warning,error
+from wcs.commons.util import https_check
 from wcs.commons.util import readfile,GetUuid
-from wcs.commons.util import urlsafe_base64_encode,https_check
-
 from wcs.services.uploadprogressrecorder import UploadProgressRecorder
 
 config_file = os.path.join(expanduser("~"), ".wcscfg")

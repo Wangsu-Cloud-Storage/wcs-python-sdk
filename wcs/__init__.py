@@ -1,4 +1,4 @@
-__version__ = '4.0.12'
+__version__ = '4.0.15'
 
 from .commons.auth import Auth
 from .commons.compat import urlparse 
