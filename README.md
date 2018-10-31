@@ -10,11 +10,14 @@ wcs-python-sdk从v4.0.0版本开始，既可作为Python SDK使用，也可作�
 推荐使用pip安装
 
 * 直接安装
-
-    >  pip install wcs-python-sdk
+```
+pip install wcs-python-sdk
+```
 
 * 更新方式
-   >pip install -U wcs-python-sdk
+```
+pip install -U wcs-python-sdk
+```
 
 ## 初始化
 在使用SDK之前，您需要获得一对有效的AccessKey和SecretKey签名授权。
@@ -76,25 +79,25 @@ Windows系统执行命令需要添加python再执行,如python wcscmd --help
     wcscmd --help
     Commands:
     List objects  支持后面加参数 如--prefix aa
-    	wcscmd list wcs://BUCKET RESFILE 
+    	wcscmd list wcs://BUCKET RESFILE
     List buckets
-    	wcscmd listbucket  
+    	wcscmd listbucket
     Download file
-    	wcscmd get URL 
+    	wcscmd get URL
     Delete a file
-    	wcscmd del wcs://BUCKET/OBJECT 
+    	wcscmd del wcs://BUCKET/OBJECT
     Move a file from src bucket to des bucket
-    	wcscmd mv wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT 
+    	wcscmd mv wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT
     Copy a file from src bucket to des bucket
-    	wcscmd cp wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT 
+    	wcscmd cp wcs://srcBUCKET/srcOBJECT wcs://dstBUCKET/desOBJECT
     Set deadline of file
-    	wcscmd setdeadline wcs://BUCKET/OBJECT deadline 
+    	wcscmd setdeadline wcs://BUCKET/OBJECT deadline
     Get file info
     	wcscmd stat wcs://BUCKET/OBJECT
     Upload a local file to WCS
-    	wcscmd put wcs://BUCKET/OBJECT LOCALFILE 
+    	wcscmd put wcs://BUCKET/OBJECT LOCALFILE
     Multipart upload a local file to WCS
-    	wcscmd multiput wcs://BUCKET/OBJECT LOCALFILE  
+    	wcscmd multiput wcs://BUCKET/OBJECT LOCALFILE
     Delete multiple files according to prefix
     	wcscmd deletePrefix wcs://BUCKET PREFIX
     Fops audio/video processing
@@ -114,7 +117,7 @@ Windows系统执行命令需要添加python再执行,如python wcscmd --help
 上传策略可以通过编辑.wcscfg文件中响应的配置项进行定义，也可以通过命令行的option进行临时配置，如果需要进行断点续传需要增加--upload-id这个option，这个upload-id的优先级高于在.wcscfg中配置的upload id
 
      wcscmd multiput wcs://test/test-100M /root/test-100M --upload-id 3IL3ce3kR6kDf4sihxh0LcWUpzTYEKFf
-     
+
 #### wcscmd[列举空间列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/listbucket)
     wcscmd listbucket
 
@@ -122,34 +125,34 @@ Windows系统执行命令需要添加python再执行,如python wcscmd --help
 空间test的列举结果会保存在当前目录的result文件中
 
     wcscmd list wcs://test ./result --limit 4  --marker 2
-    
+
 #### wcscmd下载文件
 未带filename 参数，下载的文件默认会与源文件同名，并保存在当前目录下
 带有filename 参数，下载文件保存在当前目录下，文件名称为参数filename
 url 需要用''引号包含起来
-    
+
     wcscmd get [URL] [filename]
-    
+
 #### wcscmd[获取文件信息](https://wcs.chinanetcenter.com/document/API/ResourceManage/stat)
     wcscmd stat wcs://test/test-100M
-    
+
 #### wcscmd[设置文件保存期限](https://wcs.chinanetcenter.com/document/API/ResourceManage/setdeadline)
 保存时间单位为天，0表示尽快删除，-1表示取消过期时间，永久保存,要设置-1的时候，需要将整个包含在引号内
 
     wcscmd setdeadline wcs://test/test-100M 3
     wcscmd setdeadline wcs://test/test-100M '"-1"'
 
-    
+
 #### wcscmd[删除文件](https://wcs.chinanetcenter.com/document/API/ResourceManage/delete)
     wcscmd del wcs://test/test-100M
-    
+
 #### wcscmd[按前缀删除文件](https://wcs.chinanetcenter.com/document/API/Fmgr/deletePrefix)
 
     wcscmd deletePrefix wcs://test test-prefix
 
 #### wcscmd[移动文件](https://wcs.chinanetcenter.com/document/API/ResourceManage/move)
     wcscmd move wcs://srctest/test1 wcs://dsttest/test2
-    
+
 #### wcscmd[复制文件](https://wcs.chinanetcenter.com/document/API/ResourceManage/copy)
     wcscmd copy wcs://srctest/test1 wcs://dsttest/test2
 
@@ -157,10 +160,10 @@ url 需要用''引号包含起来
 ## 计算文件etag值
 wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的形式体验这个功能
 
-    
+
     /usr/bin/wcs_etag_cal -h
     usage: WCS-Python-SDK [-h] {etag} ...
-    
+
     positional arguments:
       {etag}
         etag      etag [file...]
@@ -176,17 +179,17 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
 
     在相应模块已经安装的情况下，使用工具时出现下面错误：
     pkg_resources.DistributionNotFound: [modulename]
-    解决方案： 
+    解决方案：
     pip install --upgrade setuptools
 
 ## Python SDK使用
 配置信息初始化
-    
+
     import os
     from os.path import expanduser
     from wcs.commons.config import Config
     from wcs.services.client import Client
-    
+
     config_file = os.path.join(expanduser("~"), ".wcscfg")
     cfg = Config(config_file) #加载配置文件
     cli = Client(cfg) 初始化Client
@@ -197,7 +200,7 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
     bucket = ''
     filepath = ''
     cli.simple_upload(filepath, bucket, key)
-    
+
 #### [分片上传](https://wcs.chinanetcenter.com/document/API/FileUpload/SliceUpload)
 上传策略通过编辑.wcscfg文件中响应的配置项进行定义，断点续传需要提供upload id，在上传时传入，这个upload id优先级高于在.wcscfg中配置的upload id
 
@@ -208,7 +211,7 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
     cli.multipart_upload(filepath, bucket, key，upload_id)
 
 另外，当前上传记录的格式是在tmp\_record\_folder目录下，生成已当前上传任务的upload id命名的目录，然后在目录tmp\_record\_folder/upload id下生成多个文件，每个文件以块offset命名，并记录了这个块的上传结果
-    
+
 #### 流地址上传
 上传策略通过编辑.wcscfg文件中相应的配置项进行定义，上传时需要提供流地址
 
@@ -216,7 +219,7 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
     bucket = ''
     stream = ''
     cli.simple_upload(stream, bucket, key)
-    
+
 #### [列举空间列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/listbucket)
 
     cli.list_buckets()
@@ -232,17 +235,17 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
     enddate = '2017-11-12'
     bucket = ''
     cli.bucket_stat(bucket, startdate, enddate)
-    
+
 #### [获取文件信息](https://wcs.chinanetcenter.com/document/API/ResourceManage/stat)
     key = ''
     bucket = ''
     cli.stat(bucket, key)
-    
+
 #### [文件删除](https://wcs.chinanetcenter.com/document/API/ResourceManage/delete)（同步）
     key = ''
     bucket = ''
     cli.delete(bucket, key)
-    
+
 #### [文件移动](https://wcs.chinanetcenter.com/document/API/ResourceManage/move)（同步）
     srcbucket = ''
     srckey = ''
@@ -309,13 +312,13 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
 #### 高级资源管理任务查询
     persistentId = ''
     cli.fmgr_status(persistentId)
-    
+
 #### [音视频处理](https://wcs.chinanetcenter.com/document/API/Video-op)
     bucket = 'test'
     key = 'test.mp4'
     fops = 'vframe/jpg/offset/1'
     cli.ops_execute(fops,bucket,key)
-    
+
 #### 直播录制文件查询
 请求参数说明如下：
 
@@ -337,9 +340,9 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
     bucket = ''
     start = '' #可选
     limit = '' #可选
-   
+
     cli.wslive_list(channelname,startTime,startTime, bucket,start,limit)
- 
+
 
 
 
