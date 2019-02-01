@@ -218,7 +218,7 @@ wcs-python-sdk提供了计算文件etag值的工具，用户通过命令行的�
     key = ''
     bucket = ''
     stream = ''
-    cli.simple_upload(stream, bucket, key)
+    cli.stream_upload(stream, bucket, key)
 
 #### [列举空间列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/listbucket)
 
