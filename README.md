@@ -11,16 +11,14 @@ wcs-python-sdk从v4.0.0版本开始，既可作为Python SDK使用，也可作�
 
 * 直接安装
 ```
-pip install wcs-python-sdk
-```
-* Python3用户
-```
-pip install wcs-python3-sdk
+Python2：pip install wcs-python-sdk
+Python3：pip install wcs-python3-sdk
 ```
 
 * 更新方式
 ```
-pip install -U wcs-python-sdk
+Python2：pip install -U wcs-python-sdk
+Python3：pip install -U wcs-python3-sdk
 ```
 
 ## 初始化
