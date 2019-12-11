@@ -153,10 +153,10 @@ url 需要用''引号包含起来
     wcscmd deletePrefix wcs://test test-prefix
 
 #### wcscmd[移动文件](https://wcs.chinanetcenter.com/document/API/ResourceManage/move)
-    wcscmd move wcs://srctest/test1 wcs://dsttest/test2
+    wcscmd mv wcs://srctest/test1 wcs://dsttest/test2
 
 #### wcscmd[复制文件](https://wcs.chinanetcenter.com/document/API/ResourceManage/copy)
-    wcscmd copy wcs://srctest/test1 wcs://dsttest/test2
+    wcscmd cp wcs://srctest/test1 wcs://dsttest/test2
 
 
 ## 计算文件etag值
