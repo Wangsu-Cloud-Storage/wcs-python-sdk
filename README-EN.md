@@ -1,4 +1,8 @@
-# Brief Introduction
+# Python SDK for wcs
+
+## [中文README](https://github.com/Wangsu-Cloud-Storage/wcs-python-sdk/blob/master/README.md)
+
+## Overview
 
 This Python SDK is applied to Python 2.X and 3.X.
 
