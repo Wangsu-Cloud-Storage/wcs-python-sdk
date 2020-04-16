@@ -27,7 +27,7 @@ def debug(msg):
 
 def warning(msg):
     logger.setLevel(logging.WARNING)
-    warnhandler = logging.FileHandler()
+    warnhandler = logging.StreamHandler()
     warnhandler.setLevel(logging.WARNING)
     fmt = '%(asctime)s - %(levelname)s - %(message)s' 
     formatter = logging.Formatter(fmt)

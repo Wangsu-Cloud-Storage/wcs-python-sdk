@@ -19,7 +19,7 @@ class StreamUpload(SimpleUpload):
         memory.write(file.content)
         return memory
 
-    def upload(self, stream,token):
+    def upload(self, stream,token ,key):
         memory = self._gernerate_content(stream)
-        url,encoder,headers = super(StreamUpload, self)._gernerate_tool(memory,token)
+        url,encoder,headers = super(StreamUpload, self)._gernerate_tool(memory,token,key)
         return super(StreamUpload,self)._upload(url,encoder,headers,memory)

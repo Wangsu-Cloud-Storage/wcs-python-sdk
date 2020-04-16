@@ -281,6 +281,7 @@ class MultipartUpload(object):
         else:
             fail_list = self._get_failoffsets() 
             upload_record = str(Config.tmp_record_folder) + self.uploadBatch
-            debug('Sorry! Mulitpart upload fail,more detail see %s' % upload_record) 
+            debug('Sorry! Mulitpart upload fail,more detail see %s' % upload_record)
+            return self.results
             #raise Exception("Multipart upload fail")
 

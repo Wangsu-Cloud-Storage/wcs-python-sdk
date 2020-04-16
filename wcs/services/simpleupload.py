@@ -3,13 +3,14 @@
 
 import os
 from os.path import expanduser
-
+import urllib
 import requests
 from requests_toolbelt import MultipartEncoder
 from wcs.commons.config import Config
 from wcs.commons.logme import debug,error
 from wcs.commons.util import https_check
 from requests.adapters import HTTPAdapter
+
 config_file = os.path.join(expanduser("~"), ".wcscfg")
 
 class SimpleUpload(object):
@@ -22,15 +23,15 @@ class SimpleUpload(object):
     def __init__(self,url):
         self.url = url
         session = requests.Session()
-        session.mount('http://', HTTPAdapter(max_retries=Config.connection_retries))
-        session.mount('https://', HTTPAdapter(max_retries=Config.connection_retries))
+        session.mount('http://', HTTPAdapter(max_retries=int(Config.connection_retries)))
+        session.mount('https://', HTTPAdapter(max_retries=int(Config.connection_retries)))
         global _session
         _session = session
 
-    def _gernerate_tool(self, f,token):
+    def _gernerate_tool(self, f,token ,key):
         fileds = {"token":token}
         url = "{0}/{1}/{2}".format(self.url,"file","upload")
-        fileds['file'] = ('filename', f, 'text/plain')
+        fileds['file'] = (urllib.quote(key.encode('utf-8')), f, 'text/plain')
         encoder = MultipartEncoder(fileds)
         headers = {"Content-Type":encoder.content_type}
         headers['Expect'] = '100-continue'
@@ -50,9 +51,18 @@ class SimpleUpload(object):
             headers['Connection'] = 'close'
         try:
             if cfg.isverify:
-                r = _session.post(url=url, headers=headers, data=encoder, verify=True)
+                if cfg.returnUrl:
+                    r = _session.post(url=url, headers=headers, data=encoder, verify=True,allow_redirects=False)
+                else:
+                    r = _session.post(url=url, headers=headers, data=encoder, verify=True)
             else:
-                r = _session.post(url=url, headers=headers, data=encoder, verify=False)
+                if cfg.returnUrl:
+                    r = _session.post(url=url, headers=headers, data=encoder, verify=False,allow_redirects=False)
+                else:
+                    r = _session.post(url=url, headers=headers, data=encoder, verify=False)
+        except requests.ConnectionError as conn_error:
+            debug('Url connection abnormal,please check url!')
+            return -1,conn_error
         except Exception as e:
             f.close()
             debug('Request url:' + url)
@@ -64,14 +74,17 @@ class SimpleUpload(object):
         f.close()
         try:
             r_header = {'x-reqid': r.headers['x-reqid']}
-            return r.status_code,r.text,r_header
+            if r.status_code == 303:
+                return r.status_code, r.headers['Location'], r_header
+            else:
+                return r.status_code, r.text, r_header
         except:           
             return r.status_code,r.text
 
-    def upload(self, filepath,token):
+    def upload(self, filepath,token ,key='filename'):
         if os.path.exists(filepath) and os.path.isfile(filepath):
             f = self._gernerate_content(filepath)
-            url,encoder,headers = self._gernerate_tool(f,token)
+            url,encoder,headers = self._gernerate_tool(f,token ,key)
             return self._upload(url,encoder,headers,f)
         else:
             error('Sorry ! Please input a existing file')

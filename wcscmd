@@ -103,7 +103,7 @@ def cmd_get(args):
             try:
                 with open(key, 'wb') as f:
                     f.write(res.content)
-                debug('File saved successfully,File:[{}]'.format(key))
+                debug('File saved successfully,File:[{0}]'.format(key))
             except IOError as e:
                 error("Create local file fail for %s" % e)
                 sys.exit()
@@ -119,8 +119,12 @@ def _simple_arg_parse(arg):
     # Parse commands with only one wcs://bucket/[prefix1]/[prefix2]/object
     try:
         tmp = arg.split("wcs://")[1]
-        bucket = tmp.split('/')[0]
-        obj = tmp.split(bucket + '/')[1]
+        if '/' in tmp:
+            bucket = tmp.split('/')[0]
+            obj = tmp.split(bucket + '/')[1]
+        else:
+            bucket = tmp
+            obj = ''
     except Exception:
         error("Invalid arguments")
         sys.exit()
@@ -187,6 +191,8 @@ def cmd_put(args):
     cli = Client(cfg)
     bucket, obj = _simple_arg_parse(args[0])
     local = args[1]
+    if not obj:
+        obj = os.path.basename(local)
     debug(cli.simple_upload(local, bucket, obj))
 
 
@@ -196,6 +202,8 @@ def cmd_multiput(args):
     cli = Client(cfg)
     bucket, obj = _simple_arg_parse(args[0])
     local = args[1]
+    if not obj:
+        obj = os.path.basename(local)
     debug(cli.multipart_upload(local, bucket, obj, cfg.upload_id))
 
 

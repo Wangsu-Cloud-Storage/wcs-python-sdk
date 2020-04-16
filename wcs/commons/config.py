@@ -156,7 +156,7 @@ class ConfigParser(object):
                         try: #caiyz 20180315 添加异常处理
                             print_value = ("%s...%d_chars...%s") % (data["value"][-2], len(data["value"]) - 3, data["value"][-1:1])
                         except IndexError,e:
-                            debug(u"{} is empty".format(data["key"]))
+                            debug(u"{0} is empty".format(data["key"]))
                     else:
                         print_value = data["value"]
                     #debug("ConfigParser: %s->%s" % (data["key"], print_value))

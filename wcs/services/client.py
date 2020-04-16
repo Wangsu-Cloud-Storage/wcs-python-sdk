@@ -42,14 +42,14 @@ class Client(object):
         policy.set_conf('scope', '%s:%s' % (bucket,key))
         policy.dump_policy(self.cfg)
         token = self.auth.uploadtoken(policy.putpolicy)
-        return self.simpleupload.upload(path,token)
+        return self.simpleupload.upload(path ,token ,key)
 
     def stream_upload(self, stream, bucket, key):
         policy = PutPolicy()
         policy.set_conf('scope', '%s:%s' % (bucket,key))
         policy.dump_policy(self.cfg)
         token = self.auth.uploadtoken(policy.putpolicy)
-        return self.streamupload.upload(stream,token)
+        return self.streamupload.upload(stream,token ,key)
 
     def multipart_upload(self,path,bucket, key,tmp_upload_id=None):
         policy = PutPolicy()
@@ -66,7 +66,11 @@ class Client(object):
             pre = ''
         
         try:
-            m = mode or int(self.cfg.mode)
+            # m = mode or int(self.cfg.mode)
+            if mode == None:
+                m = int(self.cfg.mode)
+            else:
+                m = int(mode)
         except Exception:
             m = ''
         

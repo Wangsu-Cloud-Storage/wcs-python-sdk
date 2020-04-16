@@ -5,7 +5,8 @@ class PutPolicy(object):
     def __init__(self):
        
         self.putpolicy = {}
-        self.policy = set(['scope','deadline','saveKey','fsizeLimit','overwrite','returnUrl','returnBody','callbackUrl','callbackBody','persistentNotifyUrl','persistentOps','separate','instant'])
+        self.policy = set(['scope','deadline','saveKey','fsizeLimit','overwrite','returnUrl','returnBody','callbackUrl','callbackBody','persistentNotifyUrl','persistentOps','separate','instant','detectNotifyRule',
+                 'detectNotifyURL'])
 
     def set_conf(self, key, value):
         

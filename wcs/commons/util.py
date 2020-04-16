@@ -109,7 +109,7 @@ def etag_stream(input_stream):
     Returns:
         输入流的etag值
     """
-    array = [_sha1(block) for block in _file_iter(input_stream, 0, Config.block_size)]
+    array = [_sha1(block) for block in _file_iter(input_stream, 0, int(Config.block_size))]
     if len(array) == 0:
         array = [_sha1(b'')]
     if len(array) == 1:

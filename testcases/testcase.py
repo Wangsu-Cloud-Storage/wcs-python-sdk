@@ -6,7 +6,7 @@ from wcs.commons.config import Config
 from wcs.services.client import Client
 from wcs.commons.putpolicy import PutPolicy
 from wcs.commons.logme import debug
-from wcs.commons.util import urlsafe_base64_encode
+from wcs.commons.util import urlsafe_base64_encode,etag
 
 config_file = os.path.join(expanduser("~"), ".wcscfg")
 
@@ -15,12 +15,14 @@ class WcsTestCases(unittest.TestCase):
     def setUp(self):
         self.cfg = Config(config_file)
         self.cli = Client(self.cfg)
-        self.bucket = 'caiyz'
+        self.bucket = 'qz-region98-restupload-caiyz'
  
     def test_simple_upload(self):
         key = '20180408.jpg'
-        path = '/root/liuxj/wcs-python-sdk/vframe-test-10.jpg'
-        debug(self.cli.simple_upload(path, self.bucket, key))
+        path = 'E:\\simpleupload.py'
+        return_data = self.cli.simple_upload(path, self.bucket, key)
+        debug(return_data)
+        debug(return_data[0])
 
     def test_stream_upload(self):
         stream = 'http://www.example.com/1.doc'
@@ -36,8 +38,8 @@ class WcsTestCases(unittest.TestCase):
         debug(self.cli.bucket_list(self.bucket))
 
     def test_bucket_stat(self):
-        startdate = '2017-11-10'
-        enddate = '2017-11-12'
+        startdate = '2019-01-10'
+        enddate = '2019-01-12'
         debug(self.cli.bucket_stat(self.bucket, startdate, enddate))
 
     def test_stat(self):
@@ -120,11 +122,20 @@ class WcsTestCases(unittest.TestCase):
         persistentId = ''
         debug(self.cli.ops_status(persistentId)) 
 
+    def test_imageDetect(self):
+        bucket = 'qz-caiyz-rgwonly'
+        type = 'terror'
+        imageurl = 'https://www.google.com.hk/52380062482021'
+        debug(self.cli.imagedetect(bucket,type,imageurl))
+
     def test_wslive_list(self):
         channel = ''
         startTime = ''
         endTime = ''
-        debug(self.cli.wslive_list(channel, startTime, endTime,self.bucket)) 
+        debug(self.cli.wslive_list(channel, startTime, endTime,self.bucket))
+
+    def test_etag(self):
+        print(etag('D:\\itools\\spacesniffer1302.zip'))
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()
