@@ -78,6 +78,7 @@ def cmd_list(args):
 
 def cmd_get(args):
     # Define implementation of download file from URL
+    cfg = Config()
     try:
         if chardet.detect(args[0]).get('encoding') == 'ISO-8859-1':
             url = args[0].decode('gbk').encode('utf8')
@@ -96,7 +97,10 @@ def cmd_get(args):
             else:
                 filename = url.split('/')[-1]
                 key = os.path.join(os.getcwd(), filename)
-        res = requests.get(url_encode)
+        if cfg.isverify:
+            res = requests.get(url_encode)
+        else:
+            res = requests.get(url_encode,verify=False)
         if res.status_code == 200:
             debug("Download suc.")
             debug("return headers:{0}".format(res.headers))
