@@ -11,7 +11,7 @@ from wcs.commons.logme import debug,error
 from wcs.commons.util import https_check
 from requests.adapters import HTTPAdapter
 
-config_file = os.path.join(expanduser("~"), ".wcscfg")
+#config_file = os.path.join(expanduser("~"), ".wcscfg")
 
 class SimpleUpload(object):
     """普通上传类
@@ -27,6 +27,8 @@ class SimpleUpload(object):
         session.mount('https://', HTTPAdapter(max_retries=int(Config.connection_retries)))
         global _session
         _session = session
+        #self.cfg = Config(config_file)
+        self.cfg = Config()
 
     def _gernerate_tool(self, f,token ,key):
         fileds = {"token":token}
@@ -42,21 +44,21 @@ class SimpleUpload(object):
         return open(path, 'rb')
 
     def _upload(self,url,encoder,headers,f):
-        cfg = Config(config_file)
+
         url = https_check(url)
-        if cfg.keepalive == True:
+        if self.cfg.keepalive == True:
             pass
         else:
             _session.keep_alive = False
             headers['Connection'] = 'close'
         try:
-            if cfg.isverify:
-                if cfg.returnUrl:
+            if self.cfg.isverify:
+                if self.cfg.returnUrl:
                     r = _session.post(url=url, headers=headers, data=encoder, verify=True,allow_redirects=False)
                 else:
                     r = _session.post(url=url, headers=headers, data=encoder, verify=True)
             else:
-                if cfg.returnUrl:
+                if self.cfg.returnUrl:
                     r = _session.post(url=url, headers=headers, data=encoder, verify=False,allow_redirects=False)
                 else:
                     r = _session.post(url=url, headers=headers, data=encoder, verify=False)
@@ -78,7 +80,7 @@ class SimpleUpload(object):
                 return r.status_code, r.headers['Location'], r_header
             else:
                 return r.status_code, r.text, r_header
-        except:           
+        except:
             return r.status_code,r.text
 
     def upload(self, filepath,token ,key='filename'):

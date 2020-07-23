@@ -18,8 +18,8 @@ class MgrBase(object):
         return headers
         
     def _params_parse(self, params):
+        paramlist = []
         if params:
-            paramlist = [] 
             for k, v in params.items():
                 paramlist.append('{0}={1}'.format(k, v))
             paramlist = '&'.join(paramlist) 

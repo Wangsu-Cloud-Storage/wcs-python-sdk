@@ -5,8 +5,10 @@ class PutPolicy(object):
     def __init__(self):
        
         self.putpolicy = {}
-        self.policy = set(['scope','deadline','saveKey','fsizeLimit','overwrite','returnUrl','returnBody','callbackUrl','callbackBody','persistentNotifyUrl','persistentOps','separate','instant','detectNotifyRule',
-                 'detectNotifyURL'])
+        self.policy = set(['scope','deadline','saveKey','fsizeLimit','overwrite','returnUrl',
+                           'returnBody','callbackUrl','callbackBody','persistentNotifyUrl',
+                           'persistentOps','separate','instant','detectNotifyRule',
+                 'detectNotifyURL','hashAlgorithm'])
 
     def set_conf(self, key, value):
         
@@ -43,3 +45,5 @@ class PutPolicy(object):
             self.set_conf('detectNotifyURL', str(cfg.detectNotifyURL))
         if cfg.detectNotifyRule:
             self.set_conf('detectNotifyRule', str(cfg.detectNotifyRule))
+        if cfg.hashAlgorithm:
+            self.set_conf('hashAlgorithm', str(cfg.hashAlgorithm))

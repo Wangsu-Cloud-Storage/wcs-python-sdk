@@ -35,7 +35,7 @@ class Client(object):
         self.fmgr = Fmgr(self.auth,config.mgr_url)
         self.pfops = PersistentFop(self.auth,config.mgr_url)
         self.wsl = WsLive(self.auth,config.mgr_url)
-        self.cfg = config         
+        self.cfg = config
 
     def simple_upload(self, path, bucket, key):
         policy = PutPolicy()
@@ -59,7 +59,7 @@ class Client(object):
         upload_id = tmp_upload_id or self.cfg.upload_id
         return self.multiupload.upload(path,token,upload_id)
         
-    def bucket_list(self,bucket,prefix=None, marker=None, limit=None, mode=None):
+    def bucket_list(self,bucket,prefix=None, marker=None, limit=None, mode=None, starttime=None,endtime=None):
         try:
             pre = prefix or str(self.cfg.prefix)
         except Exception:
@@ -82,13 +82,19 @@ class Client(object):
             l = limit or int(self.cfg.limit)
         except Exception:
             l = ''
-        return self.bmgr.bucketlist(bucket,pre,mar,l,m)
+        return self.bmgr.bucketlist(bucket,pre,mar,l,m, starttime, endtime)
 
     def list_buckets(self):
         return self.bmgr.bucket_list()
    
     def bucket_stat(self, name, startdate, enddate):
         return self.bmgr.bucket_stat(name, startdate, enddate)
+   
+    def bucket_statistics(self, name, stype, startdate, enddate, isListDetails='false'):
+        return self.bmgr.bucket_statistics(name, stype, startdate, enddate, isListDetails)
+    
+    def image_detect(self, image, dtype, bucket):
+        return self.bmgr.image_detect(image, dtype, bucket)
 
     def stat(self,bucket,key):
         return self.bmgr.stat(bucket,key)
@@ -96,10 +102,18 @@ class Client(object):
     def delete(self,bucket,key):
         return self.bmgr.delete(bucket,key)
 
-    def move(self,srcbucket, srckey, dstbucket, dstkey):
+    def move(self,srcbucket, srckey, dstbucket, dstkey=''):
+        if dstkey:
+            pass
+        else:
+            dstkey = srckey
         return self.bmgr.move(srcbucket, srckey, dstbucket, dstkey)
 
-    def copy(self,srcbucket, srckey, dstbucket, dstkey):
+    def copy(self,srcbucket, srckey, dstbucket, dstkey=''):
+        if dstkey:
+            pass
+        else:
+            dstkey = srckey
         return self.bmgr.copy(srcbucket, srckey, dstbucket, dstkey)
 
     def setdeadline(self,bucket,key,deadline):
@@ -133,6 +147,9 @@ class Client(object):
     def m3u8_delete(self, fops):
         return self.fmgr.m3u8_delete(self._parse_fops(fops))
 
+    def fmgr_compress(self,fops):
+        return self.fmgr.fmgr_compress(self._parse_fops(fops))
+
     def fmgr_status(self,persistentId):
         return self.fmgr.status(persistentId)
 
@@ -150,4 +167,3 @@ class Client(object):
 
     def wslive_list(self,channelname, startTime, endTime, bucket, start=None, limit=None):
         return self.wsl.wslive_list( channelname, startTime, endTime, bucket, start, limit)
-

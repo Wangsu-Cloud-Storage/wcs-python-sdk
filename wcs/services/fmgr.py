@@ -44,4 +44,9 @@ class Fmgr(MgrBase):
         url = '{0}/fmgr/status?persistentId={1}'.format(self.mgr_host, persistentId)
         url = https_check(url)
         debug('Start to get status of persistentId: %s' % persistentId)
-        return _get(url=url)
+        return _get(url=url)    
+    
+    # 多文件压缩(https://wcs.chinanetcenter.com/document/API/Fmgr/compress)
+    # add by laihy 20200224
+    def fmgr_compress(self, reqdata):
+        return self._fmgr_commons(reqdata, 'compress')

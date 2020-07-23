@@ -42,20 +42,14 @@ setup(
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    install_requires=['requests','logging','argparse', 'lockfile', 'requests_toolbelt','pyyaml'],
+    install_requires=['requests','logging','argparse', 'lockfile', 'requests_toolbelt','pyyaml','crcmod>=1.7'],
     entry_points={
         'console_scripts':[
-            'wcs_etag_cal = wcs.commons.etag_files:main',
+            'wcs_etag_cal = wcs.commons.etag_files:main','wcs_crc64_cal = wcs.commons.crc64_files:main',
         ]
     }
 )

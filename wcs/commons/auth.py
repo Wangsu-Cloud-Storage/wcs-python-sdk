@@ -6,9 +6,9 @@ try:
     import simplejson as json
 except (ImportError, SyntaxError):
     import json
-from .compat import urlparse
+from wcs.commons.compat import urlparse
 from hashlib import sha1
-from .util import urlsafe_base64_encode, urlsafe_base64_decode
+from wcs.commons.util import urlsafe_base64_encode, urlsafe_base64_decode
 from datetime import datetime
 import time
 

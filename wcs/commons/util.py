@@ -3,13 +3,14 @@ from hashlib import sha1
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 import base64
 import os,re
-import logging
+import crcmod
 
 from wcs.commons.compat import b, s
 import tempfile
 import random
 import string
-from .config import Config
+from wcs.commons.config import Config
+from wcs.commons.error_deal import ParameterError
 
 try:
     import zlib
@@ -17,7 +18,6 @@ try:
 except ImportError:
     zlib = None
     import binascii
-
 
 def urlsafe_base64_encode(data):
     """urlsafe的base64编码:
@@ -30,7 +30,6 @@ def urlsafe_base64_encode(data):
     ret = urlsafe_b64encode(b(data))
     return s(ret)
 
-
 def urlsafe_base64_decode(data):
     """urlsafe的base64解码:
     对提供的urlsafe的base64编码的数据进行解码
@@ -42,7 +41,6 @@ def urlsafe_base64_decode(data):
     ret = urlsafe_b64decode(s(data))
     return ret
 
-
 def file_crc32(filePath):
     """计算文件的crc32检验码:
     Args:
@@ -52,10 +50,9 @@ def file_crc32(filePath):
     """
     crc = 0
     with open(filePath, 'rb') as f:
-        for block in _file_iter(f,Config.block_size):
+        for block in _file_iter(f,0,Config.block_size):
             crc = binascii.crc32(block, crc) & 0xFFFFFFFF
     return crc
-
 
 def crc32(data):
     """计算输入流的crc32检验码:
@@ -66,8 +63,60 @@ def crc32(data):
     """
     return binascii.crc32(b(data)) & 0xffffffff
 
+def crc64(data):
+    """计算输入流的crc64检验码:
+    Args:
+        data: 待计算校验码的字符流
+    Returns:
+        输入流的crc64校验码。
+    """
+    try:
+        _POLY = 0x142F0E1EBA9EA3693
+        _XOROUT = 0xffffffffffffffff
+        c64 = crcmod.mkCrcFun(_POLY, initCrc=0, xorOut=_XOROUT, rev=True)
+        return str(c64(data))
+    except Exception as error:
+        raise ParameterError('calculation failed. {0}'.format(error))
 
-def _file_iter(input_stream, offset,size):
+def file_crc64(file,block_size=16*1024,is_path=True):
+    """计算整个文件的crc64检验码:
+    Args:
+        filePath: 待计算校验码的文件路径
+        block_size:每次遍历计算的文件大小，默认16K
+        is_path: 待计算的文件时流还是文件路径，默认文件路径
+    Returns:
+        文件内容的crc64校验码。
+    """
+    _POLY = 0x142F0E1EBA9EA3693
+    _XOROUT = 0xffffffffffffffff
+    _initCrc = 0
+    local_crc64 = 0
+    c64 = crcmod.mkCrcFun(_POLY, initCrc=_initCrc, xorOut=_XOROUT, rev=True)
+    try:
+        if is_path:
+            with open(file, 'rb') as f:
+                while True:
+                    data = f.read(int(block_size))
+                    if not data:
+                        break
+                    crc64 = c64(data,local_crc64)
+                    local_crc64 = crc64
+        else:
+            start_size = 0
+            while True:
+                data = file[start_size:start_size+int(block_size)]
+                start_size += block_size
+                if not data:
+                    break
+                crc64 = c64(data,local_crc64)
+                local_crc64 = crc64
+        return str(local_crc64)
+    except IOError:
+        raise ParameterError('file does not exist')
+    except Exception as error:
+        raise ParameterError('calculation failed. {0}'.format(error))
+
+def _file_iter(input_stream,offset,size):
     """读取输入流:
     Args:
         input_stream: 待读取文件的二进制流
@@ -75,11 +124,11 @@ def _file_iter(input_stream, offset,size):
     Raises:
         IOError: 文件流读取失败
     """
-    input_stream.seek(offset)
-    d = input_stream.read(size)
+    input_stream.seek(int(offset))
+    d = input_stream.read(int(size))
     while d :
         yield d
-        d = input_stream.read(size)
+        d = input_stream.read(int(size))
 
 def readfile(input,offset,size):
     input.seek(offset)
@@ -101,7 +150,6 @@ def _sha1(data):
     h.update(data)
     return h.digest()
 
-
 def etag_stream(input_stream):
     """计算输入流的etag:
     Args:
@@ -121,7 +169,6 @@ def etag_stream(input_stream):
         prefix = b'\x96'
     return urlsafe_base64_encode(prefix + data)
 
-
 def etag(filePath):
     """计算文件的etag:
     Args:
@@ -131,7 +178,6 @@ def etag(filePath):
     """
     with open(filePath, 'rb') as f:
         return etag_stream(f)
-
 
 def entry(bucket, key):
     """计算wcs API中的数据格式:

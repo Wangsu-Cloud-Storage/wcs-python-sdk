@@ -8,14 +8,14 @@ import logging
 import urllib2
 import string
 import chardet
-
 from optparse import OptionParser, Option, IndentedHelpFormatter
 import json
 import requests
-from  ast import literal_eval
+from ast import literal_eval
 
 from wcs.commons.putpolicy import PutPolicy
 from wcs.commons.error_deal import ParameterError
+from wcs.commons.util import file_crc64
 from wcs.__init__ import __version__
 
 
@@ -48,7 +48,8 @@ def get_commands_list():
         {"cmd": "deletePrefix", "label": "Delete multiple files according to prefix", "param": "wcs://BUCKET PREFIX", "func": cmd_delprefix, "argc": 2},
         {"cmd": "fops", "label": "Fops audio/video processing ", "param": "wcs://BUCKET/OBJECT fopsparm", "func": cmd_fops, "argc": 2},
         {"cmd": "fopsStatus", "label": "Get fops task results ", "param": "persistentId", "func": cmd_fopsstatus, "argc": 1},
-        {"cmd": "fmgrStatus", "label": "Get fmgrStatus task results ", "param": "persistentId", "func": cmd_fmgrstatus, "argc": 1}
+        {"cmd": "fmgrStatus", "label": "Get fmgrStatus task results ", "param": "persistentId", "func": cmd_fmgrstatus, "argc": 1},
+        {"cmd": "crc64", "label": "Calculating 64-bit CRC value ", "param": "filePath", "func": cmd_crc64, "argc": 1}
     ]
 
 
@@ -246,6 +247,19 @@ def cmd_fmgrstatus(args):
     persistentId = args[0]
     debug(cli.fmgr_status(persistentId))
 
+def cmd_crc64(args):
+    #calculating 64-bit CRC value
+    try:
+        file_path = args[0]
+        if os.path.isfile(file_path):
+            crc64 = file_crc64(file_path)
+            debug("calculating suc.")
+            debug(str({'file':file_path,'crc64Value':crc64}))
+        else:
+            error('Calculating faile,Reasons for failure: file not found .')
+    except Exception as e:
+        error('Some error occurred. {0}'.format(e))
+
 
 def run_configure(config_file):
     if os.path.exists(config_file):
@@ -378,6 +392,7 @@ def main():
     optparser.add_option("--contentdetect", dest="contentdetect", help="Content detect type")
     optparser.add_option("--detectntyurl", dest="detectntyurl", help="Url for detect notify")
     optparser.add_option("--detectntyrule", dest="detectntyrule", help="RUle for ectect notify")
+    optparser.add_option("--hashalgorithm", dest="hashalgorithm", help="Hash algorithm, currently supports 'crc64ecma' for calculating 64-bit CRC value.")#add by caiyz 2020-07-13
 
     optparser.set_description("Wcscmd is a tool for managing objects in WCS Object Storage."
                               + " It allows for uploading, downloading and removing objects form buckets")
@@ -448,6 +463,8 @@ def main():
         cfg.detectNotifyURL = options.detectntyurl
     if options.detectntyrule:
         cfg.detectNotifyRule = options.detectntyrule
+    if options.hashalgorithm:
+        cfg.hashAlgorithm = options.hashalgorithm
     if options.dump_config:
         cfg.dump_config(sys.stdout)
         sys.exit()
@@ -456,7 +473,7 @@ def main():
             value = getattr(options, option)
             if value != None:
                 type(value) == type(b'')
-            debug(u"Updating Config.Config %s->%s" % (option, value))
+            # debug(u"Updating Config.Config %s->%s" % (option, value))
             cfg.update_option(option, value)
         except AttributeError:
             pass

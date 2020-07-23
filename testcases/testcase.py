@@ -122,11 +122,17 @@ class WcsTestCases(unittest.TestCase):
         persistentId = ''
         debug(self.cli.ops_status(persistentId)) 
 
+    #查询统计数据
+    def test_bucket_statistics(self):
+        return_data = self.cli.bucket_statistics(self.bucket, 'uploadRequest', '2019-12-20', '2019-12-31')
+        debug(return_data)
+        self.assertEqual(return_data[0],200)
+
     def test_imageDetect(self):
         bucket = 'qz-caiyz-rgwonly'
-        type = 'terror'
+        dtype = 'porn'
         imageurl = 'https://www.google.com.hk/52380062482021'
-        debug(self.cli.imagedetect(bucket,type,imageurl))
+        debug(self.cli.image_detect(bucket,dtype,imageurl))
 
     def test_wslive_list(self):
         channel = ''

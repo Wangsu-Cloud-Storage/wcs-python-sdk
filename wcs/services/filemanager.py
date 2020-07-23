@@ -44,7 +44,7 @@ class BucketManager(MgrBase):
         url = '?'.join(url)
         return url
     
-    def bucketlist(self, bucket, prefix=None, marker=None, limit=None, mode=None):
+    def bucketlist(self, bucket, prefix=None, marker=None, limit=None, mode=None,starttime=None,endtime=None):
         options = {
             'bucket': bucket,
         }
@@ -60,6 +60,12 @@ class BucketManager(MgrBase):
             options['prefix'] = urlsafe_base64_encode(prefix)
         if mode == 1 or mode == 0:
             options['mode'] = mode
+            
+        if starttime:
+            options['startTime'] = starttime
+        if endtime:
+            options['endTime'] = endtime  
+
         url = https_check(self._make_url('list', options))
         if options:
             debug('List options is %s' % options)
@@ -109,4 +115,23 @@ class BucketManager(MgrBase):
         url = https_check(self._make_url('bucket/stat', options))
         debug('Now check storage of %s from %s to %s' % (name, startdate, enddate))
         return _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
+
+    def bucket_statistics(self, name, stype, startdate, enddate, isListDetails='false'):
+        encode_name = urlsafe_base64_encode(name)
+        options = {'name':encode_name, 'type':stype, 'startdate':startdate, 'enddate':enddate}
+        url = https_check(self._make_url('bucket/statistics', options))
+        debug('Now get bucket %s of %s from %s to %s' % (stype, name, startdate, enddate))
+        return _get(url=url, headers=super(BucketManager, self)._gernerate_headers(url))
+
+
+    # 图片鉴定（https://wcs.chinanetcenter.com/document/API/Image-op/imageDetect）
+    # add by laihy 20200609
+    def image_detect(self, image, dtype, bucket):
+        url = https_check('{0}/imageDetect'.format(self.mgr_host))
+        param = { 'image' : urlsafe_base64_encode(image)}
+        param['type'] = dtype
+        param['bucket'] = bucket 
+        body = super(BucketManager, self)._params_parse(param)
+        debug('image detect for %s to %s' % (image, dtype))
+        return _post(url=url, data=body, headers=super(BucketManager, self)._gernerate_headers(url, body))
 

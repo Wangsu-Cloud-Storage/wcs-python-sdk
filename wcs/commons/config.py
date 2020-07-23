@@ -3,7 +3,6 @@ import io
 import re
 import sys
 from inspect import isfunction
-
 from wcs.commons.logme import debug,error,warning
 
 
@@ -73,6 +72,7 @@ class Config(object):
     contentDetect = ''
     detectNotifyURL = ''
     detectNotifyRule = ''
+    hashAlgorithm = ''
 
     ## Creating a singleton
     def __new__(self, configfile=None, ak=None, sk=None, put_url=None, mgr_url=None ):

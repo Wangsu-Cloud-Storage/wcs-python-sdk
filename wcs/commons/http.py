@@ -15,10 +15,10 @@ except (ImportError, SyntaxError):
     import json  # noqa
 import platform
 import requests
-from .config import Config
+from wcs.commons.config import Config
 from requests.adapters import HTTPAdapter
 import yaml
-config_file = os.path.join(expanduser("~"), ".wcscfg")
+#config_file = os.path.join(expanduser("~"), ".wcscfg")
 
 _session = None
 def __return_wrapper(resp):
@@ -54,7 +54,8 @@ def _init():
 
 
 def _post(url, headers, data=None, files=None):
-    cfg = Config(config_file)
+    #cfg = Config(config_file)
+    cfg = Config()
     timeout = float(cfg.connection_timeout)
     if _session is None:
         _init()
@@ -82,7 +83,8 @@ def _post(url, headers, data=None, files=None):
     return __return_wrapper(r)
 
 def _get(url, headers=None):
-    cfg = Config(config_file)
+    #cfg = Config(config_file)
+    cfg = Config()
     timeout = float(cfg.connection_timeout)
     if _session is None:
         _init()

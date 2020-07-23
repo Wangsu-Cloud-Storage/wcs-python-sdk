@@ -389,3 +389,39 @@ cli.ops_execute(fops,bucket,key)
 ```
 示例：cli.wslive_list(channelname,startTime,startTime, bucket,start,limit)
 ```
+
+####计算文件crc64的三种方式#####
+##方式1：
+wcscmd[计算文件的crc64值]
+```wcscmd crc64 ./test-1k```
+
+##方式2：
+计算整个文件的crc64值，入参为[file,is_path=True],传入为文件流时候，需配置参数is_path=False
+```
+from wcs.commons.util import file_crc64
+filepath = 'xxxx'#文件路径
+crc64Value = file_crc64(filepath)
+
+from wcs.commons.util import file_crc64
+fileStream = 'xxxx' #文件流
+crc64Value = file_crc64(fileStream,is_path=False)
+
+####计算文件文件流的crc64值，入参为文件流，文件流过大时候，不建议用该方式。建议使用file_crc64，入参为isPath=False的方式
+from wcs.commons.util import crc64
+crc64Value = crc64(stream)
+```
+
+##方式3：
+wcs-python-sdk提供了计算文件crc64值的工具，用户通过命令行的形式体验这个功能
+```
+usage: WCS Python SDK [-h] {crc64} ...
+positional arguments:
+    {crc64}
+    crc64     crc64 [file...]
+optional arguments:
+    -h, --help  show this help message and exit
+
+/usr/bin/wcs_crc64_cal crc64 filepath1 filepath2
+[filepath1, filepath2]
+1798452899179748974 5299837023984967047
+```

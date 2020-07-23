@@ -7,7 +7,6 @@ import time
 from multiprocessing import Lock
 from multiprocessing.dummy import Pool as ThreadPool
 from os.path import expanduser
-
 from wcs.commons.config import Config
 from wcs.commons.http import _post
 from wcs.commons.logme import debug,warning,error
@@ -15,7 +14,7 @@ from wcs.commons.util import https_check
 from wcs.commons.util import readfile,GetUuid
 from wcs.services.uploadprogressrecorder import UploadProgressRecorder
 
-config_file = os.path.join(expanduser("~"), ".wcscfg")
+#config_file = os.path.join(expanduser("~"), ".wcscfg")
 
 lock = Lock()
 
@@ -51,7 +50,8 @@ class MultipartUpload(object):
         self.uploadBatch = ''
         self.progress = 0
         self.recorder = None
-        self.cfg = Config(config_file)
+        #self.cfg = Config(config_file)
+        self.cfg = Config()
         try:
             self.concurrency = int(self.cfg.concurrency)
             self.block_size = int(self.cfg.block_size)
@@ -284,4 +284,3 @@ class MultipartUpload(object):
             debug('Sorry! Mulitpart upload fail,more detail see %s' % upload_record)
             return self.results
             #raise Exception("Multipart upload fail")
-
