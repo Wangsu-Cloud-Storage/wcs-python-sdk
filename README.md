@@ -48,7 +48,7 @@ callbackBody  #回调上传成功后，服务端提交到callbackurl的数据
 callbackUrl  #回调上传成功后，服务端以POST方式请求该地址
 concurrency  #分片上传的块并发度，当并发度设置为0时为顺序上传
 connection_retries  #请求建立连接时的重传次数
-connection_timeout  #请求建立连接的超时时间
+connection_timeout  #请求建立连接的超时时间，单位为秒
 contentDetect  #文件上传成功后，进行内容鉴定操作
 detectNotifyRule  #鉴定结果通知规则设置
 detectNotifyURL  #接收鉴定结果的通知地址，要求必须是公网URL地址
