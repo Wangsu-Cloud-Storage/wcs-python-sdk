@@ -19,7 +19,7 @@ from wcs.commons.config import Config
 from requests.adapters import HTTPAdapter
 import yaml
 #config_file = os.path.join(expanduser("~"), ".wcscfg")
-
+from wcs import __version__
 _session = None
 def __return_wrapper(resp):
     try:
@@ -60,7 +60,7 @@ def _post(url, headers, data=None, files=None):
     if _session is None:
         _init()
     try:
-        headers['user-agent'] = 'WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)'
+        headers['user-agent'] = 'WCS-Python-SDK-{0}(http://wcs.chinanetcenter.com)'.format(__version__)
         #headers['Expect'] = '100-conitnue'
         if cfg.keepalive == True:
             pass
@@ -90,7 +90,7 @@ def _get(url, headers=None):
         _init()
     try:
         headers = headers or {}
-        headers['user-agent'] = 'WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)'
+        headers['user-agent'] = 'WCS-Python-SDK-{0}(http://wcs.chinanetcenter.com)'.format(__version__)
         if cfg.keepalive == True:
             pass
         else:

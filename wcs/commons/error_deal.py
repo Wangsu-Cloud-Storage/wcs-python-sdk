@@ -6,6 +6,7 @@
 
 CLIENT_ERROR_STATUS = -1
 WCS_REQUEST_ID = 'X-Reqid'
+
 class ParameterError(Exception):
     '''
     自定义参数错误异常
@@ -17,6 +18,17 @@ class ParameterError(Exception):
 
     def __str__(self):
         return self.parameter
+
+class WcsSeriveError(Exception):
+    '''
+    server error
+    '''
+    def __init__(self,seriveerror):
+        super(WcsSeriveError,self).__init__()
+        self.seriveerror = seriveerror
+
+    def __str__(self):
+        return self.seriveerror
 
 
 class WcsError(Exception):
