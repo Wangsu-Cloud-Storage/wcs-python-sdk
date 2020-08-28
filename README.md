@@ -204,7 +204,7 @@ from wcs.services.client import Client
 
 config_file = os.path.join(expanduser("~"), ".wcscfg")
 cfg = Config(config_file) #加载配置文件
-cli = Client(cfg) 初始化Client
+cli = Client(cfg) 初始化Client  #注：如果要使用多线程同时上传不同文件，请每个线程独立创建client使用，否则不同文件的分片上传信息会重叠
 ```
 
 #### [普通上传](https://wcs.chinanetcenter.com/document/API/FileUpload/Upload)
