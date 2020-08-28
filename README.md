@@ -227,6 +227,18 @@ cli.multipart_upload(filepath, bucket, key，upload_id)
 ```
 另外，当前上传记录的格式是在tmp\_record\_folder目录下，生成已当前上传任务的upload id命名的目录，然后在目录tmp\_record\_folder/upload id下生成多个文件，每个文件以块offset命名，并记录了这个块的上传结果
 
+#### [高级上传](https://wcs.chinanetcenter.com/document/API/FileUpload/SliceUpload)
+1 该接口用于自动选择是原子上传还是分片上传，默认的multi_size 为20M （入参单位为M），小于等于20M 使用原子上传，大于20M使用分片上传
+2 上传策略通过编辑.wcscfg文件中响应的配置项进行定义，断点续传需要提供upload id，在上传时传入，这个upload id优先级高于在.wcscfg中配置的upload id
+```
+key = ''
+bucket = ''
+filepath = ''
+upload_id = ''
+cli.smart_upload(filepath, bucket, key, upload_id,multi_size)
+```
+另外，当前上传记录的格式是在tmp\_record\_folder目录下，生成已当前上传任务的upload id命名的目录，然后在目录tmp\_record\_folder/upload id下生成多个文件，每个文件以块offset命名，并记录了这个块的上传结果
+
 #### 流地址上传
 上传策略通过编辑.wcscfg文件中相应的配置项进行定义，上传时需要提供流地址
 ```
