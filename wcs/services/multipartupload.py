@@ -237,6 +237,7 @@ class MultipartUpload(object):
         code,text,logid = _post(url=url,headers=headers,data=body)
         while mkfile_retries and self.__need_retry(code):
             code,text,logid = _post(url=url,headers=headers,data=body)
+            mkfile_retries -= 1
         self.recorder.delete_upload_record()
         return code,text,logid
 
