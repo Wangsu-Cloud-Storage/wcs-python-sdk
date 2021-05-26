@@ -17,6 +17,7 @@ class WcsTestCases(unittest.TestCase):
         self.cli = Client(self.cfg)
         self.bucket = 'qz-region98-restupload-caiyz'
  
+    # 普通上传
     def test_simple_upload(self):
         key = '20180408.jpg'
         path = 'E:\\simpleupload.py'
@@ -24,15 +25,24 @@ class WcsTestCases(unittest.TestCase):
         debug(return_data)
         debug(return_data[0])
 
+    # 流数据上传
     def test_stream_upload(self):
         stream = 'http://www.example.com/1.doc'
         key = '1.doc'
         debug(self.cli.stream_upload(stream, self.bucket, key))
-        
+    
+    # 分片上传
     def test_multipart_upload(self):
         path = ''
         key = ''
         debug(self.cli.multipart_upload(path, self.bucket, key))
+        
+    # 智能上传（文件大于10M启用分片上传，有同名文件直接覆盖）
+    def test_samrt_upload(self):
+        path = '/root/caiyz/data/14M'
+        key = '100-2M'
+        self.cfg.overwrite =1
+        debug(self.cli.smart_upload(path, self.bucket, key, multi_size=10))
         
     def test_bucket_list(self):
         debug(self.cli.bucket_list(self.bucket))
