@@ -235,7 +235,7 @@ key = ''
 bucket = ''
 filepath = ''
 upload_id = ''
-cli.smart_upload(filepath, bucket, key, upload_id, multi_size=20)
+cli.smart_upload(filepath, bucket, key, multi_size=20)
 ```
 另外，当前上传记录的格式是在tmp\_record\_folder目录下，生成已当前上传任务的upload id命名的目录，然后在目录tmp\_record\_folder/upload id下生成多个文件，每个文件以块offset命名，并记录了这个块的上传结果
 
