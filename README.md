@@ -6,21 +6,19 @@ wcs-python-sdk从v4.0.0版本开始，既可作为Python SDK使用，也可作�
 
 * SDK的功能包括：文件上传、资源管理、高级资源管理、持久化处理、相应操作状态查询以及直播录制文件查询。
 * 命令行工具的功能包括：普通上传、分片上传、资源管理、按前缀删除文件
-* 此Python SDK适用于python 2.X
+* 此Python SDK适用于python 2.X，如需python 3.x版本请参考：[wcs-python3-sdk](https://github.com/Wangsu-Cloud-Storage/wcs-python3-sdk)
 
 ## 安装
 推荐使用pip安装
 
 * 直接安装
 ```
-Python2：pip install wcs-python-sdk
-Python3：pip install wcs-python3-sdk
+pip install wcs-python-sdk
 ```
 
 * 更新方式
 ```
-Python2：pip install -U wcs-python-sdk
-Python3：pip install -U wcs-python3-sdk
+pip install -U wcs-python-sdk
 ```
 
 ## 初始化
