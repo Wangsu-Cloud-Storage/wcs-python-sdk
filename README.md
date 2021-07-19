@@ -215,13 +215,14 @@ cli.simple_upload(filepath, bucket, key)
 ```
 
 #### [分片上传](https://wcs.chinanetcenter.com/document/API/FileUpload/SliceUpload)
-上传策略通过编辑.wcscfg文件中响应的配置项进行定义，断点续传需要提供upload id，在上传时传入，这个upload id优先级高于在.wcscfg中配置的upload id
+上传策略通过编辑.wcscfg文件中响应的配置项进行定义，如需使用断点续传时才需要提供upload id，在上传时传入，这个upload id优先级高于在.wcscfg中配置的upload id
 ```
 key = ''
 bucket = ''
 filepath = ''
 upload_id = ''
-cli.multipart_upload(filepath, bucket, key，upload_id)
+cli.multipart_upload(filepath, bucket, key)  // 不启用断点续传
+cli.multipart_upload(filepath, bucket, key，upload_id)  // 启用断点续传
 ```
 另外，当前上传记录的格式是在tmp\_record\_folder目录下，生成已当前上传任务的upload id命名的目录，然后在目录tmp\_record\_folder/upload id下生成多个文件，每个文件以块offset命名，并记录了这个块的上传结果
 
