@@ -8,7 +8,7 @@ except (ImportError, SyntaxError):
     import json
 from wcs.commons.compat import urlparse
 from hashlib import sha1
-from wcs.commons.util import urlsafe_base64_encode, urlsafe_base64_decode
+from wcs.commons.util import urlsafe_base64_encode, urlsafe_base64_decode,datetime_timestamp
 from datetime import datetime
 import time
 
@@ -33,8 +33,10 @@ class Auth(object):
         return: uploadtoken
         """
         current = int(time.mktime(datetime.now().timetuple())) * 1000
-        if 'deadline' not in putPolicy.keys() or putPolicy['deadline'] > current:
+        if 'deadline' not in putPolicy.keys():
             putPolicy['deadline'] = current + 7200000
+        else:
+            putPolicy['deadline'] = datetime_timestamp(int(putPolicy['deadline']))
 
         jsonputPolicy = json.dumps(putPolicy)
         #encodePutPolicy = base64.b64encode(jsonputPolicy)

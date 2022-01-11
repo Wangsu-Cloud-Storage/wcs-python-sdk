@@ -283,7 +283,8 @@ def run_configure(config_file):
         ("ishttps", "IsHttps", "Use https or not"),
         ("isverify", "isverify", "Use verify or not"),
         ("mode", "mode", "List objects mode"),
-        ("keepalive", "keepalive", "request to use keepalive mode")
+        ("keepalive", "keepalive", "request to use keepalive mode"),
+        ("deadline", "deadline", "token expiration time")
     ]
     try:
         while True:
@@ -393,7 +394,7 @@ def main():
     optparser.add_option("--detectntyurl", dest="detectntyurl", help="Url for detect notify")
     optparser.add_option("--detectntyrule", dest="detectntyrule", help="RUle for ectect notify")
     optparser.add_option("--hashalgorithm", dest="hashalgorithm", help="Hash algorithm, currently supports 'crc64ecma' for calculating 64-bit CRC value.")#add by caiyz 2020-07-13
-
+    optparser.add_option("--deadline", dest="deadline",help="Token expiration time,Unit is second")  # add by caiyz 2022-01-11
     optparser.set_description("Wcscmd is a tool for managing objects in WCS Object Storage."
                               + " It allows for uploading, downloading and removing objects form buckets")
 
@@ -407,7 +408,7 @@ def main():
     # if run_config:
     try:
         debug(u"wcscmd version {0}".format(__version__))
-    except ValueError, e:
+    except ValueError as e:
         debug(u"Get Version Fail :%s" % e)
     if options.run_config:
         run_configure(options.config)
@@ -465,6 +466,11 @@ def main():
         cfg.detectNotifyRule = options.detectntyrule
     if options.hashalgorithm:
         cfg.hashAlgorithm = options.hashalgorithm
+    if options.deadline:
+        try:
+            cfg.deadline = int(options.deadline)
+        except ValueError:
+            raise ParameterError('deadline must be an integer.')
     if options.dump_config:
         cfg.dump_config(sys.stdout)
         sys.exit()

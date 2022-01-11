@@ -2,8 +2,10 @@
 from hashlib import sha1
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 import base64
-import os,re
+import os,re,time
+import logging
 import crcmod
+import datetime
 
 from wcs.commons.compat import b, s
 import tempfile
@@ -210,3 +212,15 @@ def https_check(url):
     #     return "https://" + url
     # else:
     #     return "http://" + url
+
+def get_afterdate(days=1):
+    today = datetime.date.today()
+    afterdate = today + datetime.timedelta(days=days)
+    aftertime = afterdate.strftime("%Y-%m-%d")
+    return aftertime
+
+#鉴权token 使用的deadline时间格式
+def datetime_timestamp(seconds):
+    current = int(time.mktime(datetime.datetime.now().timetuple())) * 1000
+    token_time =  current + int(seconds)*1000
+    return token_time

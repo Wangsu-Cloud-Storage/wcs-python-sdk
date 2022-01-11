@@ -47,3 +47,5 @@ class PutPolicy(object):
             self.set_conf('detectNotifyRule', str(cfg.detectNotifyRule))
         if cfg.hashAlgorithm:
             self.set_conf('hashAlgorithm', str(cfg.hashAlgorithm))
+        if cfg.deadline:
+            self.set_conf('deadline', str(cfg.deadline))
