@@ -102,7 +102,7 @@ def cmd_get(args):
         try:
             if int(cfg.traffic_limit):
                 headers['x-wos-traffic-limit'] = '{0}'.format(cfg.traffic_limit)
-        except Exception as error:
+        except Exception as e:
             raise ValueError('traffic_limit parameter configuration error：{0}'.format(cfg.traffic_limit))
         if cfg.isverify:
             res = requests.get(url_encode,headers=headers)

@@ -42,7 +42,7 @@ class SimpleUpload(object):
         try:
             if int(self.cfg.traffic_limit):
                 headers['x-wos-traffic-limit'] = '{0}'.format(self.cfg.traffic_limit)
-        except Exception as error:
+        except Exception as e:
             raise ValueError('traffic_limit parameter configuration error：{0}'.format(self.cfg.traffic_limit))
         m = encoder.to_string()
         return url, m, headers

@@ -42,7 +42,7 @@ def __return_wrapper(resp):
                 return resp.status_code, resp.headers['Location'], resp_header
             resp_header = resp.headers
             return -2, {'message':'Message Body is None. Please check your URL.'}, resp_header
-    except Exception as error:
+    except Exception as e:
         return -2, {'message':'Some abnormal error occurred on the server.'}, {'x-reqid': 'None'}
 
 def _init():

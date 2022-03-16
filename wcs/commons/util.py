@@ -77,8 +77,8 @@ def crc64(data):
         _XOROUT = 0xffffffffffffffff
         c64 = crcmod.mkCrcFun(_POLY, initCrc=0, xorOut=_XOROUT, rev=True)
         return str(c64(data))
-    except Exception as error:
-        raise ParameterError('calculation failed. {0}'.format(error))
+    except Exception as e:
+        raise ParameterError('calculation failed. {0}'.format(e))
 
 def file_crc64(file,block_size=16*1024,is_path=True):
     """计算整个文件的crc64检验码:
@@ -115,8 +115,8 @@ def file_crc64(file,block_size=16*1024,is_path=True):
         return str(local_crc64)
     except IOError:
         raise ParameterError('file does not exist')
-    except Exception as error:
-        raise ParameterError('calculation failed. {0}'.format(error))
+    except Exception as e:
+        raise ParameterError('calculation failed. {0}'.format(e))
 
 def _file_iter(input_stream,offset,size):
     """读取输入流:
