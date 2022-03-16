@@ -138,6 +138,11 @@ class MultipartUpload(object):
     def __generate_headers(self):
         headers = {'Authorization':self.token}
         headers['uploadBatch'] = self.uploadBatch
+        try:
+            if int(self.cfg.traffic_limit):
+                headers['x-wos-traffic-limit'] = '{0}'.format(self.cfg.traffic_limit)
+        except Exception as error:
+            raise ValueError('traffic_limit parameter configuration error：{0}'.format(self.cfg.traffic_limit))
         return headers
 
     def _mlk_url(self, offset):

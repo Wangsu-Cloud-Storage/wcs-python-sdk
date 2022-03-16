@@ -74,6 +74,7 @@ class Config(object):
     detectNotifyRule = ''
     hashAlgorithm = ''
     deadline = 7200  # token过期时间,默认2小时
+    traffic_limit = 0  # 限流配置，0表示不限制。
 
     ## Creating a singleton
     def __new__(self, configfile=None, ak=None, sk=None, put_url=None, mgr_url=None ):

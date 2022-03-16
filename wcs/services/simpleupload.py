@@ -10,7 +10,8 @@ from wcs.commons.config import Config
 from wcs.commons.logme import debug,error
 from wcs.commons.util import https_check
 from requests.adapters import HTTPAdapter
-
+from wcs.commons.config import Config
+from wcs import __version__
 #config_file = os.path.join(expanduser("~"), ".wcscfg")
 
 class SimpleUpload(object):
@@ -37,10 +38,16 @@ class SimpleUpload(object):
         encoder = MultipartEncoder(fileds)
         headers = {"Content-Type":encoder.content_type}
         headers['Expect'] = '100-continue'
-        headers['user-agent'] = "WCS-Python-SDK-4.0.0(http://wcs.chinanetcenter.com)"
-        return url, encoder, headers  
-    
-    def _gernerate_content(self,path):
+        headers['user-agent'] = "WCS-Python-SDK-{0}(http://wcs.chinanetcenter.com)".format(__version__)
+        try:
+            if int(self.cfg.traffic_limit):
+                headers['x-wos-traffic-limit'] = '{0}'.format(self.cfg.traffic_limit)
+        except Exception as error:
+            raise ValueError('traffic_limit parameter configuration error：{0}'.format(self.cfg.traffic_limit))
+        m = encoder.to_string()
+        return url, m, headers
+
+    def _gernerate_content(self, path):
         return open(path, 'rb')
 
     def _upload(self,url,encoder,headers,f):

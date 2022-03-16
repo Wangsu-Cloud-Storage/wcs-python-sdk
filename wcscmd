@@ -98,10 +98,16 @@ def cmd_get(args):
             else:
                 filename = url.split('/')[-1]
                 key = os.path.join(os.getcwd(), filename)
+        headers = {}
+        try:
+            if int(cfg.traffic_limit):
+                headers['x-wos-traffic-limit'] = '{0}'.format(cfg.traffic_limit)
+        except Exception as error:
+            raise ValueError('traffic_limit parameter configuration error：{0}'.format(cfg.traffic_limit))
         if cfg.isverify:
-            res = requests.get(url_encode)
+            res = requests.get(url_encode,headers=headers)
         else:
-            res = requests.get(url_encode,verify=False)
+            res = requests.get(url_encode,verify=False,headers=headers)
         if res.status_code == 200:
             debug("Download suc.")
             debug("return headers:{0}".format(res.headers))
@@ -284,7 +290,8 @@ def run_configure(config_file):
         ("isverify", "isverify", "Use verify or not"),
         ("mode", "mode", "List objects mode"),
         ("keepalive", "keepalive", "request to use keepalive mode"),
-        ("deadline", "deadline", "token expiration time")
+        ("deadline", "deadline", "token expiration time"),
+        ("traffic_limit", "traffic_limit", "traffic limit")
     ]
     try:
         while True:
@@ -394,9 +401,9 @@ def main():
     optparser.add_option("--detectntyurl", dest="detectntyurl", help="Url for detect notify")
     optparser.add_option("--detectntyrule", dest="detectntyrule", help="RUle for ectect notify")
     optparser.add_option("--hashalgorithm", dest="hashalgorithm", help="Hash algorithm, currently supports 'crc64ecma' for calculating 64-bit CRC value.")#add by caiyz 2020-07-13
-    optparser.add_option("--deadline", dest="deadline",help="Token expiration time,Unit is second")  # add by caiyz 2022-01-11
-    optparser.set_description("Wcscmd is a tool for managing objects in WCS Object Storage."
-                              + " It allows for uploading, downloading and removing objects form buckets")
+    optparser.add_option("--deadline", dest="deadline",help="Token expiration time,Unit is second")  # add by caiyz 2021-08-16
+    optparser.add_option("--traffic_limit", dest="traffic_limit",help="Upload/Download traffic limit")  # add by caiyz 2022-03-15
+    optparser.set_description("Wcscmd is a tool for managing objects in WCS Object Storage." + " It allows for uploading, downloading and removing objects form buckets")
 
     optparser.epilog = format_commands(optparser.get_prog_name(), commands_list)
     optparser.epilog += "\n\nFor more information, visit WCS website: https://wcs.chinanetcenter.com/index\n"
@@ -471,6 +478,11 @@ def main():
             cfg.deadline = int(options.deadline)
         except ValueError:
             raise ParameterError('deadline must be an integer.')
+    if options.traffic_limit:
+        try:
+            cfg.traffic_limit = int(options.traffic_limit)
+        except ValueError:
+            raise ParameterError('"traffic_limit" must be an integer.')
     if options.dump_config:
         cfg.dump_config(sys.stdout)
         sys.exit()
