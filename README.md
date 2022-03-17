@@ -105,7 +105,7 @@ Multipart upload a local file to WCS
 Delete multiple files according to prefix
 	wcscmd deletePrefix wcs://BUCKET PREFIX
 Fops audio/video processing
-	wcscmd fops wcs://BUCKET/OBJECT fopsparm
+	wcscmd fops wcs://BUCKET/OBJECT "fopsparam"   // 避免fopsparam中可能的|导致字符串被切割，可将fopsparam加上双引号
 Get fops task results
 	wcscmd fopsStatus  persistentId
 Get fmgr task results
