@@ -81,6 +81,64 @@ Windows系统执行命令需要添加python再执行,如python wcscmd --help
 #### 查阅工具使用说明
 ```
 wcscmd --help
+Usage: wcscmd [options] COMMAND [parameters]
+
+Wcscmd is a tool for managing objects in WCS Object Storage. It allows for
+uploading, downloading and removing objects form buckets
+
+Options:
+  -h, --help            show this help message and exit
+  --configure           Invoke interactive (re)configuration tool.
+  -c FILE, --config=FILE
+                        Config file name. Defaults to $HOME/.wcscfg
+  --dump-config         Dump current configuration after parsing config file
+                        and command line options and exit.
+  -s, --ssl             Use https connection when communicating with WCS
+  --upload-id=UPLOAD_ID
+                        UploadId for Multipart Upload, in case you want
+                        continue an existing upload
+  --limit=LIMIT         Limit for list objects of bucket
+  --prefix=PREFIX       Prefix for list objects of bucket
+  --mode=MODE           Mode for list objects of bucket
+  --marker=MARKER       Start string for list
+  --relevance           Whether modify deadline relevant .ts when modify
+                        deadline of m3u8 file
+  --debug=DEBUG         Enable debug output.
+  --output=OUTPUT       Save request result to specified key,
+                        like:<bucket>:<key>
+  --notify=NOTIFYURL    Notify url for request result
+  --separate=SEPARATE   Whether separate notify, bool type
+  --force=FORCE         Whether to enforce data processing, bool type
+  --overwrite=OVERWRITE
+                        Whether overwrite existed key, bool type
+  --returnurl=RETURL    Url for return
+  --returnbody=RETBODY  Body of return
+  --callbackurl=CBURL   Url for callback
+  --callbackbody=CBBODY
+                        Body of callback
+  --persistentntyurl=PERSISTENTNTYURL
+                        Url for persistent ops notify
+  --persistentops=PERSISTENTOPS
+                        Persistent ops
+  --contentdetect=CONTENTDETECT
+                        Content detect type
+  --detectntyurl=DETECTNTYURL
+                        Url for detect notify
+  --detectntyrule=DETECTNTYRULE
+                        RUle for ectect notify
+  --hashalgorithm=HASHALGORITHM
+                        Hash algorithm, currently supports 'crc64ecma' for
+                        calculating 64-bit CRC value.
+  --deadline=DEADLINE   Token expiration time,Unit is second
+  --startdate=STARTDATE
+                        Start date
+  --enddate=ENDDATE     End date
+  --islistdetails=ISLISTDETAILS
+                        Is list details
+  --storagetype=STORAGETYPE
+                        storage type
+  --traffic_limit=TRAFFIC_LIMIT
+                        Upload/Download traffic limit
 Commands:
 List objects  支持后面加参数 如--prefix aa
 	wcscmd list wcs://BUCKET RESFILE
