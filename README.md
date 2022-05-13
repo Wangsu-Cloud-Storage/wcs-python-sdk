@@ -299,6 +299,7 @@ key = ''
 bucket = ''
 filepath = ''
 upload_id = ''
+// 由SDK自动生成一个随机的upload_id
 cli.smart_upload(filepath, bucket, key, multi_size=20)
 
 // 使用客户自定义的upload id（客户自定义的一串唯一字符串），作为分片上传ID，可用于实现断点续传，SDK识别相同upload id有未完成的上传任务后，会从断点处继续上传
