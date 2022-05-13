@@ -294,7 +294,7 @@ filepath = ''
 upload_id = ''
 cli.smart_upload(filepath, bucket, key, multi_size=20)
 
-// 使用客户自定义的upload id（客户自定义的一串唯一字符串），作为分片上传ID，可用于实现断点续传
+// 使用客户自定义的upload id（客户自定义的一串唯一字符串），作为分片上传ID，可用于实现断点续传，SDK识别相同upload id有未完成的上传任务后，会从断点处继续上传
 cli.smart_upload(filepath, bucket, key, upload_id, multi_size=20)
 ```
 另外，当前上传记录的格式是在tmp\_record\_folder目录下，生成已当前上传任务的upload id命名的目录，然后在目录tmp\_record\_folder/upload id下生成多个文件，每个文件以块offset命名，并记录了这个块的上传结果
