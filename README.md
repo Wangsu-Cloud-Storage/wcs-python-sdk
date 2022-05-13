@@ -263,6 +263,13 @@ cfg = Config(config_file) #加载配置文件
 cli = Client(cfg) 初始化Client  #注：如果要使用多线程同时上传不同文件，请每个线程独立创建client使用，否则不同文件的分片上传信息会重叠
 ```
 
+SDK通用参数说明
+|参数名|参数说明|
+|--|--|
+|bucket|空间名称，需要在云存储控制台提前创建|
+|key|文件名称，文件存储在云存储上的完整名称，如index.html、html/index.html等|
+|filepath|文件的本地路径|
+
 #### [普通上传](https://wcs.chinanetcenter.com/document/API/FileUpload/Upload)
 上传策略通过编辑.wcscfg文件中响应的配置项进行定义
 ```
@@ -308,19 +315,19 @@ stream = ''
 cli.stream_upload(stream, bucket, key)
 ```
 
-#### [列举空间列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/listbucket)
+#### 列举空间列表
 ```
 cli.list_buckets()
-说明：prefix 参数传入不需要base64安全编码
 ```
 
-#### [列举空间对象列表](https://wcs.chinanetcenter.com/document/API/ResourceManage/list)
+#### 列举空间对象列表
 接口相关的4个可选参数（limit，mode，prefix，marker）可以在调用时传入，也可以通过.wcscfg文件中相应的配置项进行定义
 ```
 cli.bucket_list(bucket,limit=10)
+说明：prefix 参数传入不需要base64安全编码
 ```
 
-#### [获取空间存储量](https://wcs.chinanetcenter.com/document/API/ResourceManage/bucketstat)
+#### 获取空间存储量
 ```
 startdate = '2017-11-10'
 enddate = '2017-11-12'
@@ -328,47 +335,47 @@ bucket = ''
 cli.bucket_stat(bucket, startdate, enddate)
 ```
 
-#### [获取文件信息](https://wcs.chinanetcenter.com/document/API/ResourceManage/stat)
+#### 获取文件信息
 ```
 key = ''
 bucket = ''
 cli.stat(bucket, key)
 ```
 
-#### [文件删除](https://wcs.chinanetcenter.com/document/API/ResourceManage/delete)（同步）
+#### 文件删除
 ```
 key = ''
 bucket = ''
 cli.delete(bucket, key)
 ```
 
-#### [文件移动](https://wcs.chinanetcenter.com/document/API/ResourceManage/move)（同步）
+#### 文件移动
 ```
-srcbucket = ''
-srckey = ''
-dstbucket = ''
-dstkey = ''
+srcbucket = ''  //源空间名称
+srckey = ''     //源文件名称
+dstbucket = ''  //目标空间名称
+dstkey = ''     //目标文件名称
 cli.move(srcbucket, srckey, dstbucket, dstkey)
 ```
 
-#### [文件复制](https://wcs.chinanetcenter.com/document/API/ResourceManage/copy)（同步）
+#### 文件复制
 ```
-srcbucket = ''
-srckey = ''
-dstbucket = ''
-dstkey = ''
+srcbucket = ''  //源空间名称
+srckey = ''     //源文件名称
+dstbucket = ''  //目标空间名称
+dstkey = ''     //目标文件名称
 cli.copy(srcbucket, srckey, dstbucket, dstkey)
 ```
 
-#### [设置文件过期时间](https://wcs.chinanetcenter.com/document/API/ResourceManage/setdeadline)
+#### 设置文件过期时间
 ```
 bucket = ''
 key = ''
-deadline = 3
+deadline = 3 //文件的过期时间，如配置3，则文件会在当天日期的3天后被过期删除
 cli.setdeadline(bucket, key, deadline)
 ```
 
-#### [文件移动](https://wcs.chinanetcenter.com/document/API/Fmgr/move)（异步）
+#### 文件移动
 ```
 srcbucket = 'srcbucket'
 srckey = '1.doc'
@@ -379,20 +386,20 @@ fops = 'resource/%s/bucket/%s/key/%s' % (resource,urlsafe_base64_encode(dstbucke
 cli.fmgr_move(fops)
 ```
 
-#### [文件复制](https://wcs.chinanetcenter.com/document/API/Fmgr/copy)（异步）
+#### 文件复制
 ```
-srcbucket = 'srcbucket'
-srckey = '1.doc'
-dstbucket = 'dstbucket'
-dstkey = '2.doc'
+srcbucket = 'srcbucket'  //源空间名称
+srckey = '1.doc'        //源文件名称
+dstbucket = 'dstbucket'   //目标空间名称
+dstkey = '2.doc'          //目标文件名称
 resource = urlsafe_base64_encode('%s:%s' % (srcbucket,srckey))
 fops = 'resource/%s/bucket/%s/key/%s' % (resource,urlsafe_base64_encode(dstbucket), urlsafe_base64_encode(dstkey))
 cli.fmgr_copy(fops)
 ```
 
-#### [文件抓取](https://wcs.chinanetcenter.com/document/API/Fmgr/fetch)
+#### 文件抓取
 ```
-url = 'http://a20170704-weihb.w.wcsapi.biz.matocloud.com/1.doc'
+url = 'http://a20170704-weihb.w.wcsapi.biz.matocloud.com/1.doc'  //需要抓取的文件地址（需要支持公网访问）
 key = '1.doc'
 bucket = 'test'
 fetchurl = urlsafe_base64_encode(url)
@@ -412,9 +419,9 @@ fops = 'bucket/%s/key/%s' % (enbucket, enkey)
 cli.fmgr_delete(fops)
 ```
 
-#### [按前缀删除文件](https://wcs.chinanetcenter.com/document/API/Fmgr/deletePrefix)
+#### 按前缀删除文件
 ```
-prefix = 'test'
+prefix = 'test/'   //需要删除的文件共同前缀，如prefix=test/，则会删除根路径下test目录下的所有文件
 bucket = 'bucket'
 enbucket = urlsafe_base64_encode(bucket)
 enprefix = urlsafe_base64_encode(prefix)
@@ -422,7 +429,7 @@ fops = 'bucket/%s/prefix/%s' % (enbucket, enprefix)
 cli.prefix_delete(fops)
 ```
 
-#### [删除M3U8文件](https://wcs.chinanetcenter.com/document/API/Fmgr/deletem3u8)
+#### 删除M3U8文件
 ```
 bucket = ''
 key = ''
@@ -438,11 +445,11 @@ persistentId = ''
 cli.fmgr_status(persistentId)
 ```
 
-#### [音视频处理](https://wcs.chinanetcenter.com/document/API/Video-op)
+#### 音视频处理
 ```
 bucket = 'test'
 key = 'test.mp4'
-fops = 'vframe/jpg/offset/1'
+fops = 'vframe/jpg/offset/1'   // 转码指令
 cli.ops_execute(fops,bucket,key)
 ```
 
@@ -462,7 +469,7 @@ cli.ops_execute(fops,bucket,key)
 示例：cli.wslive_list(channelname,startTime,startTime, bucket,start,limit)
 ```
 
-#### 计算文件crc64的三种方式#####
+#### 计算文件crc64的三种方式
 ## 方式1：
 wcscmd[计算文件的crc64值]
 ```wcscmd crc64 ./test-1k```
