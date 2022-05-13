@@ -280,7 +280,7 @@ bucket = ''
 filepath = ''
 upload_id = ''
 cli.multipart_upload(filepath, bucket, key)  // 不启用断点续传
-cli.multipart_upload(filepath, bucket, key，upload_id)  // 启用断点续传
+cli.multipart_upload(filepath, bucket, key，upload_id)  // 启用断点续传，使用客户自定义的唯一字符串作为upload id
 ```
 另外，当前上传记录的格式是在tmp\_record\_folder目录下，生成已当前上传任务的upload id命名的目录，然后在目录tmp\_record\_folder/upload id下生成多个文件，每个文件以块offset命名，并记录了这个块的上传结果
 
@@ -292,6 +292,9 @@ key = ''
 bucket = ''
 filepath = ''
 upload_id = ''
+cli.smart_upload(filepath, bucket, key, multi_size=20)
+
+// 使用客户自定义的upload id（客户自定义的一串唯一字符串），作为分片上传ID，可用于实现断点续传
 cli.smart_upload(filepath, bucket, key, upload_id, multi_size=20)
 ```
 另外，当前上传记录的格式是在tmp\_record\_folder目录下，生成已当前上传任务的upload id命名的目录，然后在目录tmp\_record\_folder/upload id下生成多个文件，每个文件以块offset命名，并记录了这个块的上传结果
