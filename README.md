@@ -333,7 +333,7 @@ cli.multipart_upload(filepath, bucket, key，<upload_id>)
 另外，当前上传记录的格式是在tmp\_record\_folder目录下，生成已当前上传任务的upload id命名的目录，然后在目录tmp\_record\_folder/upload id下生成多个文件，每个文件以块offset命名，并记录了这个块的上传结果
 
 ### 高级上传
-该接口用于自动选择是put上传还是分片上传，默认的multi_size 为20M （入参单位为M），小于等于20M 使用普通上传，大于20M使用分片上传
+该接口用于自动选择是普通上传还是分片上传，默认的multi_size 为20M （入参单位为M），小于等于20M 使用普通上传，大于20M使用分片上传
 ```
 # bucket：必填，使用实际空间名称填充，如mybucket
 # key：必填，使用文件存储在对象存储上的实际名称填充，如index.html
