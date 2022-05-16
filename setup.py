@@ -46,7 +46,7 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    install_requires=['requests','logging','argparse', 'lockfile', 'requests_toolbelt','pyyaml','crcmod>=1.7'],
+    install_requires=['requests','logging','argparse', 'lockfile', 'requests_toolbelt','pyyaml<=3.13','crcmod>=1.7'],
     entry_points={
         'console_scripts':[
             'wcs_etag_cal = wcs.commons.etag_files:main','wcs_crc64_cal = wcs.commons.crc64_files:main',
