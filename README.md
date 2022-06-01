@@ -316,6 +316,7 @@ SDK通用参数说明
 # bucket：必填，使用实际空间名称填充，如mybucket
 # key：必填，使用文件存储在对象存储上的实际名称填充，如index.html
 # localpath：必填，需要上传文件的本地路径，如/tmp/index.html
+# return  (code, body, logid)，如(200, 'aGFzaD1GcXd0WUdReGM4cmoxQ2pycVVMdlY2MFZnZzND', {'x-reqid': '202129121214715120220601111303Aj327Aycsampled'})
 
 cli.simple_upload(filepath, bucket, key)
 ```
@@ -327,6 +328,7 @@ cli.simple_upload(filepath, bucket, key)
 # key：必填，使用文件存储在对象存储上的实际名称填充，如index.html
 # localpath：必填，需要上传文件的本地路径，如/tmp/index.html
 # upload_id：非必填，如希望做断点续传，可指定容易识别的唯一字符串标识此次分片上传任务
+# return  (code, body, logid)，如(200, {'key': '100-2M', 'hash': 'lkD-baE6ugMtIAGaarh7j6ToUg7h'}, {'x-reqid': '202129121214715120220601111741hVVCYXwFsampled'})
 
 cli.multipart_upload(filepath, bucket, key，<upload_id>)  
 ```
