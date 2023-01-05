@@ -140,6 +140,8 @@ Options:
                         storage type
   --traffic_limit=TRAFFIC_LIMIT
                         Upload/Download traffic limit
+  --upload_id=UPLOAD_ID
+  			UploadId for Multipart Upload, in case you want continue an existing upload
 Commands:
 List objects  支持后面加参数 如--prefix aa
 	wcscmd list wcs://BUCKET RESFILE
@@ -186,6 +188,7 @@ wcscmd put wcs://BUCKET/OBJECT localPath
 // BUCKET：必填，使用实际空间名称填充，如mybucket
 // OBJCET：必填，使用文件存储在对象存储上的实际名称填充，如index.html
 // localPath：必填，需要上传文件的本地路径，如/tmp/index.html
+// --upload-id: 非必填，如希望做断点续传，可指定容易识别的唯一字符串标识此次分片上传任务
 wcscmd multiput wcs://BUCKET/OBJECT localPath
 ```
 
