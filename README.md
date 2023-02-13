@@ -177,7 +177,7 @@ Get fmgr task results
 直接上传，适用于小文件
 ```
 // BUCKET：必填，使用实际空间名称填充，如mybucket
-// OBJCET：必填，使用文件存储在对象存储上的实际名称填充，如index.html
+// OBJCET：必填，使用文件存储在对象存储上的实际名称填充，如index.html或html/index.html（文件名使用/可模拟出目录）
 // localPath：必填，需要上传文件的本地路径，如/tmp/index.html
 wcscmd put wcs://BUCKET/OBJECT localPath
 ```
@@ -186,7 +186,7 @@ wcscmd put wcs://BUCKET/OBJECT localPath
 分片上传大文件，4M以上的文件即可使用分片上传。
 ```
 // BUCKET：必填，使用实际空间名称填充，如mybucket
-// OBJCET：必填，使用文件存储在对象存储上的实际名称填充，如index.html
+// OBJCET：必填，使用文件存储在对象存储上的实际名称填充，如index.html或html/index.html（文件名使用/可模拟出目录）
 // localPath：必填，需要上传文件的本地路径，如/tmp/index.html
 // --upload-id: 非必填，如希望做断点续传，可指定容易识别的唯一字符串标识此次分片上传任务
 wcscmd multiput wcs://BUCKET/OBJECT localPath
