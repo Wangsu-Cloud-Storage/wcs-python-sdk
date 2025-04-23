@@ -212,7 +212,7 @@ wcscmd list wcs://BUCKET localPath --marker <marker>
 ```
 // URL：必填，由域名+文件名称组成，url需要用''引号包含起来
 // fileName： 非必填，文件下载到本地的名称，默认为原文件名
-wcscmd get ['URL'] [filename]
+wcscmd get 'URL' filename
 ```
 
 ### wcscmd-获取文件信息
