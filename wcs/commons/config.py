@@ -16,7 +16,7 @@ class Config(object):
     mgr_url = ''
     # 设置分片上传的块大小和片大小，单位均为字节
     block_size = 1024 * 1024 * 4
-    bput_size = 512 * 1024
+    bput_size = 1024 * 1024 * 4
 
     # 设置请求连接超时重传次数
     connection_retries = 3
