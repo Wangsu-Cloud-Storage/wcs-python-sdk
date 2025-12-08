@@ -1,9 +1,5 @@
-# WCS Python SDK使用说明
-## [README of English](https://github.com/Wangsu-Cloud-Storage/wcs-python-sdk/blob/master/README-EN.md)
-- [概览](#概览)
-- [安装](#安装)
-- [命令行工具使用](#命令行工具使用)
-- [SDK使用](#sdk使用)
+
+## [README of English](README.en.md)
 
 ## 概览
 1. wcs-python-sdk既可作为网宿对象存储SDK使用，也可作为命令行工具使用。
