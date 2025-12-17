@@ -131,8 +131,11 @@ def _simple_arg_parse(arg):
     try:
         tmp = arg.split("wcs://")[1]
         if '/' in tmp:
-            bucket = tmp.split('/')[0]
-            obj = tmp.split(bucket + '/')[1]
+            # Use split and join approach to avoid truncation when object name contains bucket name
+            # This ensures the entire object path is preserved even if it includes the bucket name
+            parts = tmp.split('/')
+            bucket = parts[0]
+            obj = '/'.join(parts[1:])
         else:
             bucket = tmp
             obj = ''
